@@ -13,17 +13,25 @@ import java_cup.runtime.*;
 
 /* Terminals (lexical tokens returned by the scanner): */
 
+/*
+ * artifact terminals from demo.
+ * TODO: remove once we've moved onto the scanner
+ */
+terminal DISPLAY, BECOMES;
+
 /* reserved words */
-terminal DISPLAY;
+terminal BOOLEAN, CLASS, EXTENDS, FALSE, IF, INT, LENGTH, MAIN,
+         NEW, PUBLIC, RETURN, STATIC, STRING, PRINT, THIS, TRUE, VOID, WHILE;
 
 /* operators */
-terminal PLUS, BECOMES;
+terminal PLUS, MINUS, MULT, LESS_THAN, EQUALS, NOT, AND;
 
 /* delimiters */
-terminal LPAREN, RPAREN, SEMICOLON;
+terminal LPAREN, RPAREN, LSQUARE, RSQUARE, LCURL, RCURL, SEMICOLON, COMMA, DOT;
 
 /* identifiers */
 terminal String IDENTIFIER;
+terminal int INT_LITERAL;
 
 
 /* Nonterminals (constructed by parser): */
