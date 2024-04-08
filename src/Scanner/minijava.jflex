@@ -117,6 +117,7 @@ white = {eol}|[ \t]
 /* reserved words (first so that they take precedence over identifiers) */
 "boolean" { return symbol(sym.BOOLEAN); }
 "class" { return symbol(sym.CLASS); }
+"else" { return symbol(sym.ELSE); }
 "extends" { return symbol(sym.EXTENDS); }
 "false" { return symbol(sym.FALSE); }
 "if" { return symbol(sym.IF); }
