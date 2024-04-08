@@ -38,6 +38,11 @@ public class TestScanner {
     }
 
     @Test
+    public void testEndOfFile() {
+        runScannerSuccessTestCase("EndOfFile");
+    }
+
+    @Test
     public void testTrickyComments() {
         runScannerSuccessTestCase("TrickyComments");
     }

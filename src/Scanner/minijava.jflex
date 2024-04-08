@@ -166,7 +166,7 @@ white = {eol}|[ \t]
 }
 
 /* comments */
-((\/\*)([^*/]|(\**[^*/])|\/)*(\**)(\*\/))|((\/\/)[^{eol}]*{eol}) { /* ignore comments */ }
+((\/\*)([^*/]|(\**[^*/])|\/)*(\**)(\*\/))|((\/\/)[^{eol}]*) { /* ignore comments */ }
 
 /* whitespace */
 {white}+ { /* ignore whitespace */ }

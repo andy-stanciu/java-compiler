@@ -53,7 +53,7 @@ precedence left AND;
 precedence nonassoc LESS_THAN;
 precedence left PLUS, MINUS;
 precedence left MULT;
-precedence right NEW; // is this an okay precedence declaration to have
+// precedence right NEW; // is this an okay/necessary precedence to have? There are no SR conflicts without it
 precedence right NOT;
 // precedences for parentheses (), member access ., array access [] ??
 
