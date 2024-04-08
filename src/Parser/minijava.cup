@@ -20,7 +20,7 @@ import java_cup.runtime.*;
 terminal DISPLAY, BECOMES;
 
 /* reserved words */
-terminal BOOLEAN, CLASS, EXTENDS, FALSE, IF, INT, LENGTH, MAIN,
+terminal BOOLEAN, CLASS, ELSE, EXTENDS, FALSE, IF, INT, LENGTH, MAIN,
          NEW, PUBLIC, RETURN, STATIC, STRING, PRINT, THIS, TRUE, VOID, WHILE;
 
 /* operators */
