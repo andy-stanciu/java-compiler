@@ -91,11 +91,32 @@
     </java>
   </target>
 
+  <target name="scanner" depends="compile">
+    <java classname="MiniJava" classpath="build/classes;lib/*"
+          fork="true">
+      <arg value="-S"/>
+      <arg value="SamplePrograms/SampleMiniJavaPrograms/BinarySearch.java"/>
+      <arg value="SamplePrograms/SampleMiniJavaPrograms/BinaryTree.java"/>
+      <arg value="SamplePrograms/SampleMiniJavaPrograms/BubbleSort.java"/>
+      <arg value="SamplePrograms/SampleMiniJavaPrograms/Factorial.java"/>
+      <arg value="SamplePrograms/SampleMiniJavaPrograms/LinearSearch.java"/>
+      <arg value="SamplePrograms/SampleMiniJavaPrograms/LinkedList.java"/>
+      <arg value="SamplePrograms/SampleMiniJavaPrograms/QuickSort.java"/>
+      <arg value="SamplePrograms/SampleMiniJavaPrograms/TreeVisitor.java"/>
+      <assertions> <enable/> </assertions>
+    </java>
+  </target>
+
   <!-- targets for running test cases -->
 
   <!-- you may want to expand on what's here! -->
 
   <target name="compile-test" depends="compile">
+    <javac srcdir="test/utils" destdir="build/classes"
+           classpath="lib/hamcrest-core-1.3.jar;lib/junit-4.12.jar;lib/java-cup-11b.jar"
+           debug="true"
+           includeAntRuntime="false">
+    </javac>
     <javac srcdir="test/junit" destdir="build/classes"
            classpath="lib/hamcrest-core-1.3.jar;lib/junit-4.12.jar;lib/java-cup-11b.jar"
            debug="true"
@@ -110,7 +131,8 @@
        the test files you want. -->
 
   <target name="test" depends="compile-test">
-    <junit>
+    <junit fork="yes">
+      <jvmarg value="-Djava.security.manager=allow"/>
       <classpath>
       <pathelement location="build/classes" />   
       <pathelement location="lib/hamcrest-core-1.3.jar"/> 

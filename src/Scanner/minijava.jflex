@@ -48,7 +48,7 @@ import Parser.sym;
    * @param code     identifier of the lexical token (i.e., sym.<TOKEN>)
    * @param value    user-controlled datum to associate with this symbol
    * @effects        constructs new ComplexSymbol via this.symbolFactory
-   * @return         a fresh symbol storing the above-desribed information
+   * @return         a fresh symbol storing the above-described information
    */
   private Symbol symbol(int code, Object value) {
     // Calculate symbol location
@@ -67,7 +67,7 @@ import Parser.sym;
    *
    * @param code     identifier of the lexical token (i.e., sym.<TOKEN>)
    * @effects        constructs new ComplexSymbol via this.symbolFactory
-   * @return         a fresh symbol storing the above-desribed information
+   * @return         a fresh symbol storing the above-described information
    */
   private Symbol symbol(int code) {
     // Calculate symbol location
@@ -94,6 +94,8 @@ import Parser.sym;
      ComplexSymbol cs = (ComplexSymbol)s; 
      if (cs.sym == sym.IDENTIFIER) {
        return "ID(" + (String)cs.value + ")";
+     } else if (cs.sym == sym.INT_LITERAL) {
+         return "INT(" + (String)cs.value + ")";
      } else if (cs.sym == sym.error) {
        return "<UNEXPECTED(" + (String)cs.value + ")>";
      } else {
@@ -113,22 +115,58 @@ white = {eol}|[ \t]
 /* Token definitions */
 
 /* reserved words (first so that they take precedence over identifiers) */
-"display" { return symbol(sym.DISPLAY); }
+"boolean" { return symbol(sym.BOOLEAN); }
+"class" { return symbol(sym.CLASS); }
+"else" { return symbol(sym.ELSE); }
+"extends" { return symbol(sym.EXTENDS); }
+"false" { return symbol(sym.FALSE); }
+"if" { return symbol(sym.IF); }
+"int" { return symbol(sym.INT); }
+"length" { return symbol(sym.LENGTH); }
+"main" { return symbol(sym.MAIN); }
+"new" { return symbol(sym.NEW); }
+"public" { return symbol(sym.PUBLIC); }
+"return" { return symbol(sym.RETURN); }
+"static" { return symbol(sym.STATIC); }
+"String" { return symbol(sym.STRING); }
+"System.out.println" { return symbol(sym.PRINT); }
+"this" { return symbol(sym.THIS); }
+"true" { return symbol(sym.TRUE); }
+"void" { return symbol(sym.VOID); }
+"while" { return symbol(sym.WHILE); }
 
 /* operators */
 "+" { return symbol(sym.PLUS); }
-"=" { return symbol(sym.BECOMES); }
+"-" { return symbol(sym.MINUS); }
+"*" { return symbol(sym.MULT); }
+"<" { return symbol(sym.LESS_THAN); }
+"=" { return symbol(sym.EQUALS); }
+"!" { return symbol(sym.NOT); }
+"&&" { return symbol(sym.AND); }
 
 /* delimiters */
 "(" { return symbol(sym.LPAREN); }
 ")" { return symbol(sym.RPAREN); }
+"[" { return symbol(sym.LSQUARE); }
+"]" { return symbol(sym.RSQUARE); }
+"{" { return symbol(sym.LCURL); }
+"}" { return symbol(sym.RCURL); }
 ";" { return symbol(sym.SEMICOLON); }
+"," { return symbol(sym.COMMA); }
+"." { return symbol(sym.DOT); }
 
 /* identifiers */
-{letter} ({letter}|{digit}|_)* {
+{letter}({letter}|{digit}|_)* {
   return symbol(sym.IDENTIFIER, yytext());
 }
 
+/* integer literals */
+0|([1-9]{digit}*) {
+  return symbol(sym.INT_LITERAL, yytext());
+}
+
+/* comments */
+((\/\*)([^*/]|(\**[^*/])|\/)*(\**)(\*\/))|((\/\/)[^{eol}]*) { /* ignore comments */ }
 
 /* whitespace */
 {white}+ { /* ignore whitespace */ }
@@ -136,7 +174,7 @@ white = {eol}|[ \t]
 /* lexical errors (last so other matches take precedence) */
 . {
     System.err.printf(
-      "%nUnexpected character '%s' on line %d at column %d of input.%n",
+      "Unexpected character '%s' on line %d at column %d of input.%n",
       yytext(), yyline + 1, yycolumn + 1
     );
     return symbol(sym.error, yytext());
