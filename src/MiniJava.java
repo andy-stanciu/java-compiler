@@ -33,7 +33,6 @@ public class MiniJava {
         int status = 0;
 
         try {
-            System.out.printf("Scanning %s...%n", task.input.getName());
             ComplexSymbolFactory sf = new ComplexSymbolFactory();
             Reader in = new BufferedReader(new InputStreamReader(new FileInputStream(task.input)));
 
@@ -50,7 +49,6 @@ public class MiniJava {
 
                 t = s.next_token();
             }
-            System.out.println();
         } catch (Exception e) {
             System.err.println("Unexpected internal compiler error: " + e);
             e.printStackTrace();
