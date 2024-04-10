@@ -50,12 +50,12 @@ nonterminal Identifier Identifier;
 
 precedence right EQUALS;
 precedence left AND;
-precedence nonassoc LESS_THAN;
-precedence left PLUS, MINUS;
+precedence left LESS_THAN;    // should be nonassoc in the long run, but saving for
+precedence left PLUS, MINUS;  // semantic analysis since the grammar allows it
 precedence left MULT;
-// precedence right NEW; // is this an okay/necessary precedence to have? There are no SR conflicts without it
+precedence right NEW;
 precedence right NOT;
-// precedences for parentheses (), member access ., array access [] ??
+precedence left DOT, LSQUARE;
 
 /* productions */
 
@@ -77,8 +77,20 @@ ClassDeclarationList ::= ClassDeclaration:c
 
 ClassDeclaration ::= CLASS:c Identifier:cid LCURL VarDeclarationList:vl MethodDeclarationList:ml RCURL
                      {: RESULT = new ClassDeclSimple(cid, vl, ml, cxleft); :}
+                 | CLASS:c Identifier:cid LCURL:lc MethodDeclarationList:ml RCURL
+                     {: RESULT = new ClassDeclSimple(cid, new VarDeclList(lcxright), ml, cxleft); :}
+                 | CLASS:c Identifier:cid LCURL:lc VarDeclarationList:vl RCURL
+                     {: RESULT = new ClassDeclSimple(cid, vl, new MethodDeclList(lcxright), cxleft); :}
+                 | CLASS:c Identifier:cid LCURL:lc RCURL
+                     {: RESULT = new ClassDeclSimple(cid, new VarDeclList(lcxright), new MethodDeclList(lcxright), cxleft); :}
                  | CLASS:c Identifier:cid EXTENDS Identifier:eid LCURL VarDeclarationList:vl MethodDeclarationList:ml RCURL
-                     {: RESULT = new ClassDeclExtends(cid, eid, vl, ml, cxleft); :};
+                     {: RESULT = new ClassDeclExtends(cid, eid, vl, ml, cxleft); :}
+                 | CLASS:c Identifier:cid EXTENDS Identifier:eid LCURL:lc MethodDeclarationList:ml RCURL
+                     {: RESULT = new ClassDeclExtends(cid, eid, new VarDeclList(lcxright), ml, cxleft); :}
+                 | CLASS:c Identifier:cid EXTENDS Identifier:eid LCURL:lc VarDeclarationList:vl RCURL
+                     {: RESULT = new ClassDeclExtends(cid, eid, vl, new MethodDeclList(lcxright), cxleft); :}
+                 | CLASS:c Identifier:cid EXTENDS Identifier:eid LCURL:lc RCURL
+                     {: RESULT = new ClassDeclExtends(cid, eid, new VarDeclList(lcxright), new MethodDeclList(lcxright), cxleft); :};
 
 VarDeclarationList ::= VarDeclaration:v
                        {: VarDeclList vl = new VarDeclList(vxleft);
@@ -99,10 +111,22 @@ MethodDeclarationList ::= MethodDeclaration:m
                           {: ml.add(m);
                              RESULT = ml; :};
 
-MethodDeclaration ::= PUBLIC:p Type:t Identifier:mid LPAREN:lp RPAREN LCURL VarDeclarationList:vl StatementList:sl RETURN Expression:e SEMICOLON RCURL
+MethodDeclaration ::= PUBLIC:p Type:t Identifier:mid LPAREN FormalList:fl RPAREN LCURL VarDeclarationList:vl StatementList:sl RETURN Expression:e SEMICOLON RCURL
+                      {: RESULT = new MethodDecl(t, mid, fl, vl, sl, e, pxleft); :}
+                  | PUBLIC:p Type:t Identifier:mid LPAREN:lp RPAREN LCURL VarDeclarationList:vl StatementList:sl RETURN Expression:e SEMICOLON RCURL
                       {: RESULT = new MethodDecl(t, mid, new FormalList(lpxright), vl, sl, e, pxleft); :}
-                  | PUBLIC:p Type:t Identifier:mid LPAREN FormalList:fl RPAREN LCURL VarDeclarationList:vl StatementList:sl RETURN Expression:e SEMICOLON RCURL
-                      {: RESULT = new MethodDecl(t, mid, fl, vl, sl, e, pxleft); :};
+                  | PUBLIC:p Type:t Identifier:mid LPAREN FormalList:fl RPAREN LCURL:lc StatementList:sl RETURN Expression:e SEMICOLON RCURL
+                      {: RESULT = new MethodDecl(t, mid, fl, new VarDeclList(lcxright), sl, e, pxleft); :}
+                  | PUBLIC:p Type:t Identifier:mid LPAREN FormalList:fl RPAREN LCURL VarDeclarationList:vl RETURN Expression:e SEMICOLON RCURL
+                      {: RESULT = new MethodDecl(t, mid, fl, vl, new StatementList(vlxright), e, pxleft); :}
+                  | PUBLIC:p Type:t Identifier:mid LPAREN FormalList:fl RPAREN LCURL:lc RETURN Expression:e SEMICOLON RCURL
+                      {: RESULT = new MethodDecl(t, mid, fl, new VarDeclList(lcxright), new StatementList(lcxright), e, pxleft); :}
+                  | PUBLIC:p Type:t Identifier:mid LPAREN:lp RPAREN LCURL VarDeclarationList:vl RETURN Expression:e SEMICOLON RCURL
+                      {: RESULT = new MethodDecl(t, mid, new FormalList(lpxright), vl, new StatementList(vlxright), e, pxleft); :}
+                  | PUBLIC:p Type:t Identifier:mid LPAREN:lp RPAREN LCURL:lc StatementList:sl RETURN Expression:e SEMICOLON RCURL
+                      {: RESULT = new MethodDecl(t, mid, new FormalList(lpxright), new VarDeclList(lcxright), sl, e, pxleft); :}
+                  | PUBLIC:p Type:t Identifier:mid LPAREN:lp RPAREN LCURL:lc RETURN Expression:e SEMICOLON RCURL
+                      {: RESULT = new MethodDecl(t, mid, new FormalList(lpxright), new VarDeclList(lcxright), new StatementList(lcxright), e, pxleft); :};
 
 FormalList ::= Formal:f
                {: FormalList fl = new FormalList(fxleft);
@@ -134,6 +158,8 @@ StatementList ::= Statement:s
 
 Statement ::= LCURL:lc StatementList:sl RCURL
               {: RESULT = new Block(sl, lcxleft); :}
+          | LCURL:lc RCURL
+              {: RESULT = new Block(new StatementList(lcxright), lcxleft); :}
           | IF:i LPAREN Expression:e RPAREN Statement:s1 ELSE Statement:s2
               {: RESULT = new If(e, s1, s2, ixleft); :}
           | WHILE:w LPAREN Expression:e RPAREN Statement:s

@@ -1,3 +1,8 @@
+import AST.Program;
+import AST.Visitor.ASTVisitor;
+import AST.Visitor.PrettyPrintVisitor;
+import AST.Visitor.Visitor;
+import Parser.parser;
 import Scanner.*;
 import Parser.sym;
 import java_cup.runtime.ComplexSymbolFactory;
@@ -20,9 +25,8 @@ public class MiniJava {
             Task task = tasks.poll();
             switch (task.type) {
                 case SCAN -> status |= scan(task);
-                case PARSE, AST -> {
-                    // TODO: implement parsing and ast construction
-                }
+                case PRETTY_PRINT -> status |= parse(task, new PrettyPrintVisitor());
+                case AST -> status |= parse(task, new ASTVisitor());
             }
         }
 
@@ -31,9 +35,7 @@ public class MiniJava {
 
     private static int scan(Task task) {
         int status = 0;
-
         try {
-            System.out.printf("Scanning %s...%n", task.input.getName());
             ComplexSymbolFactory sf = new ComplexSymbolFactory();
             Reader in = new BufferedReader(new InputStreamReader(new FileInputStream(task.input)));
 
@@ -50,7 +52,27 @@ public class MiniJava {
 
                 t = s.next_token();
             }
-            System.out.println();
+        } catch (Exception e) {
+            System.err.println("Unexpected internal compiler error: " + e);
+            e.printStackTrace();
+            status = 1;
+        }
+
+        return status;
+    }
+
+    private static int parse(Task task, Visitor visitor) {
+        int status = 0;
+        try {
+            ComplexSymbolFactory sf = new ComplexSymbolFactory();
+            Reader in = new BufferedReader(new InputStreamReader(new FileInputStream(task.input)));
+
+            scanner s = new scanner(in, sf);
+            parser p = new parser(s, sf);
+            Symbol root = p.parse();
+
+            Program program = (Program)root.value;
+            program.accept(visitor);
         } catch (Exception e) {
             System.err.println("Unexpected internal compiler error: " + e);
             e.printStackTrace();
@@ -73,7 +95,7 @@ public class MiniJava {
             TaskType type;
             switch (operator.toLowerCase()) {
                 case "-s", "--scan" -> type = TaskType.SCAN;
-                case "-p", "--parse" -> type = TaskType.PARSE;
+                case "-p", "--pretty-print" -> type = TaskType.PRETTY_PRINT;
                 case "-a", "--ast" -> type = TaskType.AST;
                 default -> {
                     System.err.printf("Unrecognized operand: %s%n", operator);
@@ -115,6 +137,6 @@ public class MiniJava {
     private record Task(TaskType type, File input) {}
 
     private enum TaskType {
-        SCAN, PARSE, AST
+        SCAN, PRETTY_PRINT, AST
     }
 }
