@@ -6,7 +6,7 @@ public class ASTVisitor implements Visitor {
     private final Indenter indenter;
 
     public ASTVisitor() {
-        this.indenter = Indenter.create(2);
+        this.indenter = Indenter.create();
     }
 
     @Override
@@ -26,7 +26,7 @@ public class ASTVisitor implements Visitor {
         indenter.print();
         System.out.print("MainClass ");
         n.i1.accept(this);
-        System.out.println();
+        System.out.printf(" (line %d)%n", n.line_number);
         indenter.push();
         n.s.accept(this);
         indenter.pop();
@@ -37,6 +37,7 @@ public class ASTVisitor implements Visitor {
         indenter.print();
         System.out.print("Class ");
         n.i.accept(this);
+        System.out.printf(" (line %d)", n.line_number);
         indenter.push();
         for (int i = 0; i < n.vl.size(); i++) {
             System.out.println();
@@ -57,6 +58,7 @@ public class ASTVisitor implements Visitor {
         n.i.accept(this);
         System.out.print(" extends ");
         n.j.accept(this);
+        System.out.printf(" (line %d)", n.line_number);
         indenter.push();
         for (int i = 0; i < n.vl.size(); i++) {
             System.out.println();
@@ -76,6 +78,7 @@ public class ASTVisitor implements Visitor {
         n.t.accept(this);
         System.out.print(" ");
         n.i.accept(this);
+        System.out.printf(" (line %d)", n.line_number);
     }
 
     @Override
@@ -83,7 +86,7 @@ public class ASTVisitor implements Visitor {
         indenter.print();
         System.out.print("MethodDecl ");
         n.i.accept(this);
-        System.out.println();
+        System.out.printf(" (line %d)%n", n.line_number);
         indenter.push();
         indenter.print();
         System.out.print("returns ");
@@ -110,6 +113,7 @@ public class ASTVisitor implements Visitor {
         indenter.print();
         System.out.print("Return ");
         n.e.accept(this);
+        System.out.printf(" (line %d)", n.e.line_number);
         indenter.pop();
     }
 
@@ -158,7 +162,7 @@ public class ASTVisitor implements Visitor {
         indenter.print();
         System.out.print("If ");
         n.e.accept(this);
-        System.out.println();
+        System.out.printf(" (line %d)%n", n.line_number);
         if (!(n.s1 instanceof Block)) indenter.push();
         n.s1.accept(this);
         System.out.println();
@@ -175,7 +179,7 @@ public class ASTVisitor implements Visitor {
         indenter.print();
         System.out.print("While ");
         n.e.accept(this);
-        System.out.println();
+        System.out.printf(" (line %d)%n", n.line_number);
         if (!(n.s instanceof Block)) indenter.push();
         n.s.accept(this);
         if (!(n.s instanceof Block)) indenter.pop();
@@ -184,7 +188,7 @@ public class ASTVisitor implements Visitor {
     @Override
     public void visit(Print n) {
         indenter.print();
-        System.out.println("Print");
+        System.out.printf("Print (line %d)%n", n.line_number);
         indenter.push();
         indenter.print();
         n.e.accept(this);
@@ -198,6 +202,7 @@ public class ASTVisitor implements Visitor {
         n.i.accept(this);
         System.out.print(" <- ");
         n.e.accept(this);
+        System.out.printf(" (line %d)", n.line_number);
     }
 
     @Override
@@ -210,6 +215,7 @@ public class ASTVisitor implements Visitor {
         System.out.print("]");
         System.out.print(" <- ");
         n.e2.accept(this);
+        System.out.printf(" (line %d)", n.line_number);
     }
 
     @Override

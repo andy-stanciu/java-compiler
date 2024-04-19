@@ -53,7 +53,7 @@ precedence left AND;
 precedence left LESS_THAN;    // should be nonassoc in the long run, but saving for
 precedence left PLUS, MINUS;  // semantic analysis since the grammar allows it
 precedence left MULT;
-precedence right NEW;
+precedence right NEW;  // necessary?
 precedence right NOT;
 precedence left DOT, LSQUARE;
 
