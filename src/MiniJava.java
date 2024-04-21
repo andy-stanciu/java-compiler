@@ -71,7 +71,7 @@ public class MiniJava {
             parser p = new parser(s, sf);
             Symbol root = p.parse();
 
-            Program program = (Program)root.value;
+            Program program = (Program) root.value;
             program.accept(visitor);
         } catch (Exception e) {
             System.err.println("Unexpected internal compiler error: " + e);
@@ -109,26 +109,41 @@ public class MiniJava {
                 String path = args[j];
                 File f = new File(path);
 
-                if (!f.isFile()) {
-                    System.err.printf("File not found: %s%n", path);
+                if (f.isDirectory()) {
+                    // read all files within directory
+                    File[] children = f.listFiles();
+                    if (children == null) {
+                        System.err.printf("Empty directory: %s%n", path);
+                        return null;
+                    }
+
+                    for (File child : children) {
+                        if (child.isFile() && child.getName().endsWith(".java")) {
+                            if (!child.canRead()) {
+                                System.err.printf("Cannot read file: %s%n", child.getPath());
+                                continue;
+                            }
+
+                            tasks.offer(new Task(type, child));
+                            foundValidArgs = true;
+                        }
+                    }
+                } else {  // file
+                    if (!f.canRead()) {
+                        System.err.printf("Cannot read file: %s%n", path);
+                        return null;
+                    }
+
+                    tasks.offer(new Task(type, f));
+                    foundValidArgs = true;
+                }
+
+                if (!foundValidArgs) {  // no input files found associated with operand
                     return null;
                 }
 
-                if (!f.canRead()) {
-                    System.err.printf("Cannot read file: %s%n", path);
-                    return null;
-                }
-
-                tasks.offer(new Task(type, f));
-                foundValidArgs = true;
-                j++;
+                i = ++j - 1;
             }
-
-            if (!foundValidArgs) {  // no input files found associated with operand
-                return null;
-            }
-
-            i = j - 1;
         }
 
         return tasks;

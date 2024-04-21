@@ -28,7 +28,6 @@ terminal String IDENTIFIER;
 terminal String INT_LITERAL;
 
 /* nonterminals */
-
 nonterminal Program Program;
 nonterminal MainClass MainClass;
 nonterminal ClassDeclList ClassDeclarationList;
@@ -47,18 +46,15 @@ nonterminal Exp Expression;
 nonterminal Identifier Identifier;
 
 /* precedence declarations: */
-
-precedence right EQUALS;
-precedence left AND;
-precedence left LESS_THAN;    // should be nonassoc in the long run, but saving for
-precedence left PLUS, MINUS;  // semantic analysis since the grammar allows it
-precedence left MULT;
-precedence right NEW;  // necessary?
-precedence right NOT;
-precedence left DOT, LSQUARE;
+precedence left AND;           // &&
+precedence left LESS_THAN;     // < should be nonassoc in the long run, but saving for semantic analysis
+precedence left PLUS, MINUS;   // + -
+precedence left MULT;          // *
+precedence right NEW;          // new
+precedence right NOT;          // ! right/left shouldn't really matter here...
+precedence left DOT, LSQUARE;  // . [
 
 /* productions */
-
 Program ::= MainClass:m ClassDeclarationList:cl
             {: RESULT = new Program(m, cl, mxleft); :}
         | MainClass:m
