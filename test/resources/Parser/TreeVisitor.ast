@@ -1,0 +1,344 @@
+Program
+  MainClass TreeVisitor (line 5)
+    Print (line 7)
+      (new TV().Start())
+  Class TV (line 11)
+    MethodDecl Start (line 13)
+      returns int
+      Tree root (line 14)
+      boolean ntb (line 15)
+      int nti (line 16)
+      MyVisitor v (line 17)
+      Assign root <- new Tree() (line 19)
+      Assign ntb <- (root.Init(16)) (line 20)
+      Assign ntb <- (root.Print()) (line 21)
+      Print (line 22)
+        100000000
+      Assign ntb <- (root.Insert(8)) (line 23)
+      Assign ntb <- (root.Insert(24)) (line 24)
+      Assign ntb <- (root.Insert(4)) (line 25)
+      Assign ntb <- (root.Insert(12)) (line 26)
+      Assign ntb <- (root.Insert(20)) (line 27)
+      Assign ntb <- (root.Insert(28)) (line 28)
+      Assign ntb <- (root.Insert(14)) (line 29)
+      Assign ntb <- (root.Print()) (line 30)
+      Print (line 31)
+        100000000
+      Assign v <- new MyVisitor() (line 32)
+      Print (line 33)
+        50000000
+      Assign nti <- (root.accept(v)) (line 34)
+      Print (line 35)
+        100000000
+      Print (line 36)
+        (root.Search(24))
+      Print (line 37)
+        (root.Search(12))
+      Print (line 38)
+        (root.Search(16))
+      Print (line 39)
+        (root.Search(50))
+      Print (line 40)
+        (root.Search(12))
+      Assign ntb <- (root.Delete(12)) (line 41)
+      Assign ntb <- (root.Print()) (line 42)
+      Print (line 43)
+        (root.Search(12))
+      Return 0 (line 45)
+  Class Tree (line 51)
+    Tree left (line 52)
+    Tree right (line 53)
+    int key (line 54)
+    boolean has_left (line 55)
+    boolean has_right (line 56)
+    Tree my_null (line 57)
+    MethodDecl Init (line 75)
+      returns boolean
+      parameters:
+        int v_key
+      Assign key <- v_key (line 76)
+      Assign has_left <- false (line 77)
+      Assign has_right <- false (line 78)
+      Return true (line 79)
+    MethodDecl SetRight (line 82)
+      returns boolean
+      parameters:
+        Tree rn
+      Assign right <- rn (line 83)
+      Return true (line 84)
+    MethodDecl SetLeft (line 87)
+      returns boolean
+      parameters:
+        Tree ln
+      Assign left <- ln (line 88)
+      Return true (line 89)
+    MethodDecl GetRight (line 92)
+      returns Tree
+      Return right (line 93)
+    MethodDecl GetLeft (line 96)
+      returns Tree
+      Return left (line 97)
+    MethodDecl GetKey (line 100)
+      returns int
+      Return key (line 101)
+    MethodDecl SetKey (line 104)
+      returns boolean
+      parameters:
+        int v_key
+      Assign key <- v_key (line 105)
+      Return true (line 106)
+    MethodDecl GetHas_Right (line 109)
+      returns boolean
+      Return has_right (line 110)
+    MethodDecl GetHas_Left (line 113)
+      returns boolean
+      Return has_left (line 114)
+    MethodDecl SetHas_Left (line 117)
+      returns boolean
+      parameters:
+        boolean val
+      Assign has_left <- val (line 118)
+      Return true (line 119)
+    MethodDecl SetHas_Right (line 122)
+      returns boolean
+      parameters:
+        boolean val
+      Assign has_right <- val (line 123)
+      Return true (line 124)
+    MethodDecl Compare (line 127)
+      returns boolean
+      parameters:
+        int num1
+        int num2
+      boolean ntb (line 128)
+      int nti (line 129)
+      Assign ntb <- false (line 131)
+      Assign nti <- (num2 + 1) (line 132)
+      If LessThan (num1, num2) (line 133)
+        Assign ntb <- false (line 133)
+      Else
+        If Not LessThan (num1, nti) (line 134)
+          Assign ntb <- false (line 134)
+        Else
+          Assign ntb <- true (line 135)
+      Return ntb (line 136)
+    MethodDecl Insert (line 139)
+      returns boolean
+      parameters:
+        int v_key
+      Tree new_node (line 140)
+      boolean ntb (line 141)
+      Tree current_node (line 142)
+      boolean cont (line 143)
+      int key_aux (line 144)
+      Assign new_node <- new Tree() (line 146)
+      Assign ntb <- (new_node.Init(v_key)) (line 147)
+      Assign current_node <- this (line 148)
+      Assign cont <- true (line 149)
+      While cont (line 150)
+        Assign key_aux <- (current_node.GetKey()) (line 151)
+        If LessThan (v_key, key_aux) (line 152)
+          If (current_node.GetHas_Left()) (line 153)
+            Assign current_node <- (current_node.GetLeft()) (line 154)
+          Else
+            Assign cont <- false (line 156)
+            Assign ntb <- (current_node.SetHas_Left(true)) (line 157)
+            Assign ntb <- (current_node.SetLeft(new_node)) (line 158)
+        Else
+          If (current_node.GetHas_Right()) (line 162)
+            Assign current_node <- (current_node.GetRight()) (line 163)
+          Else
+            Assign cont <- false (line 165)
+            Assign ntb <- (current_node.SetHas_Right(true)) (line 166)
+            Assign ntb <- (current_node.SetRight(new_node)) (line 167)
+      Return true (line 171)
+    MethodDecl Delete (line 174)
+      returns boolean
+      parameters:
+        int v_key
+      Tree current_node (line 175)
+      Tree parent_node (line 176)
+      boolean cont (line 177)
+      boolean found (line 178)
+      boolean ntb (line 179)
+      boolean is_root (line 180)
+      int key_aux (line 181)
+      Assign current_node <- this (line 183)
+      Assign parent_node <- this (line 184)
+      Assign cont <- true (line 185)
+      Assign found <- false (line 186)
+      Assign is_root <- true (line 187)
+      While cont (line 188)
+        Assign key_aux <- (current_node.GetKey()) (line 189)
+        If LessThan (v_key, key_aux) (line 190)
+          If (current_node.GetHas_Left()) (line 191)
+            Assign parent_node <- current_node (line 192)
+            Assign current_node <- (current_node.GetLeft()) (line 193)
+          Else
+            Assign cont <- false (line 195)
+        Else
+          If LessThan (key_aux, v_key) (line 197)
+            If (current_node.GetHas_Right()) (line 198)
+              Assign parent_node <- current_node (line 199)
+              Assign current_node <- (current_node.GetRight()) (line 200)
+            Else
+              Assign cont <- false (line 202)
+          Else
+            If is_root (line 204)
+              If And (Not (current_node.GetHas_Right()), Not (current_node.GetHas_Left())) (line 205)
+                Assign ntb <- true (line 207)
+              Else
+                Assign ntb <- (this.Remove(parent_node, current_node)) (line 209)
+            Else
+              Assign ntb <- (this.Remove(parent_node, current_node)) (line 210)
+            Assign found <- true (line 211)
+            Assign cont <- false (line 212)
+        Assign is_root <- false (line 214)
+      Return found (line 216)
+    MethodDecl Remove (line 219)
+      returns boolean
+      parameters:
+        Tree p_node
+        Tree c_node
+      boolean ntb (line 220)
+      int auxkey1 (line 221)
+      int auxkey2 (line 222)
+      If (c_node.GetHas_Left()) (line 224)
+        Assign ntb <- (this.RemoveLeft(p_node, c_node)) (line 225)
+      Else
+        If (c_node.GetHas_Right()) (line 227)
+          Assign ntb <- (this.RemoveRight(p_node, c_node)) (line 228)
+        Else
+          Assign auxkey1 <- (c_node.GetKey()) (line 230)
+          Assign auxkey2 <- ((p_node.GetLeft()).GetKey()) (line 231)
+          If (this.Compare(auxkey1, auxkey2)) (line 232)
+            Assign ntb <- (p_node.SetLeft(my_null)) (line 233)
+            Assign ntb <- (p_node.SetHas_Left(false)) (line 234)
+          Else
+            Assign ntb <- (p_node.SetRight(my_null)) (line 237)
+            Assign ntb <- (p_node.SetHas_Right(false)) (line 238)
+      Return true (line 241)
+    MethodDecl RemoveRight (line 244)
+      returns boolean
+      parameters:
+        Tree p_node
+        Tree c_node
+      boolean ntb (line 245)
+      While (c_node.GetHas_Right()) (line 246)
+        Assign ntb <- (c_node.SetKey(((c_node.GetRight()).GetKey()))) (line 247)
+        Assign p_node <- c_node (line 248)
+        Assign c_node <- (c_node.GetRight()) (line 249)
+      Assign ntb <- (p_node.SetRight(my_null)) (line 251)
+      Assign ntb <- (p_node.SetHas_Right(false)) (line 252)
+      Return true (line 253)
+    MethodDecl RemoveLeft (line 256)
+      returns boolean
+      parameters:
+        Tree p_node
+        Tree c_node
+      boolean ntb (line 257)
+      While (c_node.GetHas_Left()) (line 258)
+        Assign ntb <- (c_node.SetKey(((c_node.GetLeft()).GetKey()))) (line 259)
+        Assign p_node <- c_node (line 260)
+        Assign c_node <- (c_node.GetLeft()) (line 261)
+      Assign ntb <- (p_node.SetLeft(my_null)) (line 263)
+      Assign ntb <- (p_node.SetHas_Left(false)) (line 264)
+      Return true (line 265)
+    MethodDecl Search (line 269)
+      returns int
+      parameters:
+        int v_key
+      Tree current_node (line 270)
+      int ifound (line 271)
+      boolean cont (line 272)
+      int key_aux (line 273)
+      Assign current_node <- this (line 275)
+      Assign cont <- true (line 276)
+      Assign ifound <- 0 (line 277)
+      While cont (line 278)
+        Assign key_aux <- (current_node.GetKey()) (line 279)
+        If LessThan (v_key, key_aux) (line 280)
+          If (current_node.GetHas_Left()) (line 281)
+            Assign current_node <- (current_node.GetLeft()) (line 282)
+          Else
+            Assign cont <- false (line 283)
+        Else
+          If LessThan (key_aux, v_key) (line 285)
+            If (current_node.GetHas_Right()) (line 286)
+              Assign current_node <- (current_node.GetRight()) (line 287)
+            Else
+              Assign cont <- false (line 288)
+          Else
+            Assign ifound <- 1 (line 290)
+            Assign cont <- false (line 291)
+      Return ifound (line 294)
+    MethodDecl Print (line 297)
+      returns boolean
+      boolean ntb (line 298)
+      Tree current_node (line 299)
+      Assign current_node <- this (line 301)
+      Assign ntb <- (this.RecPrint(current_node)) (line 302)
+      Return true (line 303)
+    MethodDecl RecPrint (line 306)
+      returns boolean
+      parameters:
+        Tree node
+      boolean ntb (line 307)
+      If (node.GetHas_Left()) (line 309)
+        Assign ntb <- (this.RecPrint((node.GetLeft()))) (line 310)
+      Else
+        Assign ntb <- true (line 311)
+      Print (line 312)
+        (node.GetKey())
+      If (node.GetHas_Right()) (line 313)
+        Assign ntb <- (this.RecPrint((node.GetRight()))) (line 314)
+      Else
+        Assign ntb <- true (line 315)
+      Return true (line 316)
+    MethodDecl accept (line 319)
+      returns int
+      parameters:
+        Visitor v
+      int nti (line 320)
+      Print (line 322)
+        333
+      Assign nti <- (v.visit(this)) (line 323)
+      Return 0 (line 324)
+  Class Visitor (line 331)
+    Tree l (line 332)
+    Tree r (line 333)
+    MethodDecl visit (line 335)
+      returns int
+      parameters:
+        Tree n
+      int nti (line 336)
+      If (n.GetHas_Right()) (line 338)
+        Assign r <- (n.GetRight()) (line 339)
+        Assign nti <- (r.accept(this)) (line 340)
+      Else
+        Assign nti <- 0 (line 341)
+      If (n.GetHas_Left()) (line 343)
+        Assign l <- (n.GetLeft()) (line 344)
+        Assign nti <- (l.accept(this)) (line 345)
+      Else
+        Assign nti <- 0 (line 346)
+      Return 0 (line 348)
+  Class MyVisitor extends Visitor (line 354)
+    MethodDecl visit (line 356)
+      returns int
+      parameters:
+        Tree n
+      int nti (line 357)
+      If (n.GetHas_Right()) (line 359)
+        Assign r <- (n.GetRight()) (line 360)
+        Assign nti <- (r.accept(this)) (line 361)
+      Else
+        Assign nti <- 0 (line 362)
+      Print (line 364)
+        (n.GetKey())
+      If (n.GetHas_Left()) (line 366)
+        Assign l <- (n.GetLeft()) (line 367)
+        Assign nti <- (l.accept(this)) (line 368)
+      Else
+        Assign nti <- 0 (line 369)
+      Return 0 (line 371)

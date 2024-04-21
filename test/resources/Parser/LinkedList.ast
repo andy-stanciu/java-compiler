@@ -1,0 +1,249 @@
+Program
+  MainClass LinkedList (line 1)
+    Print (line 3)
+      (new LL().Start())
+  Class Element (line 7)
+    int Age (line 8)
+    int Salary (line 9)
+    boolean Married (line 10)
+    MethodDecl Init (line 13)
+      returns boolean
+      parameters:
+        int v_Age
+        int v_Salary
+        boolean v_Married
+      Assign Age <- v_Age (line 14)
+      Assign Salary <- v_Salary (line 15)
+      Assign Married <- v_Married (line 16)
+      Return true (line 17)
+    MethodDecl GetAge (line 20)
+      returns int
+      Return Age (line 21)
+    MethodDecl GetSalary (line 24)
+      returns int
+      Return Salary (line 25)
+    MethodDecl GetMarried (line 28)
+      returns boolean
+      Return Married (line 29)
+    MethodDecl Equal (line 34)
+      returns boolean
+      parameters:
+        Element other
+      boolean ret_val (line 35)
+      int aux01 (line 36)
+      int aux02 (line 37)
+      int nt (line 38)
+      Assign ret_val <- true (line 39)
+      Assign aux01 <- (other.GetAge()) (line 41)
+      If Not (this.Compare(aux01, Age)) (line 42)
+        Assign ret_val <- false (line 42)
+      Else
+        Assign aux02 <- (other.GetSalary()) (line 44)
+        If Not (this.Compare(aux02, Salary)) (line 45)
+          Assign ret_val <- false (line 45)
+        Else
+          If Married (line 47)
+            If Not (other.GetMarried()) (line 48)
+              Assign ret_val <- false (line 48)
+            Else
+              Assign nt <- 0 (line 49)
+          Else
+            If (other.GetMarried()) (line 51)
+              Assign ret_val <- false (line 51)
+            Else
+              Assign nt <- 0 (line 52)
+      Return ret_val (line 55)
+    MethodDecl Compare (line 61)
+      returns boolean
+      parameters:
+        int num1
+        int num2
+      boolean retval (line 62)
+      int aux02 (line 63)
+      Assign retval <- false (line 64)
+      Assign aux02 <- (num2 + 1) (line 65)
+      If LessThan (num1, num2) (line 66)
+        Assign retval <- false (line 66)
+      Else
+        If Not LessThan (num1, aux02) (line 67)
+          Assign retval <- false (line 67)
+        Else
+          Assign retval <- true (line 68)
+      Return retval (line 69)
+  Class List (line 74)
+    Element elem (line 75)
+    List next (line 76)
+    boolean end (line 77)
+    MethodDecl Init (line 80)
+      returns boolean
+      Assign end <- true (line 81)
+      Return true (line 82)
+    MethodDecl InitNew (line 86)
+      returns boolean
+      parameters:
+        Element v_elem
+        List v_next
+        boolean v_end
+      Assign end <- v_end (line 87)
+      Assign elem <- v_elem (line 88)
+      Assign next <- v_next (line 89)
+      Return true (line 90)
+    MethodDecl Insert (line 94)
+      returns List
+      parameters:
+        Element new_elem
+      boolean ret_val (line 95)
+      List aux03 (line 96)
+      List aux02 (line 97)
+      Assign aux03 <- this (line 98)
+      Assign aux02 <- new List() (line 99)
+      Assign ret_val <- (aux02.InitNew(new_elem, aux03, false)) (line 100)
+      Return aux02 (line 101)
+    MethodDecl SetNext (line 106)
+      returns boolean
+      parameters:
+        List v_next
+      Assign next <- v_next (line 107)
+      Return true (line 108)
+    MethodDecl Delete (line 112)
+      returns List
+      parameters:
+        Element e
+      List my_head (line 113)
+      boolean ret_val (line 114)
+      boolean aux05 (line 115)
+      List aux01 (line 116)
+      List prev (line 117)
+      boolean var_end (line 118)
+      Element var_elem (line 119)
+      int aux04 (line 120)
+      int nt (line 121)
+      Assign my_head <- this (line 124)
+      Assign ret_val <- false (line 125)
+      Assign aux04 <- (0 - 1) (line 126)
+      Assign aux01 <- this (line 127)
+      Assign prev <- this (line 128)
+      Assign var_end <- end (line 129)
+      Assign var_elem <- elem (line 130)
+      While And (Not var_end, Not ret_val) (line 131)
+        If (e.Equal(var_elem)) (line 132)
+          Assign ret_val <- true (line 133)
+          If LessThan (aux04, 0) (line 134)
+            Assign my_head <- (aux01.GetNext()) (line 136)
+          Else
+            Print (line 139)
+              (0 - 555)
+            Assign aux05 <- (prev.SetNext((aux01.GetNext()))) (line 140)
+            Print (line 141)
+              (0 - 555)
+        Else
+          Assign nt <- 0 (line 144)
+        If Not ret_val (line 145)
+          Assign prev <- aux01 (line 146)
+          Assign aux01 <- (aux01.GetNext()) (line 147)
+          Assign var_end <- (aux01.GetEnd()) (line 148)
+          Assign var_elem <- (aux01.GetElem()) (line 149)
+          Assign aux04 <- 1 (line 150)
+        Else
+          Assign nt <- 0 (line 151)
+      Return my_head (line 153)
+    MethodDecl Search (line 158)
+      returns int
+      parameters:
+        Element e
+      int int_ret_val (line 159)
+      List aux01 (line 160)
+      Element var_elem (line 161)
+      boolean var_end (line 162)
+      int nt (line 163)
+      Assign int_ret_val <- 0 (line 165)
+      Assign aux01 <- this (line 166)
+      Assign var_end <- end (line 167)
+      Assign var_elem <- elem (line 168)
+      While Not var_end (line 169)
+        If (e.Equal(var_elem)) (line 170)
+          Assign int_ret_val <- 1 (line 171)
+        Else
+          Assign nt <- 0 (line 173)
+        Assign aux01 <- (aux01.GetNext()) (line 174)
+        Assign var_end <- (aux01.GetEnd()) (line 175)
+        Assign var_elem <- (aux01.GetElem()) (line 176)
+      Return int_ret_val (line 178)
+    MethodDecl GetEnd (line 181)
+      returns boolean
+      Return end (line 182)
+    MethodDecl GetElem (line 185)
+      returns Element
+      Return elem (line 186)
+    MethodDecl GetNext (line 189)
+      returns List
+      Return next (line 190)
+    MethodDecl Print (line 195)
+      returns boolean
+      List aux01 (line 196)
+      boolean var_end (line 197)
+      Element var_elem (line 198)
+      Assign aux01 <- this (line 200)
+      Assign var_end <- end (line 201)
+      Assign var_elem <- elem (line 202)
+      While Not var_end (line 203)
+        Print (line 204)
+          (var_elem.GetAge())
+        Assign aux01 <- (aux01.GetNext()) (line 205)
+        Assign var_end <- (aux01.GetEnd()) (line 206)
+        Assign var_elem <- (aux01.GetElem()) (line 207)
+      Return true (line 210)
+  Class LL (line 217)
+    MethodDecl Start (line 219)
+      returns int
+      List head (line 221)
+      List last_elem (line 222)
+      boolean aux01 (line 223)
+      Element el01 (line 224)
+      Element el02 (line 225)
+      Element el03 (line 226)
+      Assign last_elem <- new List() (line 228)
+      Assign aux01 <- (last_elem.Init()) (line 229)
+      Assign head <- last_elem (line 230)
+      Assign aux01 <- (head.Init()) (line 231)
+      Assign aux01 <- (head.Print()) (line 232)
+      Assign el01 <- new Element() (line 235)
+      Assign aux01 <- (el01.Init(25, 37000, false)) (line 236)
+      Assign head <- (head.Insert(el01)) (line 237)
+      Assign aux01 <- (head.Print()) (line 238)
+      Print (line 239)
+        10000000
+      Assign el01 <- new Element() (line 241)
+      Assign aux01 <- (el01.Init(39, 42000, true)) (line 242)
+      Assign el02 <- el01 (line 243)
+      Assign head <- (head.Insert(el01)) (line 244)
+      Assign aux01 <- (head.Print()) (line 245)
+      Print (line 246)
+        10000000
+      Assign el01 <- new Element() (line 248)
+      Assign aux01 <- (el01.Init(22, 34000, false)) (line 249)
+      Assign head <- (head.Insert(el01)) (line 250)
+      Assign aux01 <- (head.Print()) (line 251)
+      Assign el03 <- new Element() (line 252)
+      Assign aux01 <- (el03.Init(27, 34000, false)) (line 253)
+      Print (line 254)
+        (head.Search(el02))
+      Print (line 255)
+        (head.Search(el03))
+      Print (line 256)
+        10000000
+      Assign el01 <- new Element() (line 258)
+      Assign aux01 <- (el01.Init(28, 35000, false)) (line 259)
+      Assign head <- (head.Insert(el01)) (line 260)
+      Assign aux01 <- (head.Print()) (line 261)
+      Print (line 262)
+        2220000
+      Assign head <- (head.Delete(el02)) (line 264)
+      Assign aux01 <- (head.Print()) (line 265)
+      Print (line 266)
+        33300000
+      Assign head <- (head.Delete(el01)) (line 269)
+      Assign aux01 <- (head.Print()) (line 270)
+      Print (line 271)
+        44440000
+      Return 0 (line 273)
