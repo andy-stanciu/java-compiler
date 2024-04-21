@@ -1,15 +1,16 @@
 package AST.Visitor;
 
 import AST.*;
-
-// Sample print visitor from MiniJava web site with small modifications for UW CSE.
-// HP 10/11
+import AST.Visitor.util.Indenter;
+import AST.Visitor.util.PrecedentTracker;
 
 public class PrettyPrintVisitor implements Visitor {
     private final Indenter indenter;
+    private final PrecedentTracker precedentTracker;
 
     public PrettyPrintVisitor() {
-        this.indenter = Indenter.create(2);
+        this.indenter = Indenter.create();
+        this.precedentTracker = PrecedentTracker.create();
     }
 
     // MainClass m;
@@ -20,6 +21,7 @@ public class PrettyPrintVisitor implements Visitor {
             System.out.println();
             n.cl.get(i).accept(this);
         }
+        System.out.println();
     }
 
     // Identifier i1,i2;
@@ -85,7 +87,7 @@ public class PrettyPrintVisitor implements Visitor {
         }
         indenter.pop();
         System.out.println();
-        System.out.println("}");
+        System.out.print("}");
     }
 
     // Type t;
@@ -248,67 +250,87 @@ public class PrettyPrintVisitor implements Visitor {
 
     // Exp e1,e2;
     public void visit(And n) {
-        System.out.print("(");
+        precedentTracker.leftParen(n);
+        precedentTracker.push(n);
         n.e1.accept(this);
         System.out.print(" && ");
         n.e2.accept(this);
-        System.out.print(")");
+        precedentTracker.pop();
+        precedentTracker.rightParen(n);
     }
 
     // Exp e1,e2;
     public void visit(LessThan n) {
-        System.out.print("(");
+        precedentTracker.leftParen(n);
+        precedentTracker.push(n);
         n.e1.accept(this);
         System.out.print(" < ");
         n.e2.accept(this);
-        System.out.print(")");
+        precedentTracker.pop();
+        precedentTracker.rightParen(n);
     }
 
     // Exp e1,e2;
     public void visit(Plus n) {
-        System.out.print("(");
+        precedentTracker.leftParen(n);
+        precedentTracker.push(n);
         n.e1.accept(this);
         System.out.print(" + ");
         n.e2.accept(this);
-        System.out.print(")");
+        precedentTracker.pop();
+        precedentTracker.rightParen(n);
     }
 
     // Exp e1,e2;
     public void visit(Minus n) {
-        System.out.print("(");
+        precedentTracker.leftParen(n);
+        precedentTracker.push(n);
         n.e1.accept(this);
         System.out.print(" - ");
         n.e2.accept(this);
-        System.out.print(")");
+        precedentTracker.pop();
+        precedentTracker.rightParen(n);
     }
 
     // Exp e1,e2;
     public void visit(Times n) {
-        System.out.print("(");
+        precedentTracker.leftParen(n);
+        precedentTracker.push(n);
         n.e1.accept(this);
         System.out.print(" * ");
         n.e2.accept(this);
-        System.out.print(")");
+        precedentTracker.pop();
+        precedentTracker.rightParen(n);
     }
 
     // Exp e1,e2;
     public void visit(ArrayLookup n) {
+        precedentTracker.leftParen(n);
+        precedentTracker.push(n);
         n.e1.accept(this);
         System.out.print("[");
         n.e2.accept(this);
         System.out.print("]");
+        precedentTracker.pop();
+        precedentTracker.rightParen(n);
     }
 
     // Exp e;
     public void visit(ArrayLength n) {
+        precedentTracker.leftParen(n);
+        precedentTracker.push(n);
         n.e.accept(this);
         System.out.print(".length");
+        precedentTracker.pop();
+        precedentTracker.rightParen(n);
     }
 
     // Exp e;
     // Identifier i;
     // ExpList el;
     public void visit(Call n) {
+        precedentTracker.leftParen(n);
+        precedentTracker.push(n);
         n.e.accept(this);
         System.out.print(".");
         n.i.accept(this);
@@ -320,6 +342,8 @@ public class PrettyPrintVisitor implements Visitor {
             }
         }
         System.out.print(")");
+        precedentTracker.pop();
+        precedentTracker.rightParen(n);
     }
 
     // int i;
@@ -346,22 +370,32 @@ public class PrettyPrintVisitor implements Visitor {
 
     // Exp e;
     public void visit(NewArray n) {
+        precedentTracker.leftParen(n);
+        precedentTracker.push(n);
         System.out.print("new int[");
         n.e.accept(this);
         System.out.print("]");
+        precedentTracker.pop();
+        precedentTracker.rightParen(n);
     }
 
     // Identifier i;
     public void visit(NewObject n) {
+        precedentTracker.leftParen(n);
         System.out.print("new ");
         System.out.print(n.i.s);
         System.out.print("()");
+        precedentTracker.rightParen(n);
     }
 
     // Exp e;
     public void visit(Not n) {
+        precedentTracker.leftParen(n);
+        precedentTracker.push(n);
         System.out.print("!");
         n.e.accept(this);
+        precedentTracker.pop();
+        precedentTracker.rightParen(n);
     }
 
     // String s;

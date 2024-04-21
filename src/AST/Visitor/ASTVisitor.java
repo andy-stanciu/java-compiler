@@ -1,6 +1,7 @@
 package AST.Visitor;
 
 import AST.*;
+import AST.Visitor.util.Indenter;
 
 public class ASTVisitor implements Visitor {
     private final Indenter indenter;
@@ -19,6 +20,7 @@ public class ASTVisitor implements Visitor {
             n.cl.get(i).accept(this);
         }
         indenter.pop();
+        System.out.println();
     }
 
     @Override
@@ -48,7 +50,6 @@ public class ASTVisitor implements Visitor {
             n.ml.get(i).accept(this);
         }
         indenter.pop();
-        System.out.println();
     }
 
     @Override
@@ -69,7 +70,6 @@ public class ASTVisitor implements Visitor {
             n.ml.get(i).accept(this);
         }
         indenter.pop();
-        System.out.println();
     }
 
     @Override
@@ -280,6 +280,7 @@ public class ASTVisitor implements Visitor {
 
     @Override
     public void visit(Call n) {
+        System.out.print("(");
         n.e.accept(this);
         System.out.print(".");
         n.i.accept(this);
@@ -290,7 +291,7 @@ public class ASTVisitor implements Visitor {
                 System.out.print(", ");
             }
         }
-        System.out.print(")");
+        System.out.print("))");
     }
 
     @Override
@@ -320,7 +321,7 @@ public class ASTVisitor implements Visitor {
 
     @Override
     public void visit(NewArray n) {
-        System.out.print("new int [");
+        System.out.print("new int[");
         n.e.accept(this);
         System.out.print("]");
     }
