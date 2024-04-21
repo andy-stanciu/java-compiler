@@ -1,0 +1,24 @@
+Grammar changes:
+Everywhere where there was a list of 0 or more items in a production, we created two separate productions:
+one that omits the list, and another that includes the list. These lists are intermediate non-terminals that we had to
+add to our grammar to support the * lists defined in the BNF for MiniJava. Examples include
+ClassDeclarationList <-> (ClassDeclaration)*, VarDeclarationList <-> (VarDeclaration)*, FormalList <-> (Formal)*, etc.
+In cases where there were optional clauses in the BNF, we created two separate productions: one omitting the optional
+clause, and the other including it. For long declarations like MethodDeclaration and ClassDeclaration, there were
+combinations of optional clauses and lists of 0 or more items, resulting in many productions that permuted all the
+combinations. To handle 0+ arguments in method declarations and calls, we used "Formals", which represent a type
+followed by an identifier. "FormalLists" are lists of 0 or more Formals that are head-recursively concatenated with
+commas in between.
+Precedence declarations (from lowest to highest): &&, <, +, -, *, new, !, ., [
+We have no shift-reduce conflicts in our grammar.
+
+Extra stuff:
+Our parser does not include any extra error handling or features, however we improved the PrettyPrintVisitor to indent
+nicely. We also made the PrettyPrintVisitor a little more intelligent by only parenthesizing expressions when it's
+absolutely necessary (i.e. when the precedence of a sub-expression is strictly less than its parent expression).
+
+Workload:
+The work for this part of the project was once again completed synchronously, in person. It's hard to say who exactly
+was in charge of what because we kept alternating on typing and bounced ideas off each other, especially while defining
+productions in our CUP file. We spent a pretty even amount of time on the project again, though we definitely spent more
+time in total than on the scanner.

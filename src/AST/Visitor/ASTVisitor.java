@@ -2,56 +2,44 @@ package AST.Visitor;
 
 import AST.*;
 import AST.Visitor.util.Indenter;
-import AST.Visitor.util.PrecedentTracker;
 
-public class PrettyPrintVisitor implements Visitor {
+public class ASTVisitor implements Visitor {
     private final Indenter indenter;
-    private final PrecedentTracker precedentTracker;
 
-    public PrettyPrintVisitor() {
+    public ASTVisitor() {
         this.indenter = Indenter.create();
-        this.precedentTracker = PrecedentTracker.create();
     }
 
-    // MainClass m;
-    // ClassDeclList cl;
+    @Override
     public void visit(Program n) {
+        System.out.println("Program");
+        indenter.push();
         n.m.accept(this);
         for (int i = 0; i < n.cl.size(); i++) {
             System.out.println();
             n.cl.get(i).accept(this);
         }
+        indenter.pop();
         System.out.println();
     }
 
-    // Identifier i1,i2;
-    // Statement s;
+    @Override
     public void visit(MainClass n) {
-        System.out.print("class ");
-        n.i1.accept(this);
-        System.out.println(" {");
-        indenter.push();
         indenter.print();
-        System.out.print("public static void main(String[] ");
-        n.i2.accept(this);
-        System.out.println(") {");
+        System.out.print("MainClass ");
+        n.i1.accept(this);
+        System.out.printf(" (line %d)%n", n.line_number);
         indenter.push();
         n.s.accept(this);
-        System.out.println();
         indenter.pop();
-        indenter.print();
-        System.out.println("}");
-        indenter.pop();
-        System.out.print("}");
     }
 
-    // Identifier i;
-    // VarDeclList vl;
-    // MethodDeclList ml;
+    @Override
     public void visit(ClassDeclSimple n) {
-        System.out.print("class ");
+        indenter.print();
+        System.out.print("Class ");
         n.i.accept(this);
-        System.out.print(" {");
+        System.out.printf(" (line %d)", n.line_number);
         indenter.push();
         for (int i = 0; i < n.vl.size(); i++) {
             System.out.println();
@@ -62,20 +50,16 @@ public class PrettyPrintVisitor implements Visitor {
             n.ml.get(i).accept(this);
         }
         indenter.pop();
-        System.out.println();
-        System.out.print("}");
     }
 
-    // Identifier i;
-    // Identifier j;
-    // VarDeclList vl;
-    // MethodDeclList ml;
+    @Override
     public void visit(ClassDeclExtends n) {
-        System.out.print("class ");
+        indenter.print();
+        System.out.print("Class ");
         n.i.accept(this);
         System.out.print(" extends ");
         n.j.accept(this);
-        System.out.print(" {");
+        System.out.printf(" (line %d)", n.line_number);
         indenter.push();
         for (int i = 0; i < n.vl.size(); i++) {
             System.out.println();
@@ -86,85 +70,82 @@ public class PrettyPrintVisitor implements Visitor {
             n.ml.get(i).accept(this);
         }
         indenter.pop();
-        System.out.println();
-        System.out.print("}");
     }
 
-    // Type t;
-    // Identifier i;
+    @Override
     public void visit(VarDecl n) {
         indenter.print();
         n.t.accept(this);
         System.out.print(" ");
         n.i.accept(this);
-        System.out.print(";");
+        System.out.printf(" (line %d)", n.line_number);
     }
 
-    // Type t;
-    // Identifier i;
-    // FormalList fl;
-    // VarDeclList vl;
-    // StatementList sl;
-    // Exp e;
+    @Override
     public void visit(MethodDecl n) {
         indenter.print();
-        System.out.print("public ");
-        n.t.accept(this);
-        System.out.print(" ");
+        System.out.print("MethodDecl ");
         n.i.accept(this);
-        System.out.print("(");
+        System.out.printf(" (line %d)%n", n.line_number);
+        indenter.push();
+        indenter.print();
+        System.out.print("returns ");
+        n.t.accept(this);
+        System.out.println();
+        if (n.fl.size() > 0) {
+            indenter.print();
+            System.out.println("parameters:");
+        }
+        indenter.push();
         for (int i = 0; i < n.fl.size(); i++) {
             n.fl.get(i).accept(this);
-            if (i + 1 < n.fl.size()) {
-                System.out.print(", ");
-            }
-        }
-        System.out.print(") {");
-        indenter.push();
-        for (int i = 0; i < n.vl.size(); i++) {
             System.out.println();
+        }
+        indenter.pop();
+        for (int i = 0; i < n.vl.size(); i++) {
             n.vl.get(i).accept(this);
+            System.out.println();
         }
         for (int i = 0; i < n.sl.size(); i++) {
-            System.out.println();
             n.sl.get(i).accept(this);
+            System.out.println();
         }
-        System.out.println();
         indenter.print();
-        System.out.print("return ");
+        System.out.print("Return ");
         n.e.accept(this);
-        System.out.println(";");
+        System.out.printf(" (line %d)", n.e.line_number);
         indenter.pop();
-        indenter.print();
-        System.out.print("}");
     }
 
-    // Type t;
-    // Identifier i;
+    @Override
     public void visit(Formal n) {
+        indenter.print();
         n.t.accept(this);
         System.out.print(" ");
         n.i.accept(this);
     }
 
+    @Override
     public void visit(IntArrayType n) {
         System.out.print("int[]");
     }
 
+    @Override
     public void visit(BooleanType n) {
         System.out.print("boolean");
     }
 
+    @Override
     public void visit(IntegerType n) {
         System.out.print("int");
     }
 
-    // String s;
+    @Override
     public void visit(IdentifierType n) {
         System.out.print(n.s);
     }
 
-    // StatementList sl;
+    @Override
     public void visit(Block n) {
         indenter.push();
         for (int i = 0; i < n.sl.size(); i++) {
@@ -176,161 +157,130 @@ public class PrettyPrintVisitor implements Visitor {
         indenter.pop();
     }
 
-    // Exp e;
-    // Statement s1,s2;
+    @Override
     public void visit(If n) {
         indenter.print();
-        System.out.print("if (");
+        System.out.print("If ");
         n.e.accept(this);
-        System.out.print(")");
-        System.out.println(" {");
+        System.out.printf(" (line %d)%n", n.line_number);
         if (!(n.s1 instanceof Block)) indenter.push();
         n.s1.accept(this);
-        if (!(n.s1 instanceof Block)) indenter.pop();
         System.out.println();
+        if (!(n.s1 instanceof Block)) indenter.pop();
         indenter.print();
-        System.out.println("} else {");
+        System.out.println("Else");
         if (!(n.s2 instanceof Block)) indenter.push();
         n.s2.accept(this);
         if (!(n.s2 instanceof Block)) indenter.pop();
-        System.out.println();
-        indenter.print();
-        System.out.print("}");
     }
 
-    // Exp e;
-    // Statement s;
+    @Override
     public void visit(While n) {
         indenter.print();
-        System.out.print("while (");
+        System.out.print("While ");
         n.e.accept(this);
-        System.out.print(")");
-        if (n.s instanceof Block) {
-            System.out.println(" {");
-            n.s.accept(this);
-            System.out.println();
-            indenter.print();
-            System.out.print("}");
-        } else {
-            indenter.push();
-            n.s.accept(this);
-            indenter.pop();
-        }
+        System.out.printf(" (line %d)%n", n.line_number);
+        if (!(n.s instanceof Block)) indenter.push();
+        n.s.accept(this);
+        if (!(n.s instanceof Block)) indenter.pop();
     }
 
-    // Exp e;
+    @Override
     public void visit(Print n) {
         indenter.print();
-        System.out.print("System.out.println(");
+        System.out.printf("Print (line %d)%n", n.line_number);
+        indenter.push();
+        indenter.print();
         n.e.accept(this);
-        System.out.print(");");
+        indenter.pop();
     }
 
-    // Identifier i;
-    // Exp e;
+    @Override
     public void visit(Assign n) {
         indenter.print();
+        System.out.print("Assign ");
         n.i.accept(this);
-        System.out.print(" = ");
+        System.out.print(" <- ");
         n.e.accept(this);
-        System.out.print(";");
+        System.out.printf(" (line %d)", n.line_number);
     }
 
-    // Identifier i;
-    // Exp e1,e2;
+    @Override
     public void visit(ArrayAssign n) {
         indenter.print();
+        System.out.print("ArrayAssign ");
         n.i.accept(this);
         System.out.print("[");
         n.e1.accept(this);
-        System.out.print("] = ");
+        System.out.print("]");
+        System.out.print(" <- ");
         n.e2.accept(this);
-        System.out.print(";");
+        System.out.printf(" (line %d)", n.line_number);
     }
 
-    // Exp e1,e2;
+    @Override
     public void visit(And n) {
-        precedentTracker.leftParen(n);
-        precedentTracker.push(n);
+        System.out.print("And (");
         n.e1.accept(this);
-        System.out.print(" && ");
+        System.out.print(", ");
         n.e2.accept(this);
-        precedentTracker.pop();
-        precedentTracker.rightParen(n);
+        System.out.print(")");
     }
 
-    // Exp e1,e2;
+    @Override
     public void visit(LessThan n) {
-        precedentTracker.leftParen(n);
-        precedentTracker.push(n);
+        System.out.print("LessThan (");
         n.e1.accept(this);
-        System.out.print(" < ");
+        System.out.print(", ");
         n.e2.accept(this);
-        precedentTracker.pop();
-        precedentTracker.rightParen(n);
+        System.out.print(")");
     }
 
-    // Exp e1,e2;
+    @Override
     public void visit(Plus n) {
-        precedentTracker.leftParen(n);
-        precedentTracker.push(n);
+        System.out.print("(");
         n.e1.accept(this);
         System.out.print(" + ");
         n.e2.accept(this);
-        precedentTracker.pop();
-        precedentTracker.rightParen(n);
+        System.out.print(")");
     }
 
-    // Exp e1,e2;
+    @Override
     public void visit(Minus n) {
-        precedentTracker.leftParen(n);
-        precedentTracker.push(n);
+        System.out.print("(");
         n.e1.accept(this);
         System.out.print(" - ");
         n.e2.accept(this);
-        precedentTracker.pop();
-        precedentTracker.rightParen(n);
+        System.out.print(")");
     }
 
-    // Exp e1,e2;
+    @Override
     public void visit(Times n) {
-        precedentTracker.leftParen(n);
-        precedentTracker.push(n);
+        System.out.print("(");
         n.e1.accept(this);
         System.out.print(" * ");
         n.e2.accept(this);
-        precedentTracker.pop();
-        precedentTracker.rightParen(n);
+        System.out.print(")");
     }
 
-    // Exp e1,e2;
+    @Override
     public void visit(ArrayLookup n) {
-        precedentTracker.leftParen(n);
-        precedentTracker.push(n);
+        System.out.print("ArrayLookup ");
         n.e1.accept(this);
         System.out.print("[");
         n.e2.accept(this);
         System.out.print("]");
-        precedentTracker.pop();
-        precedentTracker.rightParen(n);
     }
 
-    // Exp e;
+    @Override
     public void visit(ArrayLength n) {
-        precedentTracker.leftParen(n);
-        precedentTracker.push(n);
+        System.out.print("ArrayLength ");
         n.e.accept(this);
-        System.out.print(".length");
-        precedentTracker.pop();
-        precedentTracker.rightParen(n);
     }
 
-    // Exp e;
-    // Identifier i;
-    // ExpList el;
+    @Override
     public void visit(Call n) {
-        precedentTracker.leftParen(n);
-        precedentTracker.push(n);
+        System.out.print("(");
         n.e.accept(this);
         System.out.print(".");
         n.i.accept(this);
@@ -341,64 +291,55 @@ public class PrettyPrintVisitor implements Visitor {
                 System.out.print(", ");
             }
         }
-        System.out.print(")");
-        precedentTracker.pop();
-        precedentTracker.rightParen(n);
+        System.out.print("))");
     }
 
-    // int i;
+    @Override
     public void visit(IntegerLiteral n) {
         System.out.print(n.i);
     }
 
+    @Override
     public void visit(True n) {
         System.out.print("true");
     }
 
+    @Override
     public void visit(False n) {
         System.out.print("false");
     }
 
-    // String s;
+    @Override
     public void visit(IdentifierExp n) {
         System.out.print(n.s);
     }
 
+    @Override
     public void visit(This n) {
         System.out.print("this");
     }
 
-    // Exp e;
+    @Override
     public void visit(NewArray n) {
-        precedentTracker.leftParen(n);
-        precedentTracker.push(n);
         System.out.print("new int[");
         n.e.accept(this);
         System.out.print("]");
-        precedentTracker.pop();
-        precedentTracker.rightParen(n);
     }
 
-    // Identifier i;
+    @Override
     public void visit(NewObject n) {
-        precedentTracker.leftParen(n);
         System.out.print("new ");
-        System.out.print(n.i.s);
+        n.i.accept(this);
         System.out.print("()");
-        precedentTracker.rightParen(n);
     }
 
-    // Exp e;
+    @Override
     public void visit(Not n) {
-        precedentTracker.leftParen(n);
-        precedentTracker.push(n);
-        System.out.print("!");
+        System.out.print("Not ");
         n.e.accept(this);
-        precedentTracker.pop();
-        precedentTracker.rightParen(n);
     }
 
-    // String s;
+    @Override
     public void visit(Identifier n) {
         System.out.print(n.s);
     }

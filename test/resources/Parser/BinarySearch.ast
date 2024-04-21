@@ -1,0 +1,163 @@
+Program
+  MainClass BinarySearch (line 1)
+    Print (line 3)
+      (new BS().Start(20))
+  Class BS (line 10)
+    int[] number (line 11)
+    int size (line 12)
+    MethodDecl Start (line 16)
+      returns int
+      parameters:
+        int sz
+      int aux01 (line 17)
+      int aux02 (line 18)
+      Assign aux01 <- (this.Init(sz)) (line 19)
+      Assign aux02 <- (this.Print()) (line 20)
+      If (this.Search(8)) (line 21)
+        Print (line 21)
+          1
+      Else
+        Print (line 22)
+          0
+      If (this.Search(19)) (line 23)
+        Print (line 23)
+          1
+      Else
+        Print (line 24)
+          0
+      If (this.Search(20)) (line 25)
+        Print (line 25)
+          1
+      Else
+        Print (line 26)
+          0
+      If (this.Search(21)) (line 27)
+        Print (line 27)
+          1
+      Else
+        Print (line 28)
+          0
+      If (this.Search(37)) (line 29)
+        Print (line 29)
+          1
+      Else
+        Print (line 30)
+          0
+      If (this.Search(38)) (line 31)
+        Print (line 31)
+          1
+      Else
+        Print (line 32)
+          0
+      If (this.Search(39)) (line 33)
+        Print (line 33)
+          1
+      Else
+        Print (line 34)
+          0
+      If (this.Search(50)) (line 35)
+        Print (line 35)
+          1
+      Else
+        Print (line 36)
+          0
+      Return 999 (line 38)
+    MethodDecl Search (line 44)
+      returns boolean
+      parameters:
+        int num
+      boolean bs01 (line 45)
+      int right (line 46)
+      int left (line 47)
+      boolean var_cont (line 48)
+      int medium (line 49)
+      int aux01 (line 50)
+      int nt (line 51)
+      Assign aux01 <- 0 (line 53)
+      Assign bs01 <- false (line 54)
+      Assign right <- ArrayLength number (line 55)
+      Assign right <- (right - 1) (line 56)
+      Assign left <- 0 (line 57)
+      Assign var_cont <- true (line 58)
+      While var_cont (line 59)
+        Assign medium <- (left + right) (line 60)
+        Assign medium <- (this.Div(medium)) (line 61)
+        Assign aux01 <- ArrayLookup number[medium] (line 62)
+        If LessThan (num, aux01) (line 63)
+          Assign right <- (medium - 1) (line 63)
+        Else
+          Assign left <- (medium + 1) (line 64)
+        If (this.Compare(aux01, num)) (line 65)
+          Assign var_cont <- false (line 65)
+        Else
+          Assign var_cont <- true (line 66)
+        If LessThan (right, left) (line 67)
+          Assign var_cont <- false (line 67)
+        Else
+          Assign nt <- 0 (line 68)
+      If (this.Compare(aux01, num)) (line 71)
+        Assign bs01 <- true (line 71)
+      Else
+        Assign bs01 <- false (line 72)
+      Return bs01 (line 73)
+    MethodDecl Div (line 78)
+      returns int
+      parameters:
+        int num
+      int count01 (line 79)
+      int count02 (line 80)
+      int aux03 (line 81)
+      Assign count01 <- 0 (line 83)
+      Assign count02 <- 0 (line 84)
+      Assign aux03 <- (num - 1) (line 85)
+      While LessThan (count02, aux03) (line 86)
+        Assign count01 <- (count01 + 1) (line 87)
+        Assign count02 <- (count02 + 2) (line 88)
+      Return count01 (line 90)
+    MethodDecl Compare (line 97)
+      returns boolean
+      parameters:
+        int num1
+        int num2
+      boolean retval (line 98)
+      int aux02 (line 99)
+      Assign retval <- false (line 101)
+      Assign aux02 <- (num2 + 1) (line 102)
+      If LessThan (num1, num2) (line 103)
+        Assign retval <- false (line 103)
+      Else
+        If Not LessThan (num1, aux02) (line 104)
+          Assign retval <- false (line 104)
+        Else
+          Assign retval <- true (line 105)
+      Return retval (line 106)
+    MethodDecl Print (line 110)
+      returns int
+      int j (line 111)
+      Assign j <- 1 (line 113)
+      While LessThan (j, size) (line 114)
+        Print (line 115)
+          ArrayLookup number[j]
+        Assign j <- (j + 1) (line 116)
+      Print (line 118)
+        99999
+      Return 0 (line 119)
+    MethodDecl Init (line 124)
+      returns int
+      parameters:
+        int sz
+      int j (line 125)
+      int k (line 126)
+      int aux02 (line 127)
+      int aux01 (line 128)
+      Assign size <- sz (line 130)
+      Assign number <- new int[sz] (line 131)
+      Assign j <- 1 (line 133)
+      Assign k <- (size + 1) (line 134)
+      While LessThan (j, size) (line 135)
+        Assign aux01 <- (2 * j) (line 136)
+        Assign aux02 <- (k - 3) (line 137)
+        ArrayAssign number[j] <- (aux01 + aux02) (line 138)
+        Assign j <- (j + 1) (line 139)
+        Assign k <- (k - 1) (line 140)
+      Return 0 (line 142)

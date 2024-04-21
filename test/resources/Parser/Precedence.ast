@@ -1,0 +1,34 @@
+Program
+  MainClass Precedence (line 1)
+    Assign foo <- 1 (line 3)
+  Class Test (line 7)
+    MethodDecl associativity (line 8)
+      returns int
+      Assign a <- (a + (b.f())) (line 9)
+      Assign c <- ((d.g()) * (ArrayLookup a[((4 * (f.h())) - 1)] + 1)) (line 10)
+      Assign foo <- (((f.a()).b()).c()) (line 11)
+      ArrayAssign a[5] <- ArrayLookup a[(1 + (g.h()))] (line 12)
+      Assign arr <- (((f.g()) + 1) + ArrayLength arr) (line 13)
+      Assign x <- new int[((f.g()) * (a.c()))] (line 14)
+      Assign y <- (new Bar().foo((1 - ArrayLookup a[2]))) (line 15)
+      Return 0 (line 17)
+    MethodDecl math (line 20)
+      returns int
+      Assign a <- (((((1 * 2) - 2) + (3 * 4)) - 5) - ((6 * (7 + 1)) * 23)) (line 21)
+      Return 0 (line 23)
+    MethodDecl precedence (line 26)
+      returns int
+      Assign a <- ((((1 + 2) + 3) + 4) + 5) (line 27)
+      Assign b <- ((((1 - 2) - 3) - 4) - 5) (line 28)
+      Assign c <- And (And (And (w, x), y), z) (line 29)
+      Assign d <- LessThan (LessThan (LessThan (LessThan (1, 2), 3), 4), 5) (line 30)
+      Assign e <- ((((1 * 2) * 3) * 4) * 5) (line 31)
+      Assign x <- y (line 32)
+      Return 0 (line 34)
+    MethodDecl bool (line 37)
+      returns int
+      If Not Not Not Not Not Not Not cond (line 38)
+        Assign a <- new b() (line 39)
+      Else
+        Assign c <- new d() (line 41)
+      Return 0 (line 44)

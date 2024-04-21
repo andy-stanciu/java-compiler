@@ -1,0 +1,13 @@
+Program
+  MainClass NonsenseMain (line 1)
+    Assign hi <- hi (line 3)
+  Class Nonsense (line 7)
+    MethodDecl garbage (line 8)
+      returns Garbage
+      parameters:
+        F f
+        G g
+      Assign f <- 1 (line 9)
+      Assign g <- And (1, new Garbage()) (line 10)
+      Assign z <- And (LessThan (LessThan (a, (b.c())), (true.foo())), (ArrayLength arr - (hi * (false.bar())))) (line 11)
+      Return LessThan (1, 5) (line 13)

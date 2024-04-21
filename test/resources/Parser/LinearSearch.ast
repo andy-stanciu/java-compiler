@@ -1,0 +1,81 @@
+Program
+  MainClass LinearSearch (line 1)
+    Print (line 3)
+      (new LS().Start(10))
+  Class LS (line 11)
+    int[] number (line 12)
+    int size (line 13)
+    MethodDecl Start (line 17)
+      returns int
+      parameters:
+        int sz
+      int aux01 (line 18)
+      int aux02 (line 19)
+      Assign aux01 <- (this.Init(sz)) (line 21)
+      Assign aux02 <- (this.Print()) (line 22)
+      Print (line 23)
+        9999
+      Print (line 24)
+        (this.Search(8))
+      Print (line 25)
+        (this.Search(12))
+      Print (line 26)
+        (this.Search(17))
+      Print (line 27)
+        (this.Search(50))
+      Return 55 (line 28)
+    MethodDecl Print (line 32)
+      returns int
+      int j (line 33)
+      Assign j <- 1 (line 35)
+      While LessThan (j, size) (line 36)
+        Print (line 37)
+          ArrayLookup number[j]
+        Assign j <- (j + 1) (line 38)
+      Return 0 (line 40)
+    MethodDecl Search (line 45)
+      returns int
+      parameters:
+        int num
+      int j (line 46)
+      boolean ls01 (line 47)
+      int ifound (line 48)
+      int aux01 (line 49)
+      int aux02 (line 50)
+      int nt (line 51)
+      Assign j <- 1 (line 53)
+      Assign ls01 <- false (line 54)
+      Assign ifound <- 0 (line 55)
+      While LessThan (j, size) (line 58)
+        Assign aux01 <- ArrayLookup number[j] (line 59)
+        Assign aux02 <- (num + 1) (line 60)
+        If LessThan (aux01, num) (line 61)
+          Assign nt <- 0 (line 61)
+        Else
+          If Not LessThan (aux01, aux02) (line 62)
+            Assign nt <- 0 (line 62)
+          Else
+            Assign ls01 <- true (line 64)
+            Assign ifound <- 1 (line 65)
+            Assign j <- size (line 66)
+        Assign j <- (j + 1) (line 68)
+      Return ifound (line 71)
+    MethodDecl Init (line 78)
+      returns int
+      parameters:
+        int sz
+      int j (line 79)
+      int k (line 80)
+      int aux01 (line 81)
+      int aux02 (line 82)
+      Assign size <- sz (line 84)
+      Assign number <- new int[sz] (line 85)
+      Assign j <- 1 (line 87)
+      Assign k <- (size + 1) (line 88)
+      While LessThan (j, size) (line 89)
+        Assign aux01 <- (2 * j) (line 90)
+        Assign aux02 <- (k - 3) (line 91)
+        ArrayAssign number[j] <- (aux01 + aux02) (line 92)
+        Assign j <- (j + 1) (line 93)
+        Assign k <- (k - 1) (line 94)
+      Return 0 (line 96)

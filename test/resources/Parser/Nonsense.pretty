@@ -1,0 +1,13 @@
+class NonsenseMain {
+  public static void main(String[] args) {
+    hi = hi;
+  }
+}
+class Nonsense {
+  public Garbage garbage(F f, G g) {
+    f = 1;
+    g = 1 && new Garbage();
+    z = a < b.c() < true.foo() && arr.length - hi * false.bar();
+    return 1 < 5;
+  }
+}

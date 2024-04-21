@@ -1,0 +1,97 @@
+Program
+  MainClass QuickSort (line 1)
+    Print (line 3)
+      (new QS().Start(10))
+  Class QS (line 11)
+    int[] number (line 13)
+    int size (line 14)
+    MethodDecl Start (line 18)
+      returns int
+      parameters:
+        int sz
+      int aux01 (line 19)
+      Assign aux01 <- (this.Init(sz)) (line 20)
+      Assign aux01 <- (this.Print()) (line 21)
+      Print (line 22)
+        9999
+      Assign aux01 <- (size - 1) (line 23)
+      Assign aux01 <- (this.Sort(0, aux01)) (line 24)
+      Assign aux01 <- (this.Print()) (line 25)
+      Return 0 (line 26)
+    MethodDecl Sort (line 31)
+      returns int
+      parameters:
+        int left
+        int right
+      int v (line 32)
+      int i (line 33)
+      int j (line 34)
+      int nt (line 35)
+      int t (line 36)
+      boolean cont01 (line 37)
+      boolean cont02 (line 38)
+      int aux03 (line 39)
+      Assign t <- 0 (line 40)
+      If LessThan (left, right) (line 41)
+        Assign v <- ArrayLookup number[right] (line 42)
+        Assign i <- (left - 1) (line 43)
+        Assign j <- right (line 44)
+        Assign cont01 <- true (line 45)
+        While cont01 (line 46)
+          Assign cont02 <- true (line 47)
+          While cont02 (line 48)
+            Assign i <- (i + 1) (line 49)
+            Assign aux03 <- ArrayLookup number[i] (line 50)
+            If Not LessThan (aux03, v) (line 51)
+              Assign cont02 <- false (line 51)
+            Else
+              Assign cont02 <- true (line 52)
+          Assign cont02 <- true (line 54)
+          While cont02 (line 55)
+            Assign j <- (j - 1) (line 56)
+            Assign aux03 <- ArrayLookup number[j] (line 57)
+            If Not LessThan (v, aux03) (line 58)
+              Assign cont02 <- false (line 58)
+            Else
+              Assign cont02 <- true (line 59)
+          Assign t <- ArrayLookup number[i] (line 63)
+          ArrayAssign number[i] <- ArrayLookup number[j] (line 64)
+          ArrayAssign number[j] <- t (line 65)
+          If LessThan (j, (i + 1)) (line 67)
+            Assign cont01 <- false (line 67)
+          Else
+            Assign cont01 <- true (line 68)
+        ArrayAssign number[j] <- ArrayLookup number[i] (line 70)
+        ArrayAssign number[i] <- ArrayLookup number[right] (line 71)
+        ArrayAssign number[right] <- t (line 72)
+        Assign nt <- (this.Sort(left, (i - 1))) (line 73)
+        Assign nt <- (this.Sort((i + 1), right)) (line 74)
+      Else
+        Assign nt <- 0 (line 76)
+      Return 0 (line 77)
+    MethodDecl Print (line 82)
+      returns int
+      int j (line 83)
+      Assign j <- 0 (line 84)
+      While LessThan (j, size) (line 85)
+        Print (line 86)
+          ArrayLookup number[j]
+        Assign j <- (j + 1) (line 87)
+      Return 0 (line 89)
+    MethodDecl Init (line 94)
+      returns int
+      parameters:
+        int sz
+      Assign size <- sz (line 95)
+      Assign number <- new int[sz] (line 96)
+      ArrayAssign number[0] <- 20 (line 98)
+      ArrayAssign number[1] <- 7 (line 99)
+      ArrayAssign number[2] <- 12 (line 100)
+      ArrayAssign number[3] <- 18 (line 101)
+      ArrayAssign number[4] <- 2 (line 102)
+      ArrayAssign number[5] <- 11 (line 103)
+      ArrayAssign number[6] <- 6 (line 104)
+      ArrayAssign number[7] <- 9 (line 105)
+      ArrayAssign number[8] <- 19 (line 106)
+      ArrayAssign number[9] <- 5 (line 107)
+      Return 0 (line 109)
