@@ -1,7 +1,7 @@
-import Scanner.*;
-import Parser.*;
-import AST.*;
-import AST.Visitor.*;
+import scanner.*;
+import parser.*;
+import ast.*;
+import ast.Visitor.*;
 import java_cup.runtime.Symbol;
 import java_cup.runtime.ComplexSymbolFactory;
 import java.util.*;

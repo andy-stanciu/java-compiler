@@ -1,0 +1,216 @@
+/**
+ * CUP specification of the language grammar for a simple demo language.
+ * Change this into the language grammar of MiniJava for your implementation.
+ *
+ * CSE 401/M501/P501 19au, 20sp
+ */
+
+package parser;
+
+import ast.*;
+import java.util.*;
+import java_cup.runtime.*;
+
+/* Terminals (lexical tokens returned by the scanner): */
+
+/* reserved words */
+terminal BOOLEAN, CLASS, ELSE, EXTENDS, FALSE, IF, INT, LENGTH, MAIN,
+         NEW, PUBLIC, RETURN, STATIC, STRING, PRINT, THIS, TRUE, VOID, WHILE;
+
+/* operators */
+terminal PLUS, MINUS, MULT, LESS_THAN, EQUALS, NOT, AND;
+
+/* delimiters */
+terminal LPAREN, RPAREN, LSQUARE, RSQUARE, LCURL, RCURL, SEMICOLON, COMMA, DOT;
+
+/* identifiers */
+terminal String IDENTIFIER;
+terminal String INT_LITERAL;
+
+/* nonterminals */
+nonterminal Program Program;
+nonterminal MainClass MainClass;
+nonterminal ClassDeclList ClassDeclarationList;
+nonterminal ClassDecl ClassDeclaration;
+nonterminal VarDeclList VarDeclarationList;
+nonterminal VarDecl VarDeclaration;
+nonterminal MethodDeclList MethodDeclarationList;
+nonterminal MethodDecl MethodDeclaration;
+nonterminal FormalList FormalList;
+nonterminal Formal Formal;
+nonterminal Type Type;
+nonterminal StatementList StatementList;
+nonterminal Statement Statement;
+nonterminal ExpList ExpressionList;
+nonterminal Exp Expression;
+nonterminal Identifier Identifier;
+
+/* precedence declarations: */
+precedence left AND;           // &&
+precedence left LESS_THAN;     // < should be nonassoc in the long run, but saving for semantic analysis
+precedence left PLUS, MINUS;   // + -
+precedence left MULT;          // *
+precedence right NEW;          // new
+precedence right NOT;          // ! right/left shouldn't really matter here...
+precedence left DOT, LSQUARE;  // . [
+
+/* productions */
+Program ::= MainClass:m ClassDeclarationList:cl
+            {: RESULT = new Program(m, cl, mxleft); :}
+        | MainClass:m
+            {: RESULT = new Program(m, new ClassDeclList(mxright), mxleft); :};
+
+MainClass ::= CLASS:c Identifier:cid LCURL PUBLIC STATIC VOID MAIN LPAREN STRING LSQUARE RSQUARE Identifier:aid RPAREN LCURL Statement:s RCURL RCURL
+              {: RESULT = new MainClass(cid, aid, s, cxleft); :};
+
+ClassDeclarationList ::= ClassDeclaration:c
+                         {: ClassDeclList cl = new ClassDeclList(cxleft);
+                            cl.add(c);
+                            RESULT = cl; :}
+                     | ClassDeclarationList:cl ClassDeclaration:c
+                         {: cl.add(c);
+                            RESULT = cl; :};
+
+ClassDeclaration ::= CLASS:c Identifier:cid LCURL VarDeclarationList:vl MethodDeclarationList:ml RCURL
+                     {: RESULT = new ClassDeclSimple(cid, vl, ml, cxleft); :}
+                 | CLASS:c Identifier:cid LCURL:lc MethodDeclarationList:ml RCURL
+                     {: RESULT = new ClassDeclSimple(cid, new VarDeclList(lcxright), ml, cxleft); :}
+                 | CLASS:c Identifier:cid LCURL:lc VarDeclarationList:vl RCURL
+                     {: RESULT = new ClassDeclSimple(cid, vl, new MethodDeclList(lcxright), cxleft); :}
+                 | CLASS:c Identifier:cid LCURL:lc RCURL
+                     {: RESULT = new ClassDeclSimple(cid, new VarDeclList(lcxright), new MethodDeclList(lcxright), cxleft); :}
+                 | CLASS:c Identifier:cid EXTENDS Identifier:eid LCURL VarDeclarationList:vl MethodDeclarationList:ml RCURL
+                     {: RESULT = new ClassDeclExtends(cid, eid, vl, ml, cxleft); :}
+                 | CLASS:c Identifier:cid EXTENDS Identifier:eid LCURL:lc MethodDeclarationList:ml RCURL
+                     {: RESULT = new ClassDeclExtends(cid, eid, new VarDeclList(lcxright), ml, cxleft); :}
+                 | CLASS:c Identifier:cid EXTENDS Identifier:eid LCURL:lc VarDeclarationList:vl RCURL
+                     {: RESULT = new ClassDeclExtends(cid, eid, vl, new MethodDeclList(lcxright), cxleft); :}
+                 | CLASS:c Identifier:cid EXTENDS Identifier:eid LCURL:lc RCURL
+                     {: RESULT = new ClassDeclExtends(cid, eid, new VarDeclList(lcxright), new MethodDeclList(lcxright), cxleft); :};
+
+VarDeclarationList ::= VarDeclaration:v
+                       {: VarDeclList vl = new VarDeclList(vxleft);
+                          vl.add(v);
+                          RESULT = vl; :}
+                   | VarDeclarationList:vl VarDeclaration:v
+                       {: vl.add(v);
+                          RESULT = vl; :};
+
+VarDeclaration ::= Type:t Identifier:id SEMICOLON
+                   {: RESULT = new VarDecl(t, id, txleft); :};
+
+MethodDeclarationList ::= MethodDeclaration:m
+                          {: MethodDeclList ml = new MethodDeclList(mxleft);
+                             ml.add(m);
+                             RESULT = ml; :}
+                      | MethodDeclarationList:ml MethodDeclaration:m
+                          {: ml.add(m);
+                             RESULT = ml; :};
+
+MethodDeclaration ::= PUBLIC:p Type:t Identifier:mid LPAREN FormalList:fl RPAREN LCURL VarDeclarationList:vl StatementList:sl RETURN Expression:e SEMICOLON RCURL
+                      {: RESULT = new MethodDecl(t, mid, fl, vl, sl, e, pxleft); :}
+                  | PUBLIC:p Type:t Identifier:mid LPAREN:lp RPAREN LCURL VarDeclarationList:vl StatementList:sl RETURN Expression:e SEMICOLON RCURL
+                      {: RESULT = new MethodDecl(t, mid, new FormalList(lpxright), vl, sl, e, pxleft); :}
+                  | PUBLIC:p Type:t Identifier:mid LPAREN FormalList:fl RPAREN LCURL:lc StatementList:sl RETURN Expression:e SEMICOLON RCURL
+                      {: RESULT = new MethodDecl(t, mid, fl, new VarDeclList(lcxright), sl, e, pxleft); :}
+                  | PUBLIC:p Type:t Identifier:mid LPAREN FormalList:fl RPAREN LCURL VarDeclarationList:vl RETURN Expression:e SEMICOLON RCURL
+                      {: RESULT = new MethodDecl(t, mid, fl, vl, new StatementList(vlxright), e, pxleft); :}
+                  | PUBLIC:p Type:t Identifier:mid LPAREN FormalList:fl RPAREN LCURL:lc RETURN Expression:e SEMICOLON RCURL
+                      {: RESULT = new MethodDecl(t, mid, fl, new VarDeclList(lcxright), new StatementList(lcxright), e, pxleft); :}
+                  | PUBLIC:p Type:t Identifier:mid LPAREN:lp RPAREN LCURL VarDeclarationList:vl RETURN Expression:e SEMICOLON RCURL
+                      {: RESULT = new MethodDecl(t, mid, new FormalList(lpxright), vl, new StatementList(vlxright), e, pxleft); :}
+                  | PUBLIC:p Type:t Identifier:mid LPAREN:lp RPAREN LCURL:lc StatementList:sl RETURN Expression:e SEMICOLON RCURL
+                      {: RESULT = new MethodDecl(t, mid, new FormalList(lpxright), new VarDeclList(lcxright), sl, e, pxleft); :}
+                  | PUBLIC:p Type:t Identifier:mid LPAREN:lp RPAREN LCURL:lc RETURN Expression:e SEMICOLON RCURL
+                      {: RESULT = new MethodDecl(t, mid, new FormalList(lpxright), new VarDeclList(lcxright), new StatementList(lcxright), e, pxleft); :};
+
+FormalList ::= Formal:f
+               {: FormalList fl = new FormalList(fxleft);
+                  fl.add(f);
+                  RESULT = fl; :}
+           | FormalList:fl COMMA Formal:f
+               {: fl.add(f);
+                  RESULT = fl; :};
+
+Formal ::= Type:t Identifier:id
+           {: RESULT = new Formal(t, id, txleft); :};
+
+Type ::= INT:i LSQUARE RSQUARE
+         {: RESULT = new IntArrayType(ixleft); :}
+     | BOOLEAN:b
+         {: RESULT = new BooleanType(bxleft); :}
+     | INT:i
+         {: RESULT = new IntegerType(ixleft); :}
+     | Identifier:id
+         {: RESULT = new IdentifierType(id.toString(), idxleft); :};
+
+StatementList ::= Statement:s
+                  {: StatementList sl = new StatementList(sxleft);
+                     sl.add(s);
+                     RESULT = sl; :}
+              | StatementList:sl Statement:s
+                  {: sl.add(s);
+                     RESULT = sl; :};
+
+Statement ::= LCURL:lc StatementList:sl RCURL
+              {: RESULT = new Block(sl, lcxleft); :}
+          | LCURL:lc RCURL
+              {: RESULT = new Block(new StatementList(lcxright), lcxleft); :}
+          | IF:i LPAREN Expression:e RPAREN Statement:s1 ELSE Statement:s2
+              {: RESULT = new If(e, s1, s2, ixleft); :}
+          | WHILE:w LPAREN Expression:e RPAREN Statement:s
+              {: RESULT = new While(e, s, wxleft); :}
+          | PRINT:p LPAREN Expression:e RPAREN SEMICOLON
+              {: RESULT = new Print(e, pxleft); :}
+          | Identifier:id EQUALS Expression:e SEMICOLON
+              {: RESULT = new Assign(id, e, idxleft); :}
+          | Identifier:id LSQUARE Expression:e1 RSQUARE EQUALS Expression:e2 SEMICOLON
+              {: RESULT = new ArrayAssign(id, e1, e2, idxleft); :};
+
+ExpressionList ::= Expression:e
+                   {: ExpList el = new ExpList(exleft);
+                      el.add(e);
+                      RESULT = el; :}
+               | ExpressionList:el COMMA Expression:e
+                   {: el.add(e);
+                      RESULT = el; :};
+
+Expression ::= Expression:e1 AND Expression:e2
+               {: RESULT = new And(e1, e2, e1xleft); :}
+           | Expression:e1 LESS_THAN Expression:e2
+               {: RESULT = new LessThan(e1, e2, e1xleft); :}
+           | Expression:e1 PLUS Expression:e2
+                          {: RESULT = new Plus(e1, e2, e1xleft); :}
+           | Expression:e1 MINUS Expression:e2
+                          {: RESULT = new Minus(e1, e2, e1xleft); :}
+           | Expression:e1 MULT Expression:e2
+                          {: RESULT = new Times(e1, e2, e1xleft); :}
+           | Expression:e1 LSQUARE Expression:e2 RSQUARE
+                          {: RESULT = new ArrayLookup(e1, e2, e1xleft); :}
+           | Expression:e DOT LENGTH
+                          {: RESULT = new ArrayLength(e, exleft); :}
+           | Expression:e DOT Identifier:id LPAREN:lp RPAREN
+                          {: RESULT = new Call(e, id, new ExpList(lpxright), exleft); :}
+           | Expression:e DOT Identifier:id LPAREN ExpressionList:el RPAREN
+                          {: RESULT = new Call(e, id, el, exleft); :}
+           | INT_LITERAL:n
+                          {: RESULT = new IntegerLiteral(Integer.parseInt(n), nxleft); :}
+           | TRUE:t
+                          {: RESULT = new True(txleft); :}
+           | FALSE:f
+                          {: RESULT = new False(fxleft); :}
+           | Identifier:id
+                          {: RESULT = new IdentifierExp(id.toString(), idxleft); :}
+           | THIS:t
+                          {: RESULT = new This(txleft); :}
+           | NEW:n INT LSQUARE Expression:e RSQUARE
+                          {: RESULT = new NewArray(e, nxleft); :}
+           | NEW:n Identifier:id LPAREN RPAREN
+                          {: RESULT = new NewObject(id, nxleft); :}
+           | NOT:n Expression:e
+                          {: RESULT = new Not(e, nxleft); :}
+           | LPAREN Expression:e RPAREN
+                          {: RESULT = e; :};
+
+Identifier ::= IDENTIFIER:id
+               {: RESULT = new Identifier(id, idxleft); :};

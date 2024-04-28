@@ -16,18 +16,18 @@
 
   <target name="clean">
     <delete dir="build"/>
-    <delete file="src/Parser/parser.java"/>
-    <delete file="src/Parser/sym.java"/>
-    <delete file="src/Scanner/scanner.java"/>
-    <delete file="src/Scanner/scanner.java~"/>
+    <delete file="src/parser/parser.java"/>
+    <delete file="src/parser/sym.java"/>
+    <delete file="src/scanner/scanner.java"/>
+    <delete file="src/scanner/scanner.java~"/>
   </target>
 
   <target name="check.parse.files">
-    <uptodate targetfile="src/Parser/parser.java"
-	      srcfile="src/Parser/minijava.cup"
+    <uptodate targetfile="src/parser/parser.java"
+	      srcfile="src/parser/minijava.cup"
 	      property="parser.uptodate"/>
-    <uptodate targetfile="src/Scanner/scanner.java"
-	      srcfile="src/Scanner/minijava.jflex"
+    <uptodate targetfile="src/scanner/scanner.java"
+	      srcfile="src/scanner/minijava.jflex"
 	      property="scanner.uptodate"/>
     <condition property="scanner.parser.uptodate">
       <and>
@@ -45,8 +45,8 @@
       <arg value="-dump_states"/>
       <arg value="-dump_grammar"/>
       <arg value="-dump_tables"/>
-      <arg value="-destdir"/> <arg value="src/Parser"/>
-      <arg value="src/Parser/minijava.cup"/>
+      <arg value="-destdir"/> <arg value="src/parser"/>
+      <arg value="src/parser/minijava.cup"/>
     </java>
   </target>
 
@@ -54,7 +54,7 @@
 	  unless="scanner.parser.uptodate">
     <java classname="jflex.Main" classpath="lib/jflex-full-1.8.2.jar"
 	  fork="true" failonerror="true">
-      <arg value="src/Scanner/minijava.jflex"/>
+      <arg value="src/scanner/minijava.jflex"/>
     </java>
   </target>
 

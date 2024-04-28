@@ -1,10 +1,10 @@
-import AST.Program;
-import AST.Visitor.ASTVisitor;
-import AST.Visitor.PrettyPrintVisitor;
-import AST.Visitor.Visitor;
-import Parser.parser;
-import Scanner.*;
-import Parser.sym;
+import ast.Program;
+import ast.Visitor.ASTVisitor;
+import ast.Visitor.PrettyPrintVisitor;
+import ast.Visitor.Visitor;
+import parser.parser;
+import scanner.*;
+import parser.sym;
 import java_cup.runtime.ComplexSymbolFactory;
 import java_cup.runtime.Symbol;
 
@@ -16,7 +16,7 @@ public class MiniJava {
     public static void main(String[] args) {
         Queue<Task> tasks = parseTasks(args);
         if (tasks == null) {
-            System.err.println("Usage: MiniJava -S | -P | -A <file1.java, file2.java, ...>");
+            System.err.println("Usage: MiniJava -S | -P | -A | -T <file1.java, file2.java, ...>");
             System.exit(1);
         }
 
@@ -27,6 +27,7 @@ public class MiniJava {
                 case SCAN -> status |= scan(task);
                 case PRETTY_PRINT -> status |= parse(task, new PrettyPrintVisitor());
                 case AST -> status |= parse(task, new ASTVisitor());
+                case TABLE -> status |= 0;
             }
         }
 
@@ -97,6 +98,7 @@ public class MiniJava {
                 case "-s", "--scan" -> type = TaskType.SCAN;
                 case "-p", "--pretty-print" -> type = TaskType.PRETTY_PRINT;
                 case "-a", "--ast" -> type = TaskType.AST;
+                case "-t", "--table" -> type = TaskType.TABLE;
                 default -> {
                     System.err.printf("Unrecognized operand: %s%n", operator);
                     return null;
@@ -152,6 +154,9 @@ public class MiniJava {
     private record Task(TaskType type, File input) {}
 
     private enum TaskType {
-        SCAN, PRETTY_PRINT, AST
+        SCAN,          // scan
+        PRETTY_PRINT,  // scan, parse, and pretty-print
+        AST,           // scan, parse, and print ast
+        TABLE          // scan, parse, static semantic analysis, and print symbol tables
     }
 }
