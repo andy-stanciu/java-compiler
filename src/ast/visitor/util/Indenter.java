@@ -1,4 +1,4 @@
-package ast.Visitor.util;
+package ast.visitor.util;
 
 public final class Indenter {
     private final int indentSize;

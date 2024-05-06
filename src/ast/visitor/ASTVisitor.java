@@ -1,9 +1,9 @@
-package ast.Visitor;
+package ast.visitor;
 
 import ast.*;
-import ast.Visitor.util.Indenter;
+import ast.visitor.util.Indenter;
 
-public class ASTVisitor implements Visitor {
+public final class ASTVisitor implements Visitor {
     private final Indenter indenter;
 
     public ASTVisitor() {

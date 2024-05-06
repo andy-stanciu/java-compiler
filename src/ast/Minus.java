@@ -1,6 +1,6 @@
 package ast;
 
-import ast.Visitor.Visitor;
+import ast.visitor.Visitor;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 
 public class Minus extends Exp {

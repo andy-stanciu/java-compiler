@@ -1,7 +1,7 @@
 import ast.Program;
-import ast.Visitor.ASTVisitor;
-import ast.Visitor.PrettyPrintVisitor;
-import ast.Visitor.Visitor;
+import ast.visitor.ASTVisitor;
+import ast.visitor.PrettyPrintVisitor;
+import ast.visitor.Visitor;
 import parser.parser;
 import scanner.*;
 import parser.sym;
@@ -27,7 +27,7 @@ public class MiniJava {
                 case SCAN -> status |= scan(task);
                 case PRETTY_PRINT -> status |= parse(task, new PrettyPrintVisitor());
                 case AST -> status |= parse(task, new ASTVisitor());
-                case TABLE -> status |= 0;
+                case TABLE -> status |= validate(task);
             }
         }
 
@@ -74,6 +74,28 @@ public class MiniJava {
 
             Program program = (Program) root.value;
             program.accept(visitor);
+        } catch (Exception e) {
+            System.err.println("Unexpected internal compiler error: " + e);
+            e.printStackTrace();
+            status = 1;
+        }
+
+        return status;
+    }
+
+    private static int validate(Task task) {
+        int status = 0;
+        try {
+            ComplexSymbolFactory sf = new ComplexSymbolFactory();
+            Reader in = new BufferedReader(new InputStreamReader(new FileInputStream(task.input)));
+
+            scanner s = new scanner(in, sf);
+            parser p = new parser(s, sf);
+            Symbol root = p.parse();
+
+            Program program = (Program) root.value;
+            // TODO: semantic validation
+
         } catch (Exception e) {
             System.err.println("Unexpected internal compiler error: " + e);
             e.printStackTrace();

@@ -2,6 +2,8 @@ package ast;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.function.Consumer;
+
 import java_cup.runtime.ComplexSymbolFactory.Location;
 
 public class VarDeclList extends ASTNode {
@@ -22,5 +24,11 @@ public class VarDeclList extends ASTNode {
 
    public int size() { 
       return list.size(); 
+   }
+
+   public void forEach(Consumer<VarDecl> action) {
+      for (var v : list) {
+         action.accept(v);
+      }
    }
 }

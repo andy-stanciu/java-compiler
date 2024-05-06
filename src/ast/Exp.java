@@ -1,9 +1,12 @@
 package ast;
 
-import ast.Visitor.Visitor;
+import ast.visitor.Visitor;
 import java_cup.runtime.ComplexSymbolFactory.Location;
+import semantics.type.Type;
 
 public abstract class Exp extends ASTNode {
+    public Type type;
+
     public Exp(Location pos) {
         super(pos);
     }

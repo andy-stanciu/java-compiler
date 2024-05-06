@@ -1,10 +1,10 @@
-package ast.Visitor;
+package ast.visitor;
 
 import ast.*;
-import ast.Visitor.util.Indenter;
-import ast.Visitor.util.PrecedentTracker;
+import ast.visitor.util.Indenter;
+import ast.visitor.util.PrecedentTracker;
 
-public class PrettyPrintVisitor implements Visitor {
+public final class PrettyPrintVisitor implements Visitor {
     private final Indenter indenter;
     private final PrecedentTracker precedentTracker;
 

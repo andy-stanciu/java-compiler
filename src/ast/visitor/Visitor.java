@@ -1,4 +1,4 @@
-package ast.Visitor;
+package ast.visitor;
 
 import ast.*;
 
