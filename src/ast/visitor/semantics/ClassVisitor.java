@@ -2,6 +2,8 @@ package ast.visitor.semantics;
 
 import ast.*;
 import ast.visitor.Visitor;
+import semantics.IllegalSemanticException;
+import semantics.info.ClassInfo;
 import semantics.table.SymbolContext;
 import semantics.type.*;
 
@@ -22,6 +24,11 @@ public final class ClassVisitor implements Visitor {
     @Override
     public void visit(Program n) {
         n.cl.forEach(c -> c.accept(this));
+
+        // after this visitor finishes visiting all the classes, the
+        // inheritance graph will be constructed and valid. we need to now
+        // propagate method declarations from base classes to derived classes
+        symbolContext.propagateInheritedMembers();
     }
 
     @Override
@@ -33,8 +40,13 @@ public final class ClassVisitor implements Visitor {
     public void visit(ClassDeclSimple n) {
         if (n.conflict) return;
 
+        var this_ = symbolContext.lookupClass(n.i.s);  // this class
+        if (this_ == null) {
+            throw new IllegalSemanticException("unreachable");
+        }
+
         symbolContext.enter(n.i.s);
-        symbolContext.addEntry("this", symbolContext.lookupClass(n.i.s));
+        symbolContext.addEntry("this", this_); // point to this class
         n.vl.forEach(v -> v.accept(this));
         n.ml.forEach(m -> m.accept(this));
         symbolContext.exit();
@@ -44,14 +56,56 @@ public final class ClassVisitor implements Visitor {
     public void visit(ClassDeclExtends n) {
         if (n.conflict) return;
 
-        symbolContext.lookupClass(n.j.s);  // extended type
-        // TODO: handle extended class
+        var base = symbolContext.lookupClass(n.j.s);     // base class
+        var derived = symbolContext.lookupClass(n.i.s);  // derived class
+        if (derived == null) {
+            throw new IllegalSemanticException("unreachable");
+        }
+
+        if (base != null) {
+            // if a cycle is found, derived class is left as a base class
+            if (!findCycle(base, derived)) {
+                base.addChild(derived);
+                derived.setParent(base);
+            }
+        } else {
+            System.err.printf("Cannot resolve class \"%s\"", n.j.s);
+        }
 
         symbolContext.enter(n.i.s);
-        symbolContext.addEntry("this", symbolContext.lookupClass(n.i.s));
+        symbolContext.addEntry("this", derived);  // point to derived class
         n.vl.forEach(v -> v.accept(this));
         n.ml.forEach(m -> m.accept(this));
         symbolContext.exit();
+    }
+
+    /**
+     * Determines whether there is a cycle between the base class and the
+     * derived class, i.e. if the derived class or any of its children at one
+     * point reference the base class, a cycle exists.
+     * @param base The base class.
+     * @param derived The derived class.
+     * @return Whether a cycle exists.
+     */
+    private boolean findCycle(ClassInfo base, ClassInfo derived) {
+        // if the base class == derived class, we have a direct cycle
+        if (base == derived) {
+            return true;
+        }
+
+        // if the base class is a child of the derived class, we have a cycle
+        if (derived.getChildren().contains(base)) {
+            System.err.printf("Cyclic inheritance detected for class \"%s\"%n",
+                    base.name);
+            return true;
+        }
+
+        for (var child : derived.getChildren()) {
+            if (findCycle(base, child)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -75,12 +129,12 @@ public final class ClassVisitor implements Visitor {
 
         symbolContext.enter("#" + n.i.s);
 
-        // validate parameters and add them to method info
+        // validate parameters first
         n.fl.forEach(f -> {
             f.accept(this);
-            if (!f.conflict) {  // only adding parameter if no name conflict
-                methodInfo.addArgument(f.type);
-            }
+            // adding parameter regardless of whether its name conflicts with
+            // another parameter
+            methodInfo.addArgument(f.type);
         });
 
         n.vl.forEach(v -> v.accept(this));  // local variables
@@ -89,12 +143,13 @@ public final class ClassVisitor implements Visitor {
 
     @Override
     public void visit(Formal n) {
-        var varInfo = symbolContext.addVariableEntry(n.i.s);
-        n.conflict = varInfo == null;
-        if (n.conflict) return;
-
         n.t.accept(this);  // declared type
-        varInfo.type = n.type = n.t.type;
+        n.type = n.t.type;
+
+        var varInfo = symbolContext.addVariableEntry(n.i.s);
+        if (varInfo != null) { // if there's no name conflict
+            varInfo.type = n.type;
+        }
     }
 
     @Override
@@ -114,8 +169,9 @@ public final class ClassVisitor implements Visitor {
 
     @Override
     public void visit(IdentifierType n) {
-        if (symbolContext.lookupClass(n.s) != null) {
-            n.type = new TypeReference(n.s);
+        var class_ = symbolContext.lookupClass(n.s);
+        if (class_ != null) {
+            n.type = new TypeObject(class_);
         } else {
             n.type = TypeUndefined.getInstance();
         }

@@ -25,7 +25,7 @@ public final class GlobalVisitor implements Visitor {
     @Override
     public void visit(MainClass n) {
         // name conflict should be impossible for main class
-        symbolContext.addClassEntry(n.i1.s);
+        symbolContext.addClassEntry(n.i1.s, true);
     }
 
     @Override

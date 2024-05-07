@@ -99,4 +99,11 @@ public final class SymbolTable {
 
         return symbols.get(symbol);
     }
+
+    /**
+     * @return The entries in this symbol table.
+     */
+    public Iterable<Info> getEntries() {
+        return symbols.values();
+    }
 }

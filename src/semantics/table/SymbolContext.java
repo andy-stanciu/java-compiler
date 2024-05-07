@@ -1,6 +1,10 @@
 package semantics.table;
 
+import semantics.IllegalSemanticException;
 import semantics.info.*;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public final class SymbolContext {
     private static SymbolContext instance;
@@ -71,10 +75,10 @@ public final class SymbolContext {
             throw new IllegalStateException("Cannot add class entry to current scope");
         }
 
-        var class_ = new ClassInfo(table, main);
+        var class_ = new ClassInfo(table, name, main);
         if (main) {
             // define main method, special case
-            class_.getTable().addEntry("#main", new MethodInfo(table));
+            class_.getTable().addEntry("#main", new MethodInfo(table, "#main"));
         }
 
         return addEntry(name, class_) ? class_ : null;
@@ -91,7 +95,7 @@ public final class SymbolContext {
             throw new IllegalStateException("Cannot add method entry to current scope");
         }
 
-        var methodInfo = new MethodInfo(table);
+        var methodInfo = new MethodInfo(table, name);
         return addEntry(name, methodInfo) ? methodInfo : null;
     }
 
@@ -120,7 +124,7 @@ public final class SymbolContext {
         var result = global.lookup(name, true);
         if (result == null) return null;
 
-        if (result instanceof ClassInfo classInfo && !classInfo.main) {
+        if (result instanceof ClassInfo classInfo && !classInfo.isMain()) {
             return classInfo;
         }
 
@@ -131,17 +135,14 @@ public final class SymbolContext {
     /**
      * Looks up a method within the specified class.
      * @param name The name of the method.
-     * @param className The name of the class.
+     * @param classInfo The class to perform the lookup within.
      * @return Information associated with the method, or null if
      *         the class does not define the method.
      */
-    public MethodInfo lookupMethod(String name, String className) {
-        if (name == null || className == null) return null;
+    public MethodInfo lookupMethod(String name, ClassInfo classInfo) {
+        if (name == null) return null;
 
-        var class_ = lookupClass(className);
-        if (class_ == null) return null;
-
-        var result = class_.getTable().lookup(name, false);
+        var result = classInfo.getTable().lookup(name, false);
         if (result instanceof MethodInfo methodInfo) {
             return methodInfo;
         }
@@ -181,6 +182,94 @@ public final class SymbolContext {
             return false;
         }
         return true;
+    }
+
+    /**
+     * Propagates inherited members of all base classes to their derived classes.
+     * Assumes the inheritance graph is acyclic.
+     */
+    public void propagateInheritedMembers() {
+        Set<ClassInfo> baseClasses = new HashSet<>();
+        Set<ClassInfo> derivedClasses = new HashSet<>();
+
+        for (var entry : global.getEntries()) {
+            ClassInfo class_ = (ClassInfo) entry;
+            if (class_.isBase()) {
+                baseClasses.add(class_);
+            }
+            if (class_.isDerived()) {
+                derivedClasses.add(class_);
+            }
+        }
+
+        while (!derivedClasses.isEmpty()) {
+            int initialSize = derivedClasses.size();
+
+            var itr = derivedClasses.iterator();
+            while (itr.hasNext()) {
+                var derived = itr.next();
+                if (baseClasses.contains(derived.getParent())) {
+                    itr.remove();  // remove from derived set
+                    // class is directly derived from a base class, so we inherit its methods
+                    inheritMembers(derived);
+                    baseClasses.add(derived);  // add to base set
+                }
+            }
+
+            if (initialSize == derivedClasses.size()) {
+                throw new IllegalSemanticException("unreachable");
+            }
+        }
+    }
+
+    /**
+     * Inherits members from the direct superclass.
+     * @param derived The derived class that should inherit its superclass' methods.
+     */
+    private void inheritMembers(ClassInfo derived) {
+        if (!derived.isDerived()) {
+            throw new IllegalArgumentException("Expected derived class");
+        }
+
+        var base = derived.getParent();
+        for (var entry : base.getTable().getEntries()) {
+            if (entry instanceof MethodInfo method) {
+                var overridingMethod = (MethodInfo)derived.getTable().lookup(method.name, false);
+                if (overridingMethod == null) {
+                    // Add base method to derived class
+                    // TODO: reason whether shallow copy is okay here-- it should be?
+                    derived.getTable().addEntry(method.name, method);
+                } else {
+                    // Verify overriding method signature assignable to base method signature
+                    if (!overridingMethod.returnType.isAssignableTo(method.returnType)) {
+                        System.err.printf("Expected return type of overriding method \"%s%s\" " +
+                                "(%s) to be assignable to return type of \"%s%s\" (%s)%n",
+                                derived.name, overridingMethod.name, overridingMethod.returnType,
+                                base.name, method.name, method.returnType);
+                    }
+
+                    if (overridingMethod.argumentCount() != method.argumentCount()) {
+                        System.err.printf("Expected overriding method \"%s%s\" to have %d " +
+                                "arguments, but got %d%n", derived.name,
+                                overridingMethod.name, method.argumentCount(),
+                                overridingMethod.argumentCount());
+                    } else {
+                        // argument counts match. verify that arguments are assignable
+                        for (int i = 0; i < method.argumentCount(); i++) {
+                            var baseType = method.getArgument(i);
+                            var derivedType = overridingMethod.getArgument(i);
+                            if (!derivedType.isAssignableTo(baseType)) {
+                                System.err.printf("Expected argument %d of overriding method " +
+                                        "\"%s%s\" (%s) to be assignable to argument %d of " +
+                                        "\"%s%s\" (%s)%n", i + 1, derived.name,
+                                        overridingMethod.name, derivedType, i + 1, base.name,
+                                        method.name, baseType);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /**

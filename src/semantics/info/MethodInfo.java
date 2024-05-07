@@ -8,13 +8,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class MethodInfo extends Info {
+    public final String name;
     public Type returnType;
     private final List<Type> argumentTypes;
     private final SymbolTable table;
 
-    public MethodInfo(SymbolTable parent) {
+    public MethodInfo(SymbolTable parent, String name) {
         this.table = new SymbolTable(parent, TableType.LOCAL);
         this.argumentTypes = new ArrayList<>();
+        this.name = name;
     }
 
     public int argumentCount() {

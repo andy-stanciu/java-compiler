@@ -2,6 +2,7 @@ package ast.visitor.semantics;
 
 import ast.*;
 import ast.visitor.Visitor;
+import semantics.IllegalSemanticException;
 import semantics.table.SymbolContext;
 import semantics.type.*;
 
@@ -262,17 +263,16 @@ public final class LocalVisitor implements Visitor {
 
     @Override
     public void visit(Call n) {
-        n.e.accept(this);                   // reference type
+        n.e.accept(this);                   // object type
         n.el.forEach(e -> e.accept(this));  // parameters
 
         n.type = TypeUndefined.getInstance();  // mark as undefined for now
 
-
-        if (n.e.type instanceof TypeReference ref) {
-            var m = symbolContext.lookupMethod("#" + n.i, ref.name);
+        if (n.e.type instanceof TypeObject obj) {
+            var m = symbolContext.lookupMethod("#" + n.i, obj.base);
             if (m == null) {
                 System.err.printf("Cannot resolve method \"%s\" in \"%s\"%n",
-                        n.i, ref.name);
+                        n.i, obj.base.name);
                 return;
             }
 
@@ -327,7 +327,12 @@ public final class LocalVisitor implements Visitor {
 
     @Override
     public void visit(This n) {
-        n.type = new TypeReference("this");
+        var this_ = symbolContext.lookupClass("this");
+        if (this_ == null) {
+            throw new IllegalSemanticException("unreachable");
+        }
+
+        n.type = new TypeObject(this_);
     }
 
     @Override
@@ -348,7 +353,7 @@ public final class LocalVisitor implements Visitor {
             System.err.printf("Cannot resolve class \"%s\"%n", n.i.s);
             n.type = TypeUndefined.getInstance();
         } else {
-            n.type = new TypeReference(n.i.s);
+            n.type = new TypeObject(classInfo);
         }
     }
 
