@@ -2,11 +2,14 @@ import ast.Program;
 import ast.visitor.ASTVisitor;
 import ast.visitor.PrettyPrintVisitor;
 import ast.visitor.Visitor;
+import ast.visitor.semantics.ClassVisitor;
+import ast.visitor.semantics.GlobalVisitor;
+import ast.visitor.semantics.LocalVisitor;
 import parser.parser;
 import scanner.*;
 import parser.sym;
 import java_cup.runtime.ComplexSymbolFactory;
-import java_cup.runtime.Symbol;
+import semantics.Logger;
 
 import java.io.*;
 import java.util.LinkedList;
@@ -14,7 +17,7 @@ import java.util.Queue;
 
 public class MiniJava {
     public static void main(String[] args) {
-        Queue<Task> tasks = parseTasks(args);
+        var tasks = parseTasks(args);
         if (tasks == null) {
             System.err.println("Usage: MiniJava -S | -P | -A | -T <file1.java, file2.java, ...>");
             System.exit(1);
@@ -37,11 +40,11 @@ public class MiniJava {
     private static int scan(Task task) {
         int status = 0;
         try {
-            ComplexSymbolFactory sf = new ComplexSymbolFactory();
-            Reader in = new BufferedReader(new InputStreamReader(new FileInputStream(task.input)));
+            var sf = new ComplexSymbolFactory();
+            var in = new BufferedReader(new InputStreamReader(new FileInputStream(task.input)));
 
-            scanner s = new scanner(in, sf);
-            Symbol t = s.next_token();
+            var s = new scanner(in, sf);
+            var t = s.next_token();
 
             while (t.sym != sym.EOF) {
                 // print each token that we scan
@@ -65,14 +68,14 @@ public class MiniJava {
     private static int parse(Task task, Visitor visitor) {
         int status = 0;
         try {
-            ComplexSymbolFactory sf = new ComplexSymbolFactory();
-            Reader in = new BufferedReader(new InputStreamReader(new FileInputStream(task.input)));
+            var sf = new ComplexSymbolFactory();
+            var in = new BufferedReader(new InputStreamReader(new FileInputStream(task.input)));
 
-            scanner s = new scanner(in, sf);
-            parser p = new parser(s, sf);
-            Symbol root = p.parse();
+            var s = new scanner(in, sf);
+            var p = new parser(s, sf);
+            var root = p.parse();
 
-            Program program = (Program) root.value;
+            var program = (Program) root.value;
             program.accept(visitor);
         } catch (Exception e) {
             System.err.println("Unexpected internal compiler error: " + e);
@@ -86,16 +89,22 @@ public class MiniJava {
     private static int validate(Task task) {
         int status = 0;
         try {
-            ComplexSymbolFactory sf = new ComplexSymbolFactory();
-            Reader in = new BufferedReader(new InputStreamReader(new FileInputStream(task.input)));
+            var sf = new ComplexSymbolFactory();
+            var in = new BufferedReader(new InputStreamReader(new FileInputStream(task.input)));
 
-            scanner s = new scanner(in, sf);
-            parser p = new parser(s, sf);
-            Symbol root = p.parse();
+            var logger = Logger.getInstance();
+            logger.start(task.input.getName());
 
-            Program program = (Program) root.value;
-            // TODO: semantic validation
+            var s = new scanner(in, sf);
+            var p = new parser(s, sf);
+            var root = p.parse();
 
+            var program = (Program) root.value;
+            program.accept(new GlobalVisitor());
+            program.accept(new ClassVisitor());
+            program.accept(new LocalVisitor());
+
+            if (logger.hasError()) status = 1;
         } catch (Exception e) {
             System.err.println("Unexpected internal compiler error: " + e);
             e.printStackTrace();
@@ -131,17 +140,17 @@ public class MiniJava {
             boolean foundValidArgs = false;
             while (j < args.length && args[j].charAt(0) != '-') {  // while not an operand
                 String path = args[j];
-                File f = new File(path);
+                var f = new File(path);
 
                 if (f.isDirectory()) {
                     // read all files within directory
-                    File[] children = f.listFiles();
+                    var children = f.listFiles();
                     if (children == null) {
                         System.err.printf("Empty directory: %s%n", path);
                         return null;
                     }
 
-                    for (File child : children) {
+                    for (var child : children) {
                         if (child.isFile() && child.getName().endsWith(".java")) {
                             if (!child.canRead()) {
                                 System.err.printf("Cannot read file: %s%n", child.getPath());

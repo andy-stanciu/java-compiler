@@ -3,6 +3,7 @@ package ast.visitor.semantics;
 import ast.*;
 import ast.visitor.Visitor;
 import semantics.IllegalSemanticException;
+import semantics.Logger;
 import semantics.info.ClassInfo;
 import semantics.table.SymbolContext;
 import semantics.type.*;
@@ -16,9 +17,11 @@ import semantics.type.*;
  */
 public final class ClassVisitor implements Visitor {
     private final SymbolContext symbolContext;
+    private final Logger logger;
 
     public ClassVisitor() {
         this.symbolContext = SymbolContext.getInstance();
+        this.logger = Logger.getInstance();
     }
 
     @Override
@@ -69,7 +72,7 @@ public final class ClassVisitor implements Visitor {
                 derived.setParent(base);
             }
         } else {
-            System.err.printf("Cannot resolve class \"%s\"", n.j.s);
+            logger.logError("Cannot resolve class \"%s\"%n", n.j.s);
         }
 
         symbolContext.enter(n.i.s);
@@ -88,14 +91,10 @@ public final class ClassVisitor implements Visitor {
      * @return Whether a cycle exists.
      */
     private boolean findCycle(ClassInfo base, ClassInfo derived) {
-        // if the base class == derived class, we have a direct cycle
-        if (base == derived) {
-            return true;
-        }
-
-        // if the base class is a child of the derived class, we have a cycle
-        if (derived.getChildren().contains(base)) {
-            System.err.printf("Cyclic inheritance detected for class \"%s\"%n",
+        // if the base class == derived class or the base class is a child of
+        // the derived class, we have a cycle (direct/indirect)
+        if (base == derived || derived.getChildren().contains(base)) {
+            logger.logError("Cyclic inheritance detected for class \"%s\"%n",
                     base.name);
             return true;
         }

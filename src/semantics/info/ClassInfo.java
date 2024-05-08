@@ -7,16 +7,15 @@ import java.util.HashSet;
 import java.util.Set;
 
 public final class ClassInfo extends Info {
-    public final String name;
     private final boolean main;
     private final SymbolTable table;
     private ClassInfo parent;
     private final Set<ClassInfo> children;
 
     public ClassInfo(SymbolTable parentTable, String name, boolean main) {
-        this.table = new SymbolTable(parentTable, TableType.CLASS);
+        super(name);
+        this.table = new SymbolTable(parentTable, TableType.CLASS, name);
         this.children = new HashSet<>();
-        this.name = name;
         this.main = main;
     }
 

@@ -1,9 +1,12 @@
 package semantics.table;
 
 import semantics.IllegalSemanticException;
+import semantics.Logger;
 import semantics.info.*;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public final class SymbolContext {
@@ -16,12 +19,23 @@ public final class SymbolContext {
         return instance;
     }
 
+    private final Logger logger;
     private final SymbolTable global;
     private SymbolTable table;
+    private ClassInfo currentClass;
 
     private SymbolContext() {
+        this.logger = Logger.getInstance();
         this.table = new SymbolTable();
         this.global = this.table;
+    }
+
+    /**
+     * Dumps all symbol tables to stdout.
+     */
+    public void dump() {
+        System.out.println(global);
+        dumpTables(global.getEntriesSorted());
     }
 
     /**
@@ -34,6 +48,7 @@ public final class SymbolContext {
 
         if (info instanceof ClassInfo classInfo) {
             table = classInfo.getTable();
+            currentClass = classInfo;
         } else if (info instanceof MethodInfo methodInfo) {
             table = methodInfo.getTable();
         } else {
@@ -50,7 +65,20 @@ public final class SymbolContext {
             throw new IllegalStateException("Already in global table");
         }
 
+        if (table.isClass()) currentClass = null;
         table = table.getParent();
+    }
+
+    /**
+     * @return The {@link ClassInfo} that is currently in scope.
+     * @throws IllegalStateException If no class is currently in scope.
+     */
+    public ClassInfo getCurrentClass() {
+        if (currentClass == null) {
+            throw new IllegalStateException();
+        }
+
+        return currentClass;
     }
 
     /**
@@ -78,7 +106,7 @@ public final class SymbolContext {
         var class_ = new ClassInfo(table, name, main);
         if (main) {
             // define main method, special case
-            class_.getTable().addEntry("#main", new MethodInfo(table, "#main"));
+            class_.getTable().addEntry("#main", new MethodInfo(class_.getTable(), "#main"));
         }
 
         return addEntry(name, class_) ? class_ : null;
@@ -110,7 +138,7 @@ public final class SymbolContext {
             throw new IllegalStateException("Cannot add variable entry to current scope");
         }
 
-        var variableInfo = new VariableInfo();
+        var variableInfo = new VariableInfo(name);
         return addEntry(name, variableInfo) ? variableInfo : null;
     }
 
@@ -128,7 +156,7 @@ public final class SymbolContext {
             return classInfo;
         }
 
-        System.err.printf("Unexpected reference to main class \"%s\"%n", name);
+        logger.logError("Unexpected reference to main class \"%s\"%n", name);
         return null;
     }
 
@@ -178,7 +206,7 @@ public final class SymbolContext {
      */
     public boolean addEntry(String symbol, Info info) {
         if (!table.addEntry(symbol, info)) {
-            System.err.printf("Symbol \"%s\" is already defined%n", symbol);
+            logger.logError("Symbol \"%s\" is already defined%n", symbol);
             return false;
         }
         return true;
@@ -210,7 +238,7 @@ public final class SymbolContext {
                 var derived = itr.next();
                 if (baseClasses.contains(derived.getParent())) {
                     itr.remove();  // remove from derived set
-                    // class is directly derived from a base class, so we inherit its methods
+                    // class is directly derived from a base class, so we inherit its members
                     inheritMembers(derived);
                     baseClasses.add(derived);  // add to base set
                 }
@@ -224,7 +252,7 @@ public final class SymbolContext {
 
     /**
      * Inherits members from the direct superclass.
-     * @param derived The derived class that should inherit its superclass' methods.
+     * @param derived The derived class that should inherit its superclass' members.
      */
     private void inheritMembers(ClassInfo derived) {
         if (!derived.isDerived()) {
@@ -242,14 +270,14 @@ public final class SymbolContext {
                 } else {
                     // Verify overriding method signature assignable to base method signature
                     if (!overridingMethod.returnType.isAssignableTo(method.returnType)) {
-                        System.err.printf("Expected return type of overriding method \"%s%s\" " +
+                        logger.logError("Expected return type of overriding method \"%s%s\" " +
                                 "(%s) to be assignable to return type of \"%s%s\" (%s)%n",
                                 derived.name, overridingMethod.name, overridingMethod.returnType,
                                 base.name, method.name, method.returnType);
                     }
 
                     if (overridingMethod.argumentCount() != method.argumentCount()) {
-                        System.err.printf("Expected overriding method \"%s%s\" to have %d " +
+                        logger.logError("Expected overriding method \"%s%s\" to have %d " +
                                 "arguments, but got %d%n", derived.name,
                                 overridingMethod.name, method.argumentCount(),
                                 overridingMethod.argumentCount());
@@ -259,7 +287,7 @@ public final class SymbolContext {
                             var baseType = method.getArgument(i);
                             var derivedType = overridingMethod.getArgument(i);
                             if (!derivedType.isAssignableTo(baseType)) {
-                                System.err.printf("Expected argument %d of overriding method " +
+                                logger.logError("Expected argument %d of overriding method " +
                                         "\"%s%s\" (%s) to be assignable to argument %d of " +
                                         "\"%s%s\" (%s)%n", i + 1, derived.name,
                                         overridingMethod.name, derivedType, i + 1, base.name,
@@ -268,6 +296,9 @@ public final class SymbolContext {
                         }
                     }
                 }
+            } else if (entry instanceof VariableInfo variable) {
+                // Inherit the instance variable. If it is already defined, will not overwrite
+                derived.getTable().addEntry(variable.name, variable);
             }
         }
     }
@@ -301,5 +332,36 @@ public final class SymbolContext {
      */
     private Info lookup(String symbol) {
         return lookup(symbol, false);
+    }
+
+    /**
+     * Recursive DFS to dump table entries to stdout.
+     * @param entries Entries to dump.
+     */
+    private void dumpTables(Iterable<Info> entries) {
+        List<Info> children = new ArrayList<>();
+        entries.forEach(entry -> {
+            if (entry instanceof ClassInfo class_) {
+                System.out.println(class_.getTable());
+                class_.getTable().getEntriesSorted().forEach(e -> {
+                    // add only methods to children
+                    if (e instanceof MethodInfo) {
+                        children.add(e);
+                    }
+                });
+            } else if (entry instanceof MethodInfo method) {
+                System.out.println(method.getTable());
+                method.getTable().getEntriesSorted().forEach(e -> {
+                    // add only variables to children
+                    if (e instanceof VariableInfo) {
+                        children.add(e);
+                    }
+                });
+            }
+        });
+
+        if (!children.isEmpty()) {
+            dumpTables(children);
+        }
     }
 }

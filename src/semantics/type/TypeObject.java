@@ -16,15 +16,15 @@ public class TypeObject extends Type {
                 return false;
             }
 
-            var parent = obj.base;
+            var parent = base;
             while (parent.isDerived()) {
-                if (parent == base) {
+                if (parent == obj.base) {
                     return true;
                 }
                 parent = parent.getParent();
             }
 
-            return parent == base;
+            return parent == obj.base;
         }
 
         return false;

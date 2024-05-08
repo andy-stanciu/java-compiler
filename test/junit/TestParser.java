@@ -9,7 +9,6 @@ public class TestParser {
     public static final String TEST_FILES_INPUT_EXTENSION = ".java";
     public static final String TEST_FILES_AST_EXTENSION = ".ast";
     public static final String TEST_FILES_PRETTY_EXTENSION = ".pretty";
-    public static final String TEST_FILES_ERROR_EXTENSION = ".err";
 
     private void runParserSuccessTestCase(String name) {
         try {
