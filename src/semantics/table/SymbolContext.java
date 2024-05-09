@@ -35,7 +35,7 @@ public final class SymbolContext {
      */
     public void dump() {
         System.out.println(global);
-        dumpTables(global.getEntriesSorted());
+        dumpTables(global.getEntriesSorted(), new HashSet<>());
     }
 
     /**
@@ -337,31 +337,35 @@ public final class SymbolContext {
     /**
      * Recursive DFS to dump table entries to stdout.
      * @param entries Entries to dump.
+     * @param visited The entries we have already visited.
      */
-    private void dumpTables(Iterable<Info> entries) {
+    private void dumpTables(Iterable<Info> entries, Set<Info> visited) {
         List<Info> children = new ArrayList<>();
         entries.forEach(entry -> {
-            if (entry instanceof ClassInfo class_) {
-                System.out.println(class_.getTable());
-                class_.getTable().getEntriesSorted().forEach(e -> {
-                    // add only methods to children
-                    if (e instanceof MethodInfo) {
-                        children.add(e);
-                    }
-                });
-            } else if (entry instanceof MethodInfo method) {
-                System.out.println(method.getTable());
-                method.getTable().getEntriesSorted().forEach(e -> {
-                    // add only variables to children
-                    if (e instanceof VariableInfo) {
-                        children.add(e);
-                    }
-                });
+            if (!visited.contains(entry)) {
+                visited.add(entry);
+                if (entry instanceof ClassInfo class_) {
+                    System.out.println(class_.getTable());
+                    class_.getTable().getEntriesSorted().forEach(e -> {
+                        // add only methods to children
+                        if (e instanceof MethodInfo) {
+                            children.add(e);
+                        }
+                    });
+                } else if (entry instanceof MethodInfo method) {
+                    System.out.println(method.getTable());
+                    method.getTable().getEntriesSorted().forEach(e -> {
+                        // add only variables to children
+                        if (e instanceof VariableInfo) {
+                            children.add(e);
+                        }
+                    });
+                }
             }
         });
 
         if (!children.isEmpty()) {
-            dumpTables(children);
+            dumpTables(children, visited);
         }
     }
 }

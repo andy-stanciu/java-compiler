@@ -110,7 +110,7 @@ public final class SymbolTable {
      */
     public Info lookup(String symbol, boolean report) {
         if (report && !symbols.containsKey(symbol)) {
-            logger.logError("Undefined symbol: \"%s\"%n", symbol);
+            logger.logError("Undefined symbol \"%s\"%n", symbol);
         }
 
         return symbols.get(symbol);

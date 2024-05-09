@@ -104,7 +104,11 @@ public class MiniJava {
             program.accept(new ClassVisitor());
             program.accept(new LocalVisitor());
 
-            if (logger.hasError()) status = 1;
+            if (logger.hasError()) {
+                status = 1;
+                System.err.printf("Static semantic analysis found %d error(s), %d warning(s)%n",
+                        logger.getErrorCount(), logger.getWarningCount());
+            }
         } catch (Exception e) {
             System.err.println("Unexpected internal compiler error: " + e);
             e.printStackTrace();

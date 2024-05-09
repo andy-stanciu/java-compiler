@@ -27,7 +27,7 @@ public class TypeObject extends Type {
             return parent == obj.base;
         }
 
-        return false;
+        return other == TypeUndefined.getInstance();
     }
 
     @Override

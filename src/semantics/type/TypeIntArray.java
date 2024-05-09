@@ -11,7 +11,7 @@ public class TypeIntArray extends Type {
 
     @Override
     public boolean isAssignableTo(Type other) {
-        return this == other;
+        return this == other || other == TypeUndefined.getInstance();
     }
 
     @Override

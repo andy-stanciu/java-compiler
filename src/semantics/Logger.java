@@ -3,7 +3,8 @@ package semantics;
 public final class Logger {
     private String sourceFile;
     private int lineNumber;
-    private boolean error;
+    private int errorCount;
+    private int warningCount;
 
     private static Logger instance;
 
@@ -23,7 +24,8 @@ public final class Logger {
     public void start(String sourceFile) {
         this.sourceFile = sourceFile;
         this.lineNumber = 0;
-        this.error = false;
+        this.errorCount = 0;
+        this.warningCount = 0;
     }
 
     /**
@@ -38,7 +40,28 @@ public final class Logger {
      * @return Whether the logger has logged an error.
      */
     public boolean hasError() {
-        return error;
+        return errorCount > 0;
+    }
+
+    /**
+     * @return The number of errors.
+     */
+    public int getErrorCount() {
+        return errorCount;
+    }
+
+    /**
+     * @return Whether the logger has logged a warning.
+     */
+    public boolean hasWarnings() {
+        return warningCount > 0;
+    }
+
+    /**
+     * @return The number of warnings.
+     */
+    public int getWarningCount() {
+        return warningCount;
     }
 
     /**
@@ -47,8 +70,8 @@ public final class Logger {
      * @param args Format args.
      */
     public void logError(String message, Object... args) {
-        System.err.printf("Error @ " + sourceFile + ":" + lineNumber + ": " + message, args);
-        error = true;
+        System.err.printf("ERROR @ " + sourceFile + ":" + lineNumber + ": " + message, args);
+        errorCount++;
     }
 
     /**
@@ -57,6 +80,7 @@ public final class Logger {
      * @param args Format args.
      */
     public void logWarning(String message, Object args) {
-        System.err.printf("Warning @ " + sourceFile + ":" + lineNumber + ": " + message, args);
+        System.err.printf("WARNING @ " + sourceFile + ":" + lineNumber + ": " + message, args);
+        warningCount++;
     }
 }
