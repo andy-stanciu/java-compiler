@@ -138,7 +138,7 @@ public final class SymbolContext {
             throw new IllegalStateException("Cannot add variable entry to current scope");
         }
 
-        var variableInfo = new VariableInfo(name);
+        var variableInfo = new VariableInfo(table, name);
         return addEntry(name, variableInfo) ? variableInfo : null;
     }
 

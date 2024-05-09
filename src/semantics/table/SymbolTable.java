@@ -149,16 +149,19 @@ public final class SymbolTable {
         List<String> symbolTypes = new ArrayList<>();
         List<String> returnTypes = new ArrayList<>();
         List<String> signatures = new ArrayList<>();
+        List<String> inherited = new ArrayList<>();
         symbolNames.add("Symbol");
         symbolTypes.add("Type");
-        returnTypes.add("Return type");
+        returnTypes.add("Return");
         signatures.add("Signature");
+        inherited.add("Inherited");
 
         if (symbols.isEmpty()) {
             symbolNames.add("-");
             symbolTypes.add("-");
             returnTypes.add("-");
             signatures.add("-");
+            inherited.add("-");
         }
 
         var entries = new TreeMap<>(symbols);
@@ -168,11 +171,13 @@ public final class SymbolTable {
                 symbolTypes.add("Class<" + c.name + ">");
                 returnTypes.add("-");
                 signatures.add("-");
+                inherited.add("-");
             } else if (i instanceof MethodInfo m) {
                 symbolTypes.add("Method");
                 if (m.name.equals("#main")) {
                     returnTypes.add("void");
                     signatures.add("String[]");
+                    inherited.add("-");
                 } else {
                     returnTypes.add(m.returnType.toString());
                     StringBuilder sig = new StringBuilder();
@@ -183,11 +188,25 @@ public final class SymbolTable {
 
                     if (m.argumentCount() == 0) sig.append("void");
                     signatures.add(sig.toString());
+
+                    String origin = m.getTable().getParent().getName();
+                    if (!origin.equals(getName())) {
+                        inherited.add(origin);
+                    } else {
+                        inherited.add("-");
+                    }
                 }
             } else if (i instanceof VariableInfo v) {
                 symbolTypes.add(v.type.toString());
                 returnTypes.add("-");
                 signatures.add("-");
+
+                String origin = v.getParent().getName();
+                if (!origin.equals(getName())) {
+                    inherited.add(origin);
+                } else {
+                    inherited.add("-");
+                }
             }
         });
 
@@ -195,8 +214,10 @@ public final class SymbolTable {
         int maxTypeLength = getMaxLength(symbolTypes);
         int maxReturnLength = getMaxLength(returnTypes);
         int maxSignatureLength = getMaxLength(signatures);
+        int maxInheritedLength = getMaxLength(inherited);
 
-        int width = maxSymbolLength + maxTypeLength + maxReturnLength + maxSignatureLength + 3;
+        int width = maxSymbolLength + maxTypeLength + maxReturnLength +
+                maxSignatureLength + maxInheritedLength + 3;
 
         StringBuilder sb = new StringBuilder();
         sb.append(header);
@@ -220,6 +241,9 @@ public final class SymbolTable {
 
             String signature = signatures.get(i);
             sb.append(signature).append(" ".repeat(maxSignatureLength - signature.length()));
+
+            String inheritedFrom = inherited.get(i);
+            sb.append(inheritedFrom).append(" ".repeat(maxInheritedLength - inheritedFrom.length()));
 
             sb.append("|\n");
         }
