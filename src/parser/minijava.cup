@@ -18,10 +18,13 @@ terminal BOOLEAN, CLASS, ELSE, EXTENDS, FALSE, IF, INT, LENGTH, MAIN,
          NEW, PUBLIC, RETURN, STATIC, STRING, PRINT, THIS, TRUE, VOID, WHILE;
 
 /* operators */
-terminal PLUS, MINUS, MULT, LESS_THAN, EQUALS, NOT, AND;
+terminal PLUS, MINUS, MULT, DIV, MOD, LESS_THAN, LESS_THAN_OR_EQUAL, GREATER_THAN,
+         GREATER_THAN_OR_EQUAL, EQUALS, NOT, AND, OR, IS_EQUAL, IS_NOT_EQUAL,
+         BITWISE_AND, BITWISE_OR, BITWISE_XOR, BITWISE_NOT;
 
 /* delimiters */
-terminal LPAREN, RPAREN, LSQUARE, RSQUARE, LCURL, RCURL, SEMICOLON, COMMA, DOT;
+terminal LPAREN, RPAREN, LSQUARE, RSQUARE, LCURL, RCURL, SEMICOLON, COMMA, DOT,
+         QUESTION, COLON;
 
 /* identifiers */
 terminal String IDENTIFIER;
@@ -46,13 +49,20 @@ nonterminal Exp Expression;
 nonterminal Identifier Identifier;
 
 /* precedence declarations: */
-precedence left AND;           // &&
-precedence left LESS_THAN;     // < should be nonassoc in the long run, but saving for semantic analysis
-precedence left PLUS, MINUS;   // + -
-precedence left MULT;          // *
-precedence right NEW;          // new
-precedence right NOT;          // ! right/left shouldn't really matter here...
-precedence left DOT, LSQUARE;  // . [
+precedence right QUESTION;                            // ?:
+precedence left OR;                                   // ||
+precedence left AND;                                  // &&
+precedence left BITWISE_OR;                           // |
+precedence left BITWISE_XOR;                          // ^
+precedence left BITWISE_AND;                          // &
+precedence left IS_EQUAL, IS_NOT_EQUAL;               // ==, !=
+precedence left LESS_THAN, LESS_THAN_OR_EQUAL,        // <, <=
+                GREATER_THAN, GREATER_THAN_OR_EQUAL;  // >, >=
+precedence left PLUS, MINUS;                          // +, -
+precedence left MULT, DIV, MOD;                       // *, /, %
+precedence right NOT, BITWISE_NOT;                    // !, ~
+precedence right NEW;                                 // new
+precedence left DOT, LSQUARE;                         // ., [
 
 /* productions */
 Program ::= MainClass:m ClassDeclarationList:cl
@@ -176,15 +186,39 @@ ExpressionList ::= Expression:e
                       RESULT = el; :};
 
 Expression ::= Expression:e1 AND Expression:e2
-               {: RESULT = new And(e1, e2, e1xleft); :}
+                          {: RESULT = new And(e1, e2, e1xleft); :}
+           | Expression:e1 OR Expression:e2
+                          {: RESULT = new Or(e1, e2, e1xleft); :}
+           | Expression:e1 IS_EQUAL Expression:e2
+                          {: RESULT = new Equal(e1, e2, e1xleft); :}
+           | Expression:e1 IS_NOT_EQUAL Expression:e2
+                          {: RESULT = new NotEqual(e1, e2, e1xleft); :}
            | Expression:e1 LESS_THAN Expression:e2
-               {: RESULT = new LessThan(e1, e2, e1xleft); :}
+                          {: RESULT = new LessThan(e1, e2, e1xleft); :}
+           | Expression:e1 LESS_THAN_OR_EQUAL Expression:e2
+                          {: RESULT = new LessThanOrEqual(e1, e2, e1xleft); :}
+           | Expression:e1 GREATER_THAN Expression:e2
+                          {: RESULT = new GreaterThan(e1, e2, e1xleft); :}
+           | Expression:e1 GREATER_THAN_OR_EQUAL Expression:e2
+                          {: RESULT = new GreaterThanOrEqual(e1, e2, e1xleft); :}
+           | Expression:e1 BITWISE_AND Expression:e2
+                          {: RESULT = new BitwiseAnd(e1, e2, e1xleft); :}
+           | Expression:e1 BITWISE_OR Expression:e2
+                          {: RESULT = new BitwiseOr(e1, e2, e1xleft); :}
+           | Expression:e1 BITWISE_XOR Expression:e2
+                          {: RESULT = new BitwiseXor(e1, e2, e1xleft); :}
+           | Expression:e1 BITWISE_NOT Expression:e2
+                          {: RESULT = new BitwiseNot(e1, e2, e1xleft); :}
            | Expression:e1 PLUS Expression:e2
                           {: RESULT = new Plus(e1, e2, e1xleft); :}
            | Expression:e1 MINUS Expression:e2
                           {: RESULT = new Minus(e1, e2, e1xleft); :}
            | Expression:e1 MULT Expression:e2
                           {: RESULT = new Times(e1, e2, e1xleft); :}
+           | Expression:e1 DIV Expression:e2
+                          {: RESULT = new Divide(e1, e2, e1xleft); :}
+           | Expression:e1 MOD Expression:e2
+                                     {: RESULT = new Mod(e1, e2, e1xleft); :}
            | Expression:e1 LSQUARE Expression:e2 RSQUARE
                           {: RESULT = new ArrayLookup(e1, e2, e1xleft); :}
            | Expression:e DOT LENGTH
@@ -193,6 +227,8 @@ Expression ::= Expression:e1 AND Expression:e2
                           {: RESULT = new Call(e, id, new ExpList(lpxright), exleft); :}
            | Expression:e DOT Identifier:id LPAREN ExpressionList:el RPAREN
                           {: RESULT = new Call(e, id, el, exleft); :}
+           | Expression:c QUESTION Expression:e1 COLON Expression:e2
+                          {: RESULT = new Ternary(c, e1, e2, cxleft); :}
            | INT_LITERAL:n
                           {: RESULT = new IntegerLiteral(Integer.parseInt(n), nxleft); :}
            | TRUE:t

@@ -139,10 +139,22 @@ white = {eol}|[ \t]
 "+" { return symbol(sym.PLUS); }
 "-" { return symbol(sym.MINUS); }
 "*" { return symbol(sym.MULT); }
+"/" { return symbol(sym.DIV); }
+"%" { return symbol(sym.MOD); }
 "<" { return symbol(sym.LESS_THAN); }
+"<=" { return symbol(sym.LESS_THAN_OR_EQUAL); }
+">" { return symbol(sym.GREATER_THAN); }
+">=" { return symbol(sym.GREATER_THAN_OR_EQUAL); }
 "=" { return symbol(sym.EQUALS); }
 "!" { return symbol(sym.NOT); }
 "&&" { return symbol(sym.AND); }
+"||" { return symbol(sym.OR); }
+"==" { return symbol(sym.IS_EQUAL); }
+"!=" { return symbol(sym.IS_NOT_EQUAL); }
+"&" { return symbol(sym.BITWISE_AND); }
+"|" { return symbol(sym.BITWISE_OR); }
+"^" { return symbol(sym.BITWISE_XOR); }
+"~" { return symbol(sym.BITWISE_NOT); }
 
 /* delimiters */
 "(" { return symbol(sym.LPAREN); }
@@ -154,6 +166,8 @@ white = {eol}|[ \t]
 ";" { return symbol(sym.SEMICOLON); }
 "," { return symbol(sym.COMMA); }
 "." { return symbol(sym.DOT); }
+"?" { return symbol(sym.QUESTION); }
+":" { return symbol(sym.COLON); }
 
 /* identifiers */
 {letter}({letter}|{digit}|_)* {

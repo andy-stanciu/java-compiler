@@ -39,7 +39,27 @@ public interface Visitor {
 
     void visit(And n);
 
+    void visit(Or n);
+
+    void visit(Equal n);
+
+    void visit(NotEqual n);
+
     void visit(LessThan n);
+
+    void visit(LessThanOrEqual n);
+
+    void visit(GreaterThan n);
+
+    void visit(GreaterThanOrEqual n);
+
+    void visit(BitwiseAnd n);
+
+    void visit(BitwiseOr n);
+
+    void visit(BitwiseXor n);
+
+    void visit(BitwiseNot n);
 
     void visit(Plus n);
 
@@ -47,11 +67,17 @@ public interface Visitor {
 
     void visit(Times n);
 
+    void visit(Divide n);
+
+    void visit(Mod n);
+
     void visit(ArrayLookup n);
 
     void visit(ArrayLength n);
 
     void visit(Call n);
+
+    void visit(Ternary n);
 
     void visit(IntegerLiteral n);
 
