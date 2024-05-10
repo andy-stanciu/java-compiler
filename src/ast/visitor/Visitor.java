@@ -59,8 +59,6 @@ public interface Visitor {
 
     void visit(BitwiseXor n);
 
-    void visit(BitwiseNot n);
-
     void visit(Plus n);
 
     void visit(Minus n);
@@ -94,6 +92,8 @@ public interface Visitor {
     void visit(NewObject n);
 
     void visit(Not n);
+
+    void visit(BitwiseNot n);
 
     void visit(Identifier n);
 }

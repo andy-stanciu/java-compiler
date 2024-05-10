@@ -207,8 +207,6 @@ Expression ::= Expression:e1 AND Expression:e2
                           {: RESULT = new BitwiseOr(e1, e2, e1xleft); :}
            | Expression:e1 BITWISE_XOR Expression:e2
                           {: RESULT = new BitwiseXor(e1, e2, e1xleft); :}
-           | Expression:e1 BITWISE_NOT Expression:e2
-                          {: RESULT = new BitwiseNot(e1, e2, e1xleft); :}
            | Expression:e1 PLUS Expression:e2
                           {: RESULT = new Plus(e1, e2, e1xleft); :}
            | Expression:e1 MINUS Expression:e2
@@ -245,6 +243,8 @@ Expression ::= Expression:e1 AND Expression:e2
                           {: RESULT = new NewObject(id, nxleft); :}
            | NOT:n Expression:e
                           {: RESULT = new Not(e, nxleft); :}
+           | BITWISE_NOT:n Expression:e
+                          {: RESULT = new BitwiseNot(e1, nxleft); :}
            | LPAREN Expression:e RPAREN
                           {: RESULT = e; :};
 

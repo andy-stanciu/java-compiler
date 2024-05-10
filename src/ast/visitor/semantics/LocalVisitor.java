@@ -5,6 +5,7 @@ import ast.visitor.Visitor;
 import semantics.Logger;
 import semantics.table.SymbolContext;
 import semantics.type.*;
+import semantics.type.Type;
 
 /**
  * TODO: describe what this does
@@ -182,72 +183,82 @@ public final class LocalVisitor implements Visitor {
 
     @Override
     public void visit(And n) {
-        n.e1.accept(this);
-        n.e2.accept(this);
+        visitBinaryExp(n, "&&", TypeBoolean.getInstance(), TypeBoolean.getInstance());
+    }
 
-        if (!n.e1.type.isAssignableTo(TypeBoolean.getInstance()) ||
-                !n.e2.type.isAssignableTo(TypeBoolean.getInstance())) {
-            logger.logError("Operator && cannot be applied to %s, %s%n",
-                    n.e1.type, n.e2.type);
-        }
+    @Override
+    public void visit(Or n) {
+        visitBinaryExp(n, "||", TypeBoolean.getInstance(), TypeBoolean.getInstance());
+    }
 
-        n.type = TypeBoolean.getInstance();
+    @Override
+    public void visit(Equal n) {
+        visitBinaryExp(n, "==", TypeBoolean.getInstance(), TypeBoolean.getInstance());
+    }
+
+    @Override
+    public void visit(NotEqual n) {
+        visitBinaryExp(n, "!=", TypeBoolean.getInstance(), TypeBoolean.getInstance());
     }
 
     @Override
     public void visit(LessThan n) {
-        n.e1.accept(this);
-        n.e2.accept(this);
+        visitBinaryExp(n, "<", TypeBoolean.getInstance(), TypeInt.getInstance());
+    }
 
-        if (!n.e1.type.isAssignableTo(TypeInt.getInstance()) ||
-                !n.e2.type.isAssignableTo(TypeInt.getInstance())) {
-            logger.logError("Operator < cannot be applied to %s, %s%n",
-                    n.e1.type, n.e2.type);
-        }
+    @Override
+    public void visit(LessThanOrEqual n) {
+        visitBinaryExp(n, "<=", TypeBoolean.getInstance(), TypeInt.getInstance());
+    }
 
-        n.type = TypeBoolean.getInstance();
+    @Override
+    public void visit(GreaterThan n) {
+        visitBinaryExp(n, ">", TypeBoolean.getInstance(), TypeInt.getInstance());
+    }
+
+    @Override
+    public void visit(GreaterThanOrEqual n) {
+        visitBinaryExp(n, ">=", TypeBoolean.getInstance(), TypeInt.getInstance());
+    }
+
+    @Override
+    public void visit(BitwiseAnd n) {
+        visitBinaryExp(n, "&", TypeInt.getInstance(), TypeInt.getInstance());
+    }
+
+    @Override
+    public void visit(BitwiseOr n) {
+        visitBinaryExp(n, "|", TypeInt.getInstance(), TypeInt.getInstance());
+    }
+
+    @Override
+    public void visit(BitwiseXor n) {
+        visitBinaryExp(n, "^", TypeInt.getInstance(), TypeInt.getInstance());
     }
 
     @Override
     public void visit(Plus n) {
-        n.e1.accept(this);
-        n.e2.accept(this);
-
-        if (!n.e1.type.isAssignableTo(TypeInt.getInstance()) ||
-                !n.e2.type.isAssignableTo(TypeInt.getInstance())) {
-            logger.logError("Operator + cannot be applied to %s, %s%n",
-                    n.e1.type, n.e2.type);
-        }
-
-        n.type = TypeInt.getInstance();
+        visitBinaryExp(n, "+", TypeInt.getInstance(), TypeInt.getInstance());
     }
 
     @Override
     public void visit(Minus n) {
-        n.e1.accept(this);
-        n.e2.accept(this);
-
-        if (!n.e1.type.isAssignableTo(TypeInt.getInstance()) ||
-                !n.e2.type.isAssignableTo(TypeInt.getInstance())) {
-            logger.logError("Operator - cannot be applied to %s, %s%n",
-                    n.e1.type, n.e2.type);
-        }
-
-        n.type = TypeInt.getInstance();
+        visitBinaryExp(n, "-", TypeInt.getInstance(), TypeInt.getInstance());
     }
 
     @Override
     public void visit(Times n) {
-        n.e1.accept(this);
-        n.e2.accept(this);
+        visitBinaryExp(n, "*", TypeInt.getInstance(), TypeInt.getInstance());
+    }
 
-        if (!n.e1.type.isAssignableTo(TypeInt.getInstance()) ||
-                !n.e2.type.isAssignableTo(TypeInt.getInstance())) {
-            logger.logError("Operator * cannot be applied to %s, %s%n",
-                    n.e1.type, n.e2.type);
-        }
+    @Override
+    public void visit(Divide n) {
+        visitBinaryExp(n, "/", TypeInt.getInstance(), TypeInt.getInstance());
+    }
 
-        n.type = TypeInt.getInstance();
+    @Override
+    public void visit(Mod n) {
+        visitBinaryExp(n, "%", TypeInt.getInstance(), TypeInt.getInstance());
     }
 
     @Override
@@ -321,6 +332,26 @@ public final class LocalVisitor implements Visitor {
     }
 
     @Override
+    public void visit(Ternary n) {
+        n.c.accept(this);  // bool condition
+        if (!n.c.type.isAssignableTo(TypeBoolean.getInstance())) {
+            logger.logError("Ternary condition expected boolean, but provided %s%n",
+                    n.c.type);
+        }
+
+        n.e1.accept(this);  // true expression
+        n.e2.accept(this);  // false expression
+
+        if (!n.e1.type.equals(n.e2.type)) {
+            logger.logError("Ternary expression cannot be applied to %s, %s%n",
+                    n.e1.type, n.e2.type);
+            n.type = TypeUndefined.getInstance();
+        } else {
+            n.type = n.e1.type;
+        }
+    }
+
+    @Override
     public void visit(IntegerLiteral n) {
         n.type = TypeInt.getInstance();
     }
@@ -385,7 +416,48 @@ public final class LocalVisitor implements Visitor {
     }
 
     @Override
+    public void visit(BitwiseNot n) {
+        n.e.accept(this);  // int expression
+        if (!n.e.type.isAssignableTo(TypeInt.getInstance())) {
+            logger.logError("Operator ~ cannot be applied to %s%n", n.e.type);
+        }
+
+        n.type = TypeInt.getInstance();
+    }
+
+    @Override
     public void visit(Identifier n) {
         throw new IllegalStateException();
+    }
+
+    /**
+     * Visits the specified binary expression.
+     * @param n The binary expression to visit.
+     * @param sym The symbol associated with the binary expression.
+     * @param result The result type of the binary expression.
+     * @param expected The expected type(s) of the binary expression.
+     */
+    private void visitBinaryExp(BinaryExp n, String sym, Type result, Type... expected) {
+        if (expected == null) {
+            throw new IllegalArgumentException("Missing expected type");
+        }
+
+        n.e1.accept(this);
+        n.e2.accept(this);
+
+        boolean legal = false;
+        for (var type : expected) {
+            if (n.e1.type.isAssignableTo(type) && n.e2.type.isAssignableTo(type)) {
+                legal = true;
+                break;
+            }
+        }
+
+        if (!legal) {
+            logger.logError("Operator %s cannot be applied to %s, %s%n",
+                    sym, n.e1.type, n.e2.type);
+        }
+
+        n.type = result;
     }
 }

@@ -5,12 +5,11 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
 import semantics.Logger;
 
 public class BitwiseNot extends Exp {
-    public Exp e1, e2;
+    public Exp e;
 
-    public BitwiseNot(Exp ae1, Exp ae2, Location pos) {
+    public BitwiseNot(Exp ae, Location pos) {
         super(pos);
-        e1 = ae1;
-        e2 = ae2;
+        e = ae;
     }
 
     public void accept(Visitor v) {

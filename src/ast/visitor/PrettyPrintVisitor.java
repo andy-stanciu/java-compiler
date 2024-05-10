@@ -259,12 +259,111 @@ public final class PrettyPrintVisitor implements Visitor {
         precedentTracker.rightParen(n);
     }
 
+    @Override
+    public void visit(Or n) {
+        precedentTracker.leftParen(n);
+        precedentTracker.push(n);
+        n.e1.accept(this);
+        System.out.print(" || ");
+        n.e2.accept(this);
+        precedentTracker.pop();
+        precedentTracker.rightParen(n);
+    }
+
+    @Override
+    public void visit(Equal n) {
+        precedentTracker.leftParen(n);
+        precedentTracker.push(n);
+        n.e1.accept(this);
+        System.out.print(" == ");
+        n.e2.accept(this);
+        precedentTracker.pop();
+        precedentTracker.rightParen(n);
+    }
+
+    @Override
+    public void visit(NotEqual n) {
+        precedentTracker.leftParen(n);
+        precedentTracker.push(n);
+        n.e1.accept(this);
+        System.out.print(" != ");
+        n.e2.accept(this);
+        precedentTracker.pop();
+        precedentTracker.rightParen(n);
+    }
+
     // Exp e1,e2;
     public void visit(LessThan n) {
         precedentTracker.leftParen(n);
         precedentTracker.push(n);
         n.e1.accept(this);
         System.out.print(" < ");
+        n.e2.accept(this);
+        precedentTracker.pop();
+        precedentTracker.rightParen(n);
+    }
+
+    @Override
+    public void visit(LessThanOrEqual n) {
+        precedentTracker.leftParen(n);
+        precedentTracker.push(n);
+        n.e1.accept(this);
+        System.out.print(" <= ");
+        n.e2.accept(this);
+        precedentTracker.pop();
+        precedentTracker.rightParen(n);
+    }
+
+    @Override
+    public void visit(GreaterThan n) {
+        precedentTracker.leftParen(n);
+        precedentTracker.push(n);
+        n.e1.accept(this);
+        System.out.print(" > ");
+        n.e2.accept(this);
+        precedentTracker.pop();
+        precedentTracker.rightParen(n);
+    }
+
+    @Override
+    public void visit(GreaterThanOrEqual n) {
+        precedentTracker.leftParen(n);
+        precedentTracker.push(n);
+        n.e1.accept(this);
+        System.out.print(" >= ");
+        n.e2.accept(this);
+        precedentTracker.pop();
+        precedentTracker.rightParen(n);
+    }
+
+    @Override
+    public void visit(BitwiseAnd n) {
+        precedentTracker.leftParen(n);
+        precedentTracker.push(n);
+        n.e1.accept(this);
+        System.out.print(" & ");
+        n.e2.accept(this);
+        precedentTracker.pop();
+        precedentTracker.rightParen(n);
+    }
+
+    @Override
+    public void visit(BitwiseOr n) {
+        precedentTracker.leftParen(n);
+        precedentTracker.push(n);
+        n.e1.accept(this);
+        System.out.print(" | ");
+        n.e2.accept(this);
+        precedentTracker.pop();
+        precedentTracker.rightParen(n);
+    }
+
+    @Override
+    public void visit(BitwiseXor n) {
+        precedentTracker.leftParen(n);
+        precedentTracker.push(n);
+        n.e1.accept(this);
+        System.out.print(" ^ ");
         n.e2.accept(this);
         precedentTracker.pop();
         precedentTracker.rightParen(n);
@@ -298,6 +397,28 @@ public final class PrettyPrintVisitor implements Visitor {
         precedentTracker.push(n);
         n.e1.accept(this);
         System.out.print(" * ");
+        n.e2.accept(this);
+        precedentTracker.pop();
+        precedentTracker.rightParen(n);
+    }
+
+    @Override
+    public void visit(Divide n) {
+        precedentTracker.leftParen(n);
+        precedentTracker.push(n);
+        n.e1.accept(this);
+        System.out.print(" / ");
+        n.e2.accept(this);
+        precedentTracker.pop();
+        precedentTracker.rightParen(n);
+    }
+
+    @Override
+    public void visit(Mod n) {
+        precedentTracker.leftParen(n);
+        precedentTracker.push(n);
+        n.e1.accept(this);
+        System.out.print(" % ");
         n.e2.accept(this);
         precedentTracker.pop();
         precedentTracker.rightParen(n);
@@ -342,6 +463,19 @@ public final class PrettyPrintVisitor implements Visitor {
             }
         }
         System.out.print(")");
+        precedentTracker.pop();
+        precedentTracker.rightParen(n);
+    }
+
+    @Override
+    public void visit(Ternary n) {
+        precedentTracker.leftParen(n);
+        precedentTracker.push(n);
+        n.c.accept(this);
+        System.out.print(" ? ");
+        n.e1.accept(this);
+        System.out.print(" : ");
+        n.e2.accept(this);
         precedentTracker.pop();
         precedentTracker.rightParen(n);
     }
@@ -393,6 +527,16 @@ public final class PrettyPrintVisitor implements Visitor {
         precedentTracker.leftParen(n);
         precedentTracker.push(n);
         System.out.print("!");
+        n.e.accept(this);
+        precedentTracker.pop();
+        precedentTracker.rightParen(n);
+    }
+
+    @Override
+    public void visit(BitwiseNot n) {
+        precedentTracker.leftParen(n);
+        precedentTracker.push(n);
+        System.out.print("~");
         n.e.accept(this);
         precedentTracker.pop();
         precedentTracker.rightParen(n);

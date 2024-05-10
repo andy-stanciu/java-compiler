@@ -4,13 +4,9 @@ import ast.visitor.Visitor;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 import semantics.Logger;
 
-public class Or extends Exp {
-    public Exp e1, e2;
-
+public class Or extends BinaryExp {
     public Or(Exp ae1, Exp ae2, Location pos) {
-        super(pos);
-        e1 = ae1;
-        e2 = ae2;
+        super(ae1, ae2, pos);
     }
 
     public void accept(Visitor v) {

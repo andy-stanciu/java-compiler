@@ -109,7 +109,52 @@ public final class GlobalVisitor implements Visitor {
     }
 
     @Override
+    public void visit(Or n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(Equal n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(NotEqual n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
     public void visit(LessThan n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(LessThanOrEqual n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(GreaterThan n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(GreaterThanOrEqual n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(BitwiseAnd n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(BitwiseOr n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(BitwiseXor n) {
         throw new IllegalStateException();
     }
 
@@ -129,6 +174,16 @@ public final class GlobalVisitor implements Visitor {
     }
 
     @Override
+    public void visit(Divide n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(Mod n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
     public void visit(ArrayLookup n) {
         throw new IllegalStateException();
     }
@@ -140,6 +195,11 @@ public final class GlobalVisitor implements Visitor {
 
     @Override
     public void visit(Call n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(Ternary n) {
         throw new IllegalStateException();
     }
 
@@ -180,6 +240,11 @@ public final class GlobalVisitor implements Visitor {
 
     @Override
     public void visit(Not n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(BitwiseNot n) {
         throw new IllegalStateException();
     }
 
