@@ -141,18 +141,83 @@ public final class LocalVisitor implements Visitor {
     }
 
     @Override
-    public void visit(Assign n) {
-        n.e.accept(this);  // RHS
+    public void visit(AssignSimple n) {
+        visitAssign(n, "=");
+    }
 
-        // Lookup identifier in LHS, check assignment compatibility
-        var v = symbolContext.lookupVariable(n.i.s);
-        if (v != null) {
-            if (!n.e.type.isAssignableTo(v.type)) {
-                logger.logError("Cannot assign %s to %s%n", n.e.type, v.type);
-            }
-        } else {
-            logger.logError("Cannot assign to \"%s\". Is it a variable?%n", n.i.s);
-        }
+    @Override
+    public void visit(AssignPlus n) {
+        visitAssign(n, "+=", TypeInt.getInstance());
+    }
+
+    @Override
+    public void visit(AssignMinus n) {
+        visitAssign(n, "-=", TypeInt.getInstance());
+    }
+
+    @Override
+    public void visit(AssignTimes n) {
+        visitAssign(n, "*=", TypeInt.getInstance());
+    }
+
+    @Override
+    public void visit(AssignDivide n) {
+        visitAssign(n, "/=", TypeInt.getInstance());
+    }
+
+    @Override
+    public void visit(AssignMod n) {
+        visitAssign(n, "%=", TypeInt.getInstance());
+    }
+
+    @Override
+    public void visit(AssignAnd n) {
+        visitAssign(n, "&=", TypeInt.getInstance(), TypeBoolean.getInstance());
+    }
+
+    @Override
+    public void visit(AssignOr n) {
+        visitAssign(n, "|=", TypeInt.getInstance(), TypeBoolean.getInstance());
+    }
+
+    @Override
+    public void visit(AssignXor n) {
+        visitAssign(n, "^=", TypeInt.getInstance(), TypeBoolean.getInstance());
+    }
+
+    @Override
+    public void visit(AssignLeftShift n) {
+        visitAssign(n, "<<=", TypeInt.getInstance());
+    }
+
+    @Override
+    public void visit(AssignRightShift n) {
+        visitAssign(n, ">>=", TypeInt.getInstance());
+    }
+
+    @Override
+    public void visit(AssignUnsignedRightShift n) {
+        visitAssign(n, ">>>=", TypeInt.getInstance());
+    }
+
+    @Override
+    public void visit(PostIncrement n) {
+        visitIncrement(n, "++");
+    }
+
+    @Override
+    public void visit(PreIncrement n) {
+        visitIncrement(n, "++");
+    }
+
+    @Override
+    public void visit(PostDecrement n) {
+        visitIncrement(n, "--");
+    }
+
+    @Override
+    public void visit(PreDecrement n) {
+        visitIncrement(n, "--");
     }
 
     @Override
@@ -193,12 +258,12 @@ public final class LocalVisitor implements Visitor {
 
     @Override
     public void visit(Equal n) {
-        visitBinaryExpEqualTypes(n, "==");
+        visitBinaryExpEqualTypes(n, "==", TypeBoolean.getInstance());
     }
 
     @Override
     public void visit(NotEqual n) {
-        visitBinaryExpEqualTypes(n, "!=");
+        visitBinaryExpEqualTypes(n, "!=", TypeBoolean.getInstance());
     }
 
     @Override
@@ -223,17 +288,20 @@ public final class LocalVisitor implements Visitor {
 
     @Override
     public void visit(BitwiseAnd n) {
-        visitBinaryExpEqualTypes(n, "&", TypeInt.getInstance(), TypeBoolean.getInstance());
+        visitBinaryExpEqualTypes(n, "&", TypeInt.getInstance(),
+                TypeInt.getInstance(), TypeBoolean.getInstance());
     }
 
     @Override
     public void visit(BitwiseOr n) {
-        visitBinaryExpEqualTypes(n, "|", TypeInt.getInstance(), TypeBoolean.getInstance());
+        visitBinaryExpEqualTypes(n, "|", TypeInt.getInstance(),
+                TypeInt.getInstance(), TypeBoolean.getInstance());
     }
 
     @Override
     public void visit(BitwiseXor n) {
-        visitBinaryExpEqualTypes(n, "^", TypeInt.getInstance(), TypeBoolean.getInstance());
+        visitBinaryExpEqualTypes(n, "^", TypeInt.getInstance(),
+                TypeInt.getInstance(), TypeBoolean.getInstance());
     }
 
     @Override
@@ -259,6 +327,21 @@ public final class LocalVisitor implements Visitor {
     @Override
     public void visit(Mod n) {
         visitBinaryExp(n, "%", TypeInt.getInstance(), TypeInt.getInstance());
+    }
+
+    @Override
+    public void visit(LeftShift n) {
+        visitBinaryExp(n, "<<", TypeInt.getInstance(), TypeInt.getInstance());
+    }
+
+    @Override
+    public void visit(RightShift n) {
+        visitBinaryExp(n, ">>", TypeInt.getInstance(), TypeInt.getInstance());
+    }
+
+    @Override
+    public void visit(UnsignedRightShift n) {
+        visitBinaryExp(n, ">>>", TypeInt.getInstance(), TypeInt.getInstance());
     }
 
     @Override
@@ -352,6 +435,27 @@ public final class LocalVisitor implements Visitor {
     }
 
     @Override
+    public void visit(InstanceOf n) {
+        n.e.accept(this); // identifier expression
+
+        // Lookup identifier in LHS, check that it's a class
+        var c = symbolContext.lookupClass(n.i.s);
+
+        if (c != null) {
+            var obj = new TypeObject(c);
+            if (!n.e.type.isAssignableTo(obj) && !obj.isAssignableTo(n.e.type)) {
+                logger.logError("Inconvertible types %s, %s for instanceof%n",
+                        n.e.type, n.i.s);
+            }
+        } else {
+            logger.logError("Cannot apply instanceof to \"%s\". Is it a class?%n",
+                    n.i.s);
+        }
+
+        n.type = TypeBoolean.getInstance();
+    }
+
+    @Override
     public void visit(IntegerLiteral n) {
         n.type = TypeInt.getInstance();
     }
@@ -418,7 +522,7 @@ public final class LocalVisitor implements Visitor {
     @Override
     public void visit(BitwiseNot n) {
         n.e.accept(this);  // int expression
-        if (!n.e.type.isAssignableTo(TypeInt.getInstance()) ||
+        if (!n.e.type.isAssignableTo(TypeInt.getInstance()) &&
                 !n.e.type.isAssignableTo(TypeBoolean.getInstance())) {
             logger.logError("Operator ~ cannot be applied to %s%n", n.e.type);
         }
@@ -429,6 +533,60 @@ public final class LocalVisitor implements Visitor {
     @Override
     public void visit(Identifier n) {
         throw new IllegalStateException();
+    }
+
+    /**
+     * Visits the specified increment/decrement statement.
+     * @param n The increment/decrement statement.
+     * @param sym The symbol associated with the increment/decrement statement.
+     */
+    private void visitIncrement(Increment n, String sym) {
+        // Lookup identifier in LHS, check that it's an int
+        var v = symbolContext.lookupVariable(n.i.s);
+        if (v != null) {
+            if (!v.type.equals(TypeInt.getInstance())) {
+                logger.logError("Cannot apply operator %s to %s%n", sym, v.type);
+            }
+        } else {
+            logger.logError("Cannot apply operator %s to \"%s\". Is it a variable?%n",
+                    sym, n.i.s);
+        }
+    }
+
+    /**
+     * Visits the specified assignment statement.
+     * @param n The assignment statement.
+     * @param sym The symbol associated with the assignment statement.
+     * @param accepted The types to accept (optional).
+     */
+    private void visitAssign(Assign n, String sym, Type... accepted) {
+        n.e.accept(this);  // RHS
+
+        // Lookup identifier in LHS, check assignment compatibility
+        var v = symbolContext.lookupVariable(n.i.s);
+        if (v != null) {
+            if (accepted != null && accepted.length > 0) {
+                boolean legal = false;
+                for (var type : accepted) {
+                    if (n.e.type.equals(type)) {
+                        legal = true;
+                        break;
+                    }
+                }
+
+                if (!legal) {
+                    logger.logError("Assignment operator %s cannot be applied to %s%n",
+                            sym, n.e.type);
+                    return;
+                }
+            }
+
+            if (!n.e.type.isAssignableTo(v.type)) {
+                logger.logError("Cannot assign %s to %s%n", n.e.type, v.type);
+            }
+        } else {
+            logger.logError("Cannot assign to \"%s\". Is it a variable?%n", n.i.s);
+        }
     }
 
     /**
@@ -464,12 +622,13 @@ public final class LocalVisitor implements Visitor {
 
     /**
      * Visits the specified binary expression that expected LHS and RHS types
-     * to be equal. Result type is same type.
+     * to be equal.
      * @param n The binary expression to visit.
      * @param sym The symbol associated with the binary expression.
+     * @param result The result type of the binary expression.
      * @param accepted The types to accept (optional).
      */
-    private void visitBinaryExpEqualTypes(BinaryExp n, String sym, Type... accepted) {
+    private void visitBinaryExpEqualTypes(BinaryExp n, String sym, Type result, Type... accepted) {
         n.e1.accept(this);
         n.e2.accept(this);
 
@@ -478,10 +637,10 @@ public final class LocalVisitor implements Visitor {
                     sym, n.e1.type, n.e2.type);
         }
 
-        if (accepted != null) {
+        if (accepted != null && accepted.length > 0) {
             for (var type : accepted) {
                 if (n.e1.type.equals(type)) {
-                    n.type = n.e1.type;
+                    n.type = result;
                     return;
                 }
             }
@@ -490,7 +649,7 @@ public final class LocalVisitor implements Visitor {
                     sym, n.e1.type, n.e2.type);
             n.type = TypeUndefined.getInstance();
         } else {
-            n.type = n.e1.type;
+            n.type = result;
         }
     }
 }

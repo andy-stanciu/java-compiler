@@ -14,13 +14,16 @@ import java_cup.runtime.*;
 /* Terminals (lexical tokens returned by the scanner): */
 
 /* reserved words */
-terminal BOOLEAN, CLASS, ELSE, EXTENDS, FALSE, IF, INT, LENGTH, MAIN,
+terminal BOOLEAN, CLASS, ELSE, EXTENDS, FALSE, IF, INSTANCEOF, INT, LENGTH, MAIN,
          NEW, PUBLIC, RETURN, STATIC, STRING, PRINT, THIS, TRUE, VOID, WHILE;
 
 /* operators */
-terminal PLUS, MINUS, MULT, DIV, MOD, LESS_THAN, LESS_THAN_OR_EQUAL, GREATER_THAN,
-         GREATER_THAN_OR_EQUAL, EQUALS, NOT, AND, OR, IS_EQUAL, IS_NOT_EQUAL,
-         BITWISE_AND, BITWISE_OR, BITWISE_XOR, BITWISE_NOT;
+terminal PLUS, MINUS, TIMES, DIV, MOD, LSHIFT, RSHIFT, URSHIFT, LESS_THAN,
+         LESS_THAN_OR_EQUAL, GREATER_THAN, GREATER_THAN_OR_EQUAL, ASSIGN, ASSIGN_PLUS,
+         ASSIGN_MINUS, ASSIGN_TIMES, ASSIGN_DIV, ASSIGN_MOD, ASSIGN_AND, ASSIGN_OR,
+         ASSIGN_XOR, ASSIGN_LSHIFT, ASSIGN_RSHIFT, ASSIGN_URSHIFT, INCREMENT,
+         DECREMENT, NOT, AND, OR, IS_EQUAL, IS_NOT_EQUAL, BITWISE_AND, BITWISE_OR,
+         BITWISE_XOR, BITWISE_NOT;
 
 /* delimiters */
 terminal LPAREN, RPAREN, LSQUARE, RSQUARE, LCURL, RCURL, SEMICOLON, COMMA, DOT,
@@ -49,6 +52,11 @@ nonterminal Exp Expression;
 nonterminal Identifier Identifier;
 
 /* precedence declarations: */
+precedence right ASSIGN, ASSIGN_PLUS, ASSIGN_MINUS,   // =, +=, -=
+                 ASSIGN_TIMES, ASSIGN_DIV,            // *=, /=
+                 ASSIGN_MOD, ASSIGN_AND, ASSIGN_OR,   // %=, &=, |=
+                 ASSIGN_XOR, ASSIGN_LSHIFT,           // ^=, <<=
+                 ASSIGN_RSHIFT, ASSIGN_URSHIFT;       // >>=, >>>=
 precedence right QUESTION;                            // ?:
 precedence left OR;                                   // ||
 precedence left AND;                                  // &&
@@ -57,10 +65,13 @@ precedence left BITWISE_XOR;                          // ^
 precedence left BITWISE_AND;                          // &
 precedence left IS_EQUAL, IS_NOT_EQUAL;               // ==, !=
 precedence left LESS_THAN, LESS_THAN_OR_EQUAL,        // <, <=
-                GREATER_THAN, GREATER_THAN_OR_EQUAL;  // >, >=
+                GREATER_THAN, GREATER_THAN_OR_EQUAL,  // >, >=
+                INSTANCEOF;                           // instanceof
+precedence left LSHIFT, RSHIFT, URSHIFT;              // <<, >>, >>>
 precedence left PLUS, MINUS;                          // +, -
-precedence left MULT, DIV, MOD;                       // *, /, %
+precedence left TIMES, DIV, MOD;                      // *, /, %
 precedence right NOT, BITWISE_NOT;                    // !, ~
+precedence left INCREMENT, DECREMENT;                 // ++, --
 precedence right NEW;                                 // new
 precedence left DOT, LSQUARE;                         // ., [
 
@@ -172,10 +183,40 @@ Statement ::= LCURL:lc StatementList:sl RCURL
               {: RESULT = new While(e, s, wxleft); :}
           | PRINT:p LPAREN Expression:e RPAREN SEMICOLON
               {: RESULT = new Print(e, pxleft); :}
-          | Identifier:id EQUALS Expression:e SEMICOLON
-              {: RESULT = new Assign(id, e, idxleft); :}
-          | Identifier:id LSQUARE Expression:e1 RSQUARE EQUALS Expression:e2 SEMICOLON
-              {: RESULT = new ArrayAssign(id, e1, e2, idxleft); :};
+          | Identifier:id ASSIGN Expression:e SEMICOLON
+              {: RESULT = new AssignSimple(id, e, idxleft); :}
+          | Identifier:id ASSIGN_PLUS Expression:e SEMICOLON
+              {: RESULT = new AssignPlus(id, e, idxleft); :}
+          | Identifier:id ASSIGN_MINUS Expression:e SEMICOLON
+              {: RESULT = new AssignMinus(id, e, idxleft); :}
+          | Identifier:id ASSIGN_TIMES Expression:e SEMICOLON
+              {: RESULT = new AssignTimes(id, e, idxleft); :}
+          | Identifier:id ASSIGN_DIV Expression:e SEMICOLON
+              {: RESULT = new AssignDivide(id, e, idxleft); :}
+          | Identifier:id ASSIGN_MOD Expression:e SEMICOLON
+              {: RESULT = new AssignMod(id, e, idxleft); :}
+          | Identifier:id ASSIGN_AND Expression:e SEMICOLON
+              {: RESULT = new AssignAnd(id, e, idxleft); :}
+          | Identifier:id ASSIGN_OR Expression:e SEMICOLON
+              {: RESULT = new AssignOr(id, e, idxleft); :}
+          | Identifier:id ASSIGN_XOR Expression:e SEMICOLON
+              {: RESULT = new AssignXor(id, e, idxleft); :}
+          | Identifier:id ASSIGN_LSHIFT Expression:e SEMICOLON
+              {: RESULT = new AssignLeftShift(id, e, idxleft); :}
+          | Identifier:id ASSIGN_RSHIFT Expression:e SEMICOLON
+              {: RESULT = new AssignRightShift(id, e, idxleft); :}
+          | Identifier:id ASSIGN_URSHIFT Expression:e SEMICOLON
+              {: RESULT = new AssignUnsignedRightShift(id, e, idxleft); :}
+          | Identifier:id LSQUARE Expression:e1 RSQUARE ASSIGN Expression:e2 SEMICOLON
+              {: RESULT = new ArrayAssign(id, e1, e2, idxleft); :}
+          | Identifier:id INCREMENT SEMICOLON
+              {: RESULT = new PostIncrement(id, idxleft); :}
+          | Identifier:id DECREMENT SEMICOLON
+              {: RESULT = new PostDecrement(id, idxleft); :}
+          | INCREMENT Identifier:id SEMICOLON
+              {: RESULT = new PreIncrement(id, idxleft); :}
+          | DECREMENT Identifier:id SEMICOLON
+              {: RESULT = new PreDecrement(id, idxleft); :};
 
 ExpressionList ::= Expression:e
                    {: ExpList el = new ExpList(exleft);
@@ -211,12 +252,18 @@ Expression ::= Expression:e1 AND Expression:e2
                           {: RESULT = new Plus(e1, e2, e1xleft); :}
            | Expression:e1 MINUS Expression:e2
                           {: RESULT = new Minus(e1, e2, e1xleft); :}
-           | Expression:e1 MULT Expression:e2
+           | Expression:e1 TIMES Expression:e2
                           {: RESULT = new Times(e1, e2, e1xleft); :}
            | Expression:e1 DIV Expression:e2
                           {: RESULT = new Divide(e1, e2, e1xleft); :}
            | Expression:e1 MOD Expression:e2
-                                     {: RESULT = new Mod(e1, e2, e1xleft); :}
+                          {: RESULT = new Mod(e1, e2, e1xleft); :}
+           | Expression:e1 LSHIFT Expression:e2
+                          {: RESULT = new LeftShift(e1, e2, e1xleft); :}
+           | Expression:e1 RSHIFT Expression:e2
+                          {: RESULT = new RightShift(e1, e2, e1xleft); :}
+           | Expression:e1 URSHIFT Expression:e2
+                          {: RESULT = new UnsignedRightShift(e1, e2, e1xleft); :}
            | Expression:e1 LSQUARE Expression:e2 RSQUARE
                           {: RESULT = new ArrayLookup(e1, e2, e1xleft); :}
            | Expression:e DOT LENGTH
@@ -227,6 +274,8 @@ Expression ::= Expression:e1 AND Expression:e2
                           {: RESULT = new Call(e, id, el, exleft); :}
            | Expression:c QUESTION Expression:e1 COLON Expression:e2
                           {: RESULT = new Ternary(c, e1, e2, cxleft); :}
+           | Expression:e INSTANCEOF Identifier:id
+                          {: RESULT = new InstanceOf(e, id, exleft); :}
            | INT_LITERAL:n
                           {: RESULT = new IntegerLiteral(Integer.parseInt(n), nxleft); :}
            | TRUE:t
