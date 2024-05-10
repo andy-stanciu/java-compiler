@@ -7,7 +7,7 @@ import semantics.Logger;
 public class Ternary extends Exp {
     public Exp c, e1, e2;
 
-    public And(Exp ac, Exp ae1, Exp ae2, ComplexSymbolFactory.Location pos) {
+    public Ternary(Exp ac, Exp ae1, Exp ae2, ComplexSymbolFactory.Location pos) {
         super(pos);
         c = ac;
         e1 = ae1;

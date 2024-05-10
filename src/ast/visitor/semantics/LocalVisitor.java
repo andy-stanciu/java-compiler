@@ -193,12 +193,12 @@ public final class LocalVisitor implements Visitor {
 
     @Override
     public void visit(Equal n) {
-        visitBinaryExp(n, "==", TypeBoolean.getInstance(), TypeBoolean.getInstance());
+        visitBinaryExpEqualTypes(n, "==");
     }
 
     @Override
     public void visit(NotEqual n) {
-        visitBinaryExp(n, "!=", TypeBoolean.getInstance(), TypeBoolean.getInstance());
+        visitBinaryExpEqualTypes(n, "!=");
     }
 
     @Override
@@ -223,17 +223,17 @@ public final class LocalVisitor implements Visitor {
 
     @Override
     public void visit(BitwiseAnd n) {
-        visitBinaryExp(n, "&", TypeInt.getInstance(), TypeInt.getInstance());
+        visitBinaryExpEqualTypes(n, "&", TypeInt.getInstance(), TypeBoolean.getInstance());
     }
 
     @Override
     public void visit(BitwiseOr n) {
-        visitBinaryExp(n, "|", TypeInt.getInstance(), TypeInt.getInstance());
+        visitBinaryExpEqualTypes(n, "|", TypeInt.getInstance(), TypeBoolean.getInstance());
     }
 
     @Override
     public void visit(BitwiseXor n) {
-        visitBinaryExp(n, "^", TypeInt.getInstance(), TypeInt.getInstance());
+        visitBinaryExpEqualTypes(n, "^", TypeInt.getInstance(), TypeBoolean.getInstance());
     }
 
     @Override
@@ -418,7 +418,8 @@ public final class LocalVisitor implements Visitor {
     @Override
     public void visit(BitwiseNot n) {
         n.e.accept(this);  // int expression
-        if (!n.e.type.isAssignableTo(TypeInt.getInstance())) {
+        if (!n.e.type.isAssignableTo(TypeInt.getInstance()) ||
+                !n.e.type.isAssignableTo(TypeBoolean.getInstance())) {
             logger.logError("Operator ~ cannot be applied to %s%n", n.e.type);
         }
 
@@ -459,5 +460,37 @@ public final class LocalVisitor implements Visitor {
         }
 
         n.type = result;
+    }
+
+    /**
+     * Visits the specified binary expression that expected LHS and RHS types
+     * to be equal. Result type is same type.
+     * @param n The binary expression to visit.
+     * @param sym The symbol associated with the binary expression.
+     * @param accepted The types to accept (optional).
+     */
+    private void visitBinaryExpEqualTypes(BinaryExp n, String sym, Type... accepted) {
+        n.e1.accept(this);
+        n.e2.accept(this);
+
+        if (!n.e1.type.equals(n.e2.type)) {
+            logger.logError("Operator %s cannot be applied to %s, %s%n",
+                    sym, n.e1.type, n.e2.type);
+        }
+
+        if (accepted != null) {
+            for (var type : accepted) {
+                if (n.e1.type.equals(type)) {
+                    n.type = n.e1.type;
+                    return;
+                }
+            }
+
+            logger.logError("Operator %s cannot be applied to %s, %s%n",
+                    sym, n.e1.type, n.e2.type);
+            n.type = TypeUndefined.getInstance();
+        } else {
+            n.type = n.e1.type;
+        }
     }
 }

@@ -244,7 +244,7 @@ Expression ::= Expression:e1 AND Expression:e2
            | NOT:n Expression:e
                           {: RESULT = new Not(e, nxleft); :}
            | BITWISE_NOT:n Expression:e
-                          {: RESULT = new BitwiseNot(e1, nxleft); :}
+                          {: RESULT = new BitwiseNot(e, nxleft); :}
            | LPAREN Expression:e RPAREN
                           {: RESULT = e; :};
 
