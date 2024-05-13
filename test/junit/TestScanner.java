@@ -48,8 +48,8 @@ public class TestScanner {
     }
 
     @Test
-    public void testBrokenComments() {
-        runScannerFailTestCase("BrokenComments");
+    public void testComments() {
+        runScannerSuccessTestCase("Comments");
     }
 
     @Test
