@@ -5,7 +5,7 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
 import semantics.Logger;
 
 public class AssignPlus extends Assign {
-    public AssignPlus(Identifier ai, Exp ae, Location pos) {
+    public AssignPlus(Assignable ai, Exp ae, Location pos) {
         super(ai, ae, pos);
     }
 

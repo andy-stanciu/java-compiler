@@ -5,7 +5,7 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
 import semantics.Logger;
 
 public class AssignXor extends Assign {
-    public AssignXor(Identifier ai, Exp ae, Location pos) {
+    public AssignXor(Assignable ai, Exp ae, Location pos) {
         super(ai, ae, pos);
     }
 

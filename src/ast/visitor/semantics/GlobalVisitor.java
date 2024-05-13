@@ -289,6 +289,11 @@ public final class GlobalVisitor implements Visitor {
     }
 
     @Override
+    public void visit(Field n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
     public void visit(Ternary n) {
         throw new IllegalStateException();
     }

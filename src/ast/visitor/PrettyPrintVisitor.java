@@ -230,7 +230,7 @@ public final class PrettyPrintVisitor implements Visitor {
     // Exp e;
     public void visit(AssignSimple n) {
         indenter.print();
-        n.i.accept(this);
+        n.a.accept(this);
         System.out.print(" = ");
         n.e.accept(this);
         System.out.print(";");
@@ -239,7 +239,7 @@ public final class PrettyPrintVisitor implements Visitor {
     @Override
     public void visit(AssignPlus n) {
         indenter.print();
-        n.i.accept(this);
+        n.a.accept(this);
         System.out.print(" += ");
         n.e.accept(this);
         System.out.print(";");
@@ -248,7 +248,7 @@ public final class PrettyPrintVisitor implements Visitor {
     @Override
     public void visit(AssignMinus n) {
         indenter.print();
-        n.i.accept(this);
+        n.a.accept(this);
         System.out.print(" -= ");
         n.e.accept(this);
         System.out.print(";");
@@ -257,7 +257,7 @@ public final class PrettyPrintVisitor implements Visitor {
     @Override
     public void visit(AssignTimes n) {
         indenter.print();
-        n.i.accept(this);
+        n.a.accept(this);
         System.out.print(" *= ");
         n.e.accept(this);
         System.out.print(";");
@@ -266,7 +266,7 @@ public final class PrettyPrintVisitor implements Visitor {
     @Override
     public void visit(AssignDivide n) {
         indenter.print();
-        n.i.accept(this);
+        n.a.accept(this);
         System.out.print(" /= ");
         n.e.accept(this);
         System.out.print(";");
@@ -275,7 +275,7 @@ public final class PrettyPrintVisitor implements Visitor {
     @Override
     public void visit(AssignMod n) {
         indenter.print();
-        n.i.accept(this);
+        n.a.accept(this);
         System.out.print(" %= ");
         n.e.accept(this);
         System.out.print(";");
@@ -284,7 +284,7 @@ public final class PrettyPrintVisitor implements Visitor {
     @Override
     public void visit(AssignAnd n) {
         indenter.print();
-        n.i.accept(this);
+        n.a.accept(this);
         System.out.print(" &= ");
         n.e.accept(this);
         System.out.print(";");
@@ -293,7 +293,7 @@ public final class PrettyPrintVisitor implements Visitor {
     @Override
     public void visit(AssignOr n) {
         indenter.print();
-        n.i.accept(this);
+        n.a.accept(this);
         System.out.print(" |= ");
         n.e.accept(this);
         System.out.print(";");
@@ -302,7 +302,7 @@ public final class PrettyPrintVisitor implements Visitor {
     @Override
     public void visit(AssignXor n) {
         indenter.print();
-        n.i.accept(this);
+        n.a.accept(this);
         System.out.print(" ^= ");
         n.e.accept(this);
         System.out.print(";");
@@ -311,7 +311,7 @@ public final class PrettyPrintVisitor implements Visitor {
     @Override
     public void visit(AssignLeftShift n) {
         indenter.print();
-        n.i.accept(this);
+        n.a.accept(this);
         System.out.print(" <<= ");
         n.e.accept(this);
         System.out.print(";");
@@ -320,7 +320,7 @@ public final class PrettyPrintVisitor implements Visitor {
     @Override
     public void visit(AssignRightShift n) {
         indenter.print();
-        n.i.accept(this);
+        n.a.accept(this);
         System.out.print(" >>= ");
         n.e.accept(this);
         System.out.print(";");
@@ -329,7 +329,7 @@ public final class PrettyPrintVisitor implements Visitor {
     @Override
     public void visit(AssignUnsignedRightShift n) {
         indenter.print();
-        n.i.accept(this);
+        n.a.accept(this);
         System.out.print(" >>>= ");
         n.e.accept(this);
         System.out.print(";");
@@ -338,7 +338,7 @@ public final class PrettyPrintVisitor implements Visitor {
     @Override
     public void visit(PostIncrement n) {
         indenter.print();
-        n.i.accept(this);
+        n.a.accept(this);
         System.out.print("++;");
     }
 
@@ -346,14 +346,14 @@ public final class PrettyPrintVisitor implements Visitor {
     public void visit(PreIncrement n) {
         indenter.print();
         System.out.print("++");
-        n.i.accept(this);
+        n.a.accept(this);
         System.out.print(";");
     }
 
     @Override
     public void visit(PostDecrement n) {
         indenter.print();
-        n.i.accept(this);
+        n.a.accept(this);
         System.out.print("--;");
     }
 
@@ -361,7 +361,7 @@ public final class PrettyPrintVisitor implements Visitor {
     public void visit(PreDecrement n) {
         indenter.print();
         System.out.print("--");
-        n.i.accept(this);
+        n.a.accept(this);
         System.out.print(";");
     }
 
@@ -625,6 +625,17 @@ public final class PrettyPrintVisitor implements Visitor {
             }
         }
         System.out.print(")");
+        precedentTracker.pop();
+        precedentTracker.rightParen(n);
+    }
+
+    @Override
+    public void visit(Field n) {
+        precedentTracker.leftParen(n);
+        precedentTracker.push(n);
+        n.e.accept(this);
+        System.out.print(".");
+        n.i.accept(this);
         precedentTracker.pop();
         precedentTracker.rightParen(n);
     }

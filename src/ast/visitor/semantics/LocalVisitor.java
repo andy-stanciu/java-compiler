@@ -415,6 +415,31 @@ public final class LocalVisitor implements Visitor {
     }
 
     @Override
+    public void visit(Field n) {
+        n.e.accept(this);                   // object type
+        n.type = TypeUndefined.getInstance();  // mark as undefined for now
+
+        if (n.e.type == TypeUndefined.getInstance()) {
+            // if undefined, cannot access field so we skip
+            return;
+        }
+
+        if (n.e.type instanceof TypeObject obj) {
+            var v = symbolContext.lookupInstanceVariable(n.i.s, obj.base);
+            if (v == null) {
+                logger.logError("Cannot resolve field \"%s\" in \"%s\"%n",
+                        n.i.s, obj.base.name);
+                return;
+            }
+
+            n.type = v.type;  // field node type = instance variable type
+        } else {
+            logger.logError("Expected reference type for field access, but provided %s%n",
+                    n.e.type);
+        }
+    }
+
+    @Override
     public void visit(Ternary n) {
         n.c.accept(this);  // bool condition
         if (!n.c.type.isAssignableTo(TypeBoolean.getInstance())) {
@@ -541,15 +566,11 @@ public final class LocalVisitor implements Visitor {
      * @param sym The symbol associated with the increment/decrement statement.
      */
     private void visitIncrement(Increment n, String sym) {
-        // Lookup identifier in LHS, check that it's an int
-        var v = symbolContext.lookupVariable(n.i.s);
-        if (v != null) {
-            if (!v.type.equals(TypeInt.getInstance())) {
-                logger.logError("Cannot apply operator %s to %s%n", sym, v.type);
-            }
-        } else {
-            logger.logError("Cannot apply operator %s to \"%s\". Is it a variable?%n",
-                    sym, n.i.s);
+        n.a.accept(this);  // assignable
+
+        if (!n.a.getAssignableType().equals(TypeInt.getInstance())) {
+            logger.logError("Cannot apply operator %s to %s%n",
+                    sym, n.a.getAssignableType());
         }
     }
 
@@ -561,31 +582,26 @@ public final class LocalVisitor implements Visitor {
      */
     private void visitAssign(Assign n, String sym, Type... accepted) {
         n.e.accept(this);  // RHS
+        n.a.accept(this);  // assignable
 
-        // Lookup identifier in LHS, check assignment compatibility
-        var v = symbolContext.lookupVariable(n.i.s);
-        if (v != null) {
-            if (accepted != null && accepted.length > 0) {
-                boolean legal = false;
-                for (var type : accepted) {
-                    if (n.e.type.equals(type)) {
-                        legal = true;
-                        break;
-                    }
-                }
-
-                if (!legal) {
-                    logger.logError("Assignment operator %s cannot be applied to %s%n",
-                            sym, n.e.type);
-                    return;
+        if (accepted != null && accepted.length > 0) {
+            boolean legal = false;
+            for (var type : accepted) {
+                if (n.e.type.equals(type)) {
+                    legal = true;
+                    break;
                 }
             }
 
-            if (!n.e.type.isAssignableTo(v.type)) {
-                logger.logError("Cannot assign %s to %s%n", n.e.type, v.type);
+            if (!legal) {
+                logger.logError("Assignment operator %s cannot be applied to %s%n",
+                        sym, n.e.type);
+                return;
             }
-        } else {
-            logger.logError("Cannot assign to \"%s\". Is it a variable?%n", n.i.s);
+        }
+
+        if (!n.e.type.isAssignableTo(n.a.getAssignableType())) {
+            logger.logError("Cannot assign %s to %s%n", n.e.type, n.a.getAssignableType());
         }
     }
 

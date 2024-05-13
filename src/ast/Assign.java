@@ -4,12 +4,12 @@ import ast.visitor.Visitor;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 
 public abstract class Assign extends Statement {
-    public Identifier i;
+    public Assignable a;
     public Exp e;
 
-    public Assign(Identifier ai, Exp ae, Location pos) {
+    public Assign(Assignable ai, Exp ae, Location pos) {
         super(pos);
-        i = ai;
+        a = ai;
         e = ae;
     }
 

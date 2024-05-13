@@ -24,6 +24,10 @@ public final class PrecedentTracker {
         precedenceTable.put(LessThanOrEqual.class, 90);     // <=
         precedenceTable.put(GreaterThan.class, 90);         // >
         precedenceTable.put(GreaterThanOrEqual.class, 90);  // >=
+        precedenceTable.put(InstanceOf.class, 90);          // instanceof
+        precedenceTable.put(LeftShift.class, 95);           // <<
+        precedenceTable.put(RightShift.class, 95);          // >>
+        precedenceTable.put(UnsignedRightShift.class, 95);  // >>>
         precedenceTable.put(Plus.class, 100);               // +
         precedenceTable.put(Minus.class, 100);              // -
         precedenceTable.put(Times.class, 110);              // *
@@ -36,6 +40,7 @@ public final class PrecedentTracker {
         precedenceTable.put(ArrayLength.class, 500);        // .
         precedenceTable.put(ArrayLookup.class, 500);        // [
         precedenceTable.put(Call.class, 500);               // .
+        precedenceTable.put(Field.class, 500);              // .
         precedenceTable.put(True.class, 500);               // true
         precedenceTable.put(False.class, 500);              // false
         precedenceTable.put(IdentifierExp.class, 500);      // identifier

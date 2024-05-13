@@ -392,6 +392,11 @@ public final class ClassVisitor implements Visitor {
     }
 
     @Override
+    public void visit(Field n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
     public void visit(Ternary n) {
         throw new IllegalStateException();
     }

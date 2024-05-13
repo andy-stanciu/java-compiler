@@ -5,7 +5,7 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
 import semantics.Logger;
 
 public class PreIncrement extends Increment {
-    public PreIncrement(Identifier ai, Location pos) {
+    public PreIncrement(Assignable ai, Location pos) {
         super(ai, pos);
     }
 

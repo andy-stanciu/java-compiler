@@ -199,7 +199,7 @@ public final class ASTVisitor implements Visitor {
     public void visit(AssignSimple n) {
         indenter.print();
         System.out.print("Assign ");
-        n.i.accept(this);
+        n.a.accept(this);
         System.out.print(" <- ");
         n.e.accept(this);
         System.out.printf(" (line %d)", n.line_number);
@@ -209,7 +209,7 @@ public final class ASTVisitor implements Visitor {
     public void visit(AssignPlus n) {
         indenter.print();
         System.out.print("AssignPlus ");
-        n.i.accept(this);
+        n.a.accept(this);
         System.out.print(" <- ");
         n.e.accept(this);
         System.out.printf(" (line %d)", n.line_number);
@@ -219,7 +219,7 @@ public final class ASTVisitor implements Visitor {
     public void visit(AssignMinus n) {
         indenter.print();
         System.out.print("AssignMinus ");
-        n.i.accept(this);
+        n.a.accept(this);
         System.out.print(" <- ");
         n.e.accept(this);
         System.out.printf(" (line %d)", n.line_number);
@@ -229,7 +229,7 @@ public final class ASTVisitor implements Visitor {
     public void visit(AssignTimes n) {
         indenter.print();
         System.out.print("AssignTimes ");
-        n.i.accept(this);
+        n.a.accept(this);
         System.out.print(" <- ");
         n.e.accept(this);
         System.out.printf(" (line %d)", n.line_number);
@@ -239,7 +239,7 @@ public final class ASTVisitor implements Visitor {
     public void visit(AssignDivide n) {
         indenter.print();
         System.out.print("AssignDivide ");
-        n.i.accept(this);
+        n.a.accept(this);
         System.out.print(" <- ");
         n.e.accept(this);
         System.out.printf(" (line %d)", n.line_number);
@@ -249,7 +249,7 @@ public final class ASTVisitor implements Visitor {
     public void visit(AssignMod n) {
         indenter.print();
         System.out.print("AssignMod ");
-        n.i.accept(this);
+        n.a.accept(this);
         System.out.print(" <- ");
         n.e.accept(this);
         System.out.printf(" (line %d)", n.line_number);
@@ -259,7 +259,7 @@ public final class ASTVisitor implements Visitor {
     public void visit(AssignAnd n) {
         indenter.print();
         System.out.print("AssignAnd ");
-        n.i.accept(this);
+        n.a.accept(this);
         System.out.print(" <- ");
         n.e.accept(this);
         System.out.printf(" (line %d)", n.line_number);
@@ -269,7 +269,7 @@ public final class ASTVisitor implements Visitor {
     public void visit(AssignOr n) {
         indenter.print();
         System.out.print("AssignOr ");
-        n.i.accept(this);
+        n.a.accept(this);
         System.out.print(" <- ");
         n.e.accept(this);
         System.out.printf(" (line %d)", n.line_number);
@@ -279,7 +279,7 @@ public final class ASTVisitor implements Visitor {
     public void visit(AssignXor n) {
         indenter.print();
         System.out.print("AssignXor ");
-        n.i.accept(this);
+        n.a.accept(this);
         System.out.print(" <- ");
         n.e.accept(this);
         System.out.printf(" (line %d)", n.line_number);
@@ -289,7 +289,7 @@ public final class ASTVisitor implements Visitor {
     public void visit(AssignLeftShift n) {
         indenter.print();
         System.out.print("AssignLeftShift ");
-        n.i.accept(this);
+        n.a.accept(this);
         System.out.print(" <- ");
         n.e.accept(this);
         System.out.printf(" (line %d)", n.line_number);
@@ -299,7 +299,7 @@ public final class ASTVisitor implements Visitor {
     public void visit(AssignRightShift n) {
         indenter.print();
         System.out.print("AssignRightShift ");
-        n.i.accept(this);
+        n.a.accept(this);
         System.out.print(" <- ");
         n.e.accept(this);
         System.out.printf(" (line %d)", n.line_number);
@@ -309,7 +309,7 @@ public final class ASTVisitor implements Visitor {
     public void visit(AssignUnsignedRightShift n) {
         indenter.print();
         System.out.print("AssignUnsignedRightShift ");
-        n.i.accept(this);
+        n.a.accept(this);
         System.out.print(" <- ");
         n.e.accept(this);
         System.out.printf(" (line %d)", n.line_number);
@@ -319,7 +319,7 @@ public final class ASTVisitor implements Visitor {
     public void visit(PostIncrement n) {
         indenter.print();
         System.out.print("PostIncrement ");
-        n.i.accept(this);
+        n.a.accept(this);
         System.out.printf(" (line %d)", n.line_number);
     }
 
@@ -327,7 +327,7 @@ public final class ASTVisitor implements Visitor {
     public void visit(PreIncrement n) {
         indenter.print();
         System.out.print("PreIncrement ");
-        n.i.accept(this);
+        n.a.accept(this);
         System.out.printf(" (line %d)", n.line_number);
     }
 
@@ -335,7 +335,7 @@ public final class ASTVisitor implements Visitor {
     public void visit(PostDecrement n) {
         indenter.print();
         System.out.print("PostDecrement ");
-        n.i.accept(this);
+        n.a.accept(this);
         System.out.printf(" (line %d)", n.line_number);
     }
 
@@ -343,7 +343,7 @@ public final class ASTVisitor implements Visitor {
     public void visit(PreDecrement n) {
         indenter.print();
         System.out.print("PreDecrement ");
-        n.i.accept(this);
+        n.a.accept(this);
         System.out.printf(" (line %d)", n.line_number);
     }
 
@@ -560,6 +560,15 @@ public final class ASTVisitor implements Visitor {
             }
         }
         System.out.print("))");
+    }
+
+    @Override
+    public void visit(Field n) {
+        System.out.print("(");
+        n.e.accept(this);
+        System.out.print(".");
+        n.i.accept(this);
+        System.out.print(")");
     }
 
     @Override

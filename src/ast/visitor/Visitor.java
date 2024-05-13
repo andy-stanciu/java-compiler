@@ -110,6 +110,8 @@ public interface Visitor {
 
     void visit(Call n);
 
+    void visit(Field n);
+
     void visit(Ternary n);
 
     void visit(InstanceOf n);
