@@ -18,7 +18,7 @@ terminal BOOLEAN, CLASS, ELSE, EXTENDS, FALSE, IF, INT, LENGTH, MAIN,
          NEW, PUBLIC, RETURN, STATIC, STRING, PRINT, THIS, TRUE, VOID, WHILE;
 
 /* operators */
-terminal PLUS, MINUS, MULT, LESS_THAN, EQUALS, NOT, AND;
+terminal PLUS, MINUS, TIMES, LESS_THAN, ASSIGN, NOT, AND;
 
 /* delimiters */
 terminal LPAREN, RPAREN, LSQUARE, RSQUARE, LCURL, RCURL, SEMICOLON, COMMA, DOT;
@@ -49,7 +49,7 @@ nonterminal Identifier Identifier;
 precedence left AND;           // &&
 precedence left LESS_THAN;     // <
 precedence left PLUS, MINUS;   // + -
-precedence left MULT;          // *
+precedence left TIMES;          // *
 precedence right NOT;          // !
 precedence right NEW;          // new
 precedence left DOT, LSQUARE;  // ., [
@@ -162,9 +162,9 @@ Statement ::= LCURL:lc StatementList:sl RCURL
               {: RESULT = new While(e, s, wxleft); :}
           | PRINT:p LPAREN Expression:e RPAREN SEMICOLON
               {: RESULT = new Print(e, pxleft); :}
-          | Identifier:id EQUALS Expression:e SEMICOLON
+          | Identifier:id ASSIGN Expression:e SEMICOLON
               {: RESULT = new Assign(id, e, idxleft); :}
-          | Identifier:id LSQUARE Expression:e1 RSQUARE EQUALS Expression:e2 SEMICOLON
+          | Identifier:id LSQUARE Expression:e1 RSQUARE ASSIGN Expression:e2 SEMICOLON
               {: RESULT = new ArrayAssign(id, e1, e2, idxleft); :};
 
 ExpressionList ::= Expression:e
@@ -183,7 +183,7 @@ Expression ::= Expression:e1 AND Expression:e2
                           {: RESULT = new Plus(e1, e2, e1xleft); :}
            | Expression:e1 MINUS Expression:e2
                           {: RESULT = new Minus(e1, e2, e1xleft); :}
-           | Expression:e1 MULT Expression:e2
+           | Expression:e1 TIMES Expression:e2
                           {: RESULT = new Times(e1, e2, e1xleft); :}
            | Expression:e1 LSQUARE Expression:e2 RSQUARE
                           {: RESULT = new ArrayLookup(e1, e2, e1xleft); :}

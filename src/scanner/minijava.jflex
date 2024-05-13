@@ -138,9 +138,9 @@ white = {eol}|[ \t]
 /* operators */
 "+" { return symbol(sym.PLUS); }
 "-" { return symbol(sym.MINUS); }
-"*" { return symbol(sym.MULT); }
+"*" { return symbol(sym.TIMES); }
 "<" { return symbol(sym.LESS_THAN); }
-"=" { return symbol(sym.EQUALS); }
+"=" { return symbol(sym.ASSIGN); }
 "!" { return symbol(sym.NOT); }
 "&&" { return symbol(sym.AND); }
 
