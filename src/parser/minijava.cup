@@ -47,12 +47,12 @@ nonterminal Identifier Identifier;
 
 /* precedence declarations: */
 precedence left AND;           // &&
-precedence left LESS_THAN;     // < should be nonassoc in the long run, but saving for semantic analysis
+precedence left LESS_THAN;     // <
 precedence left PLUS, MINUS;   // + -
 precedence left MULT;          // *
+precedence right NOT;          // !
 precedence right NEW;          // new
-precedence right NOT;          // ! right/left shouldn't really matter here...
-precedence left DOT, LSQUARE;  // . [
+precedence left DOT, LSQUARE;  // ., [
 
 /* productions */
 Program ::= MainClass:m ClassDeclarationList:cl
