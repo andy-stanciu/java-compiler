@@ -10,6 +10,7 @@ import scanner.*;
 import parser.sym;
 import java_cup.runtime.ComplexSymbolFactory;
 import semantics.Logger;
+import semantics.table.SymbolContext;
 
 import java.io.*;
 import java.util.LinkedList;
@@ -100,9 +101,10 @@ public class MiniJava {
             var root = p.parse();
 
             var program = (Program) root.value;
-            program.accept(new GlobalVisitor());
-            program.accept(new ClassVisitor());
-            program.accept(new LocalVisitor());
+            var symbolContext = SymbolContext.create();
+            program.accept(new GlobalVisitor(symbolContext));
+            program.accept(new ClassVisitor(symbolContext));
+            program.accept(new LocalVisitor(symbolContext));
 
             if (logger.hasError()) {
                 status = 1;

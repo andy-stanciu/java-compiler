@@ -7,14 +7,15 @@ import semantics.table.SymbolContext;
 import semantics.type.*;
 
 /**
- * TODO: describe what this does
+ * Final visitor pass of semantic analysis. Verifies that types match
+ * for all expressions, variables are in scope, etc.
  */
 public final class LocalVisitor implements Visitor {
     private final SymbolContext symbolContext;
     private final Logger logger;
 
-    public LocalVisitor() {
-        this.symbolContext = SymbolContext.getInstance();
+    public LocalVisitor(SymbolContext symbolContext) {
+        this.symbolContext = symbolContext;
         this.logger = Logger.getInstance();
     }
 

@@ -12,8 +12,8 @@ import semantics.table.SymbolContext;
 public final class GlobalVisitor implements Visitor {
     private final SymbolContext symbolContext;
 
-    public GlobalVisitor() {
-        this.symbolContext = SymbolContext.getInstance();
+    public GlobalVisitor(SymbolContext symbolContext) {
+        this.symbolContext = symbolContext;
     }
 
     @Override

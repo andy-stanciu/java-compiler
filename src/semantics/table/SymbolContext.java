@@ -10,13 +10,8 @@ import java.util.List;
 import java.util.Set;
 
 public final class SymbolContext {
-    private static SymbolContext instance;
-
-    public static SymbolContext getInstance() {
-        if (instance == null) {
-            instance = new SymbolContext();
-        }
-        return instance;
+    public static SymbolContext create() {
+        return new SymbolContext();
     }
 
     private final Logger logger;
@@ -265,7 +260,6 @@ public final class SymbolContext {
                 var overridingMethod = (MethodInfo)derived.getTable().lookup(method.name, false);
                 if (overridingMethod == null) {
                     // Add base method to derived class
-                    // TODO: reason whether shallow copy is okay here-- it should be?
                     derived.getTable().addEntry(method.name, method);
                 } else {
                     // Verify overriding method signature assignable to base method signature

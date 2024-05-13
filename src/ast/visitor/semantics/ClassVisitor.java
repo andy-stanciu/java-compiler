@@ -19,8 +19,8 @@ public final class ClassVisitor implements Visitor {
     private final SymbolContext symbolContext;
     private final Logger logger;
 
-    public ClassVisitor() {
-        this.symbolContext = SymbolContext.getInstance();
+    public ClassVisitor(SymbolContext symbolContext) {
+        this.symbolContext = symbolContext;
         this.logger = Logger.getInstance();
     }
 

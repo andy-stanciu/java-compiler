@@ -1,0 +1,6 @@
+ERROR @ FooFail.java:7: Undefined symbol "Nothing"
+ERROR @ FooFail.java:7: Cannot resolve class "Nothing"
+ERROR @ FooFail.java:7: Undefined symbol "Baz"
+ERROR @ FooFail.java:8: Undefined symbol "Thing"
+ERROR @ FooFail.java:8: Cannot resolve class "Thing"
+Static semantic analysis found 5 error(s), 0 warning(s)
