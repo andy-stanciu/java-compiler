@@ -64,8 +64,6 @@ public interface Visitor {
 
     void visit(PreDecrement n);
 
-    void visit(ArrayAssign n);
-
     void visit(And n);
 
     void visit(Or n);

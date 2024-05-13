@@ -222,32 +222,6 @@ public final class LocalVisitor implements Visitor {
     }
 
     @Override
-    public void visit(ArrayAssign n) {
-        n.e2.accept(this);  // RHS
-        n.e1.accept(this);  // indexing expression
-
-        if (!n.e2.type.isAssignableTo(TypeInt.getInstance())) {
-            logger.logError("Array assignment expected an int, but provided %s%n",
-                    n.e2.type);
-        }
-
-        if (!n.e1.type.isAssignableTo(TypeInt.getInstance())) {
-            logger.logError("Array index expected an int, but provided %s%n",
-                    n.e1.type);
-        }
-
-        // Lookup identifier in LHS, check it is an int[]
-        var v = symbolContext.lookupVariable(n.i.s);
-        if (v != null) {
-            if (!v.type.isAssignableTo(TypeIntArray.getInstance())) {
-                logger.logError("Cannot index \"%s\". Is it an array?%n", n.i.s);
-            }
-        } else {
-            logger.logError("Cannot assign to \"%s\". Is it a variable?%n", n.i.s);
-        }
-    }
-
-    @Override
     public void visit(And n) {
         visitBinaryExp(n, "&&", TypeBoolean.getInstance(), TypeBoolean.getInstance());
     }

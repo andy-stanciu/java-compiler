@@ -174,11 +174,6 @@ public final class GlobalVisitor implements Visitor {
     }
 
     @Override
-    public void visit(ArrayAssign n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
     public void visit(And n) {
         throw new IllegalStateException();
     }

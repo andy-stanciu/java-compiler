@@ -348,19 +348,6 @@ public final class ASTVisitor implements Visitor {
     }
 
     @Override
-    public void visit(ArrayAssign n) {
-        indenter.print();
-        System.out.print("ArrayAssign ");
-        n.i.accept(this);
-        System.out.print("[");
-        n.e1.accept(this);
-        System.out.print("]");
-        System.out.print(" <- ");
-        n.e2.accept(this);
-        System.out.printf(" (line %d)", n.line_number);
-    }
-
-    @Override
     public void visit(And n) {
         System.out.print("And (");
         n.e1.accept(this);

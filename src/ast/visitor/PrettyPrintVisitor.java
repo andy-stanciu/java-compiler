@@ -365,18 +365,6 @@ public final class PrettyPrintVisitor implements Visitor {
         System.out.print(";");
     }
 
-    // Identifier i;
-    // Exp e1,e2;
-    public void visit(ArrayAssign n) {
-        indenter.print();
-        n.i.accept(this);
-        System.out.print("[");
-        n.e1.accept(this);
-        System.out.print("] = ");
-        n.e2.accept(this);
-        System.out.print(";");
-    }
-
     // Exp e1,e2;
     public void visit(And n) {
         precedentTracker.leftParen(n);
