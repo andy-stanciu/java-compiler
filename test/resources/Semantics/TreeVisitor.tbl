@@ -11,62 +11,63 @@ Global -------------------------------------------------------------------------
 Class: MyVisitor extends Visitor ----------------------------------------+
 | Symbol     Type                 Return     Signature     Inherited     |
 +------------------------------------------------------------------------+
-| #visit     Method               int        Tree          -             |
+| visit      Method               int        Tree          -             |
 | l          Tree                 -          -             Visitor       |
 | r          Tree                 -          -             Visitor       |
 | this       Class<MyVisitor>     -          -             -             |
+| visit      Method               int        Tree          Visitor       |
 +------------------------------------------------------------------------+
 
 Class: TV --------------------------------------------------------+
 | Symbol     Type          Return     Signature     Inherited     |
 +-----------------------------------------------------------------+
-| #Start     Method        int        void          -             |
+| Start      Method        int        void          -             |
 | this       Class<TV>     -          -             -             |
 +-----------------------------------------------------------------+
 
-Class: Tree -----------------------------------------------------------------+
-| Symbol            Type            Return      Signature      Inherited     |
-+----------------------------------------------------------------------------+
-| #Compare          Method          boolean     int, int       -             |
-| #Delete           Method          boolean     int            -             |
-| #GetHas_Left      Method          boolean     void           -             |
-| #GetHas_Right     Method          boolean     void           -             |
-| #GetKey           Method          int         void           -             |
-| #GetLeft          Method          Tree        void           -             |
-| #GetRight         Method          Tree        void           -             |
-| #Init             Method          boolean     int            -             |
-| #Insert           Method          boolean     int            -             |
-| #Print            Method          boolean     void           -             |
-| #RecPrint         Method          boolean     Tree           -             |
-| #Remove           Method          boolean     Tree, Tree     -             |
-| #RemoveLeft       Method          boolean     Tree, Tree     -             |
-| #RemoveRight      Method          boolean     Tree, Tree     -             |
-| #Search           Method          int         int            -             |
-| #SetHas_Left      Method          boolean     boolean        -             |
-| #SetHas_Right     Method          boolean     boolean        -             |
-| #SetKey           Method          boolean     int            -             |
-| #SetLeft          Method          boolean     Tree           -             |
-| #SetRight         Method          boolean     Tree           -             |
-| #accept           Method          int         Visitor        -             |
-| has_left          boolean         -           -              -             |
-| has_right         boolean         -           -              -             |
-| key               int             -           -              -             |
-| left              Tree            -           -              -             |
-| my_null           Tree            -           -              -             |
-| right             Tree            -           -              -             |
-| this              Class<Tree>     -           -              -             |
-+----------------------------------------------------------------------------+
+Class: Tree ----------------------------------------------------------------+
+| Symbol           Type            Return      Signature      Inherited     |
++---------------------------------------------------------------------------+
+| Compare          Method          boolean     int, int       -             |
+| Delete           Method          boolean     int            -             |
+| GetHas_Left      Method          boolean     void           -             |
+| GetHas_Right     Method          boolean     void           -             |
+| GetKey           Method          int         void           -             |
+| GetLeft          Method          Tree        void           -             |
+| GetRight         Method          Tree        void           -             |
+| Init             Method          boolean     int            -             |
+| Insert           Method          boolean     int            -             |
+| Print            Method          boolean     void           -             |
+| RecPrint         Method          boolean     Tree           -             |
+| Remove           Method          boolean     Tree, Tree     -             |
+| RemoveLeft       Method          boolean     Tree, Tree     -             |
+| RemoveRight      Method          boolean     Tree, Tree     -             |
+| Search           Method          int         int            -             |
+| SetHas_Left      Method          boolean     boolean        -             |
+| SetHas_Right     Method          boolean     boolean        -             |
+| SetKey           Method          boolean     int            -             |
+| SetLeft          Method          boolean     Tree           -             |
+| SetRight         Method          boolean     Tree           -             |
+| accept           Method          int         Visitor        -             |
+| has_left         boolean         -           -              -             |
+| has_right        boolean         -           -              -             |
+| key              int             -           -              -             |
+| left             Tree            -           -              -             |
+| my_null          Tree            -           -              -             |
+| right            Tree            -           -              -             |
+| this             Class<Tree>     -           -              -             |
++---------------------------------------------------------------------------+
 
 Class: TreeVisitor --------------------------------------------+
 | Symbol     Type       Return     Signature     Inherited     |
 +--------------------------------------------------------------+
-| #main      Method     void       String[]      -             |
+| main       Method     void       String[]      -             |
 +--------------------------------------------------------------+
 
 Class: Visitor --------------------------------------------------------+
 | Symbol     Type               Return     Signature     Inherited     |
 +----------------------------------------------------------------------+
-| #visit     Method             int        Tree          -             |
+| visit      Method             int        Tree          -             |
 | l          Tree               -          -             -             |
 | r          Tree               -          -             -             |
 | this       Class<Visitor>     -          -             -             |
