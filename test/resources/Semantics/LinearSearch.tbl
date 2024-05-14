@@ -5,22 +5,22 @@ Global -------------------------------------------------------------------------
 | LinearSearch     Class<LinearSearch>     -          -             -             |
 +---------------------------------------------------------------------------------+
 
-Class: LS ---------------------------------------------------------+
-| Symbol      Type          Return     Signature     Inherited     |
-+------------------------------------------------------------------+
-| #Init       Method        int        int           -             |
-| #Print      Method        int        void          -             |
-| #Search     Method        int        int           -             |
-| #Start      Method        int        int           -             |
-| number      int[]         -          -             -             |
-| size        int           -          -             -             |
-| this        Class<LS>     -          -             -             |
-+------------------------------------------------------------------+
+Class: LS --------------------------------------------------------+
+| Symbol     Type          Return     Signature     Inherited     |
++-----------------------------------------------------------------+
+| Init       Method        int        int           -             |
+| Print      Method        int        void          -             |
+| Search     Method        int        int           -             |
+| Start      Method        int        int           -             |
+| number     int[]         -          -             -             |
+| size       int           -          -             -             |
+| this       Class<LS>     -          -             -             |
++-----------------------------------------------------------------+
 
 Class: LinearSearch -------------------------------------------+
 | Symbol     Type       Return     Signature     Inherited     |
 +--------------------------------------------------------------+
-| #main      Method     void       String[]      -             |
+| main       Method     void       String[]      -             |
 +--------------------------------------------------------------+
 
 Method: LS#Init ---------------------------------------------+

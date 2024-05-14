@@ -9,34 +9,34 @@ Global -------------------------------------------------------------+
 Class: Main ---------------------------------------------------+
 | Symbol     Type       Return     Signature     Inherited     |
 +--------------------------------------------------------------+
-| #main      Method     void       String[]      -             |
+| main       Method     void       String[]      -             |
 +--------------------------------------------------------------+
 
-Class: One ---------------------------------------------------------+
+Class: One --------------------------------------------------------+
+| Symbol     Type           Return     Signature     Inherited     |
++------------------------------------------------------------------+
+| getBar     Method         int        void          -             |
+| getFoo     Method         int        void          -             |
+| setBar     Method         int        int           -             |
+| setFoo     Method         int        void          -             |
+| bar        int            -          -             -             |
+| foo        int            -          -             -             |
+| this       Class<One>     -          -             -             |
++------------------------------------------------------------------+
+
+Class: Two extends One ---------------------------------------------+
 | Symbol      Type           Return     Signature     Inherited     |
 +-------------------------------------------------------------------+
-| #getBar     Method         int        void          -             |
-| #getFoo     Method         int        void          -             |
-| #setBar     Method         int        int           -             |
-| #setFoo     Method         int        void          -             |
+| getBar      Method         int        void          One           |
+| getFoo      Method         int        void          One           |
+| getIt       Method         int        void          -             |
+| resetIt     Method         int        void          -             |
+| setBar      Method         int        int           One           |
+| setFoo      Method         int        void          -             |
 | bar         int            -          -             -             |
-| foo         int            -          -             -             |
-| this        Class<One>     -          -             -             |
+| foo         int            -          -             One           |
+| this        Class<Two>     -          -             -             |
 +-------------------------------------------------------------------+
-
-Class: Two extends One ----------------------------------------------+
-| Symbol       Type           Return     Signature     Inherited     |
-+--------------------------------------------------------------------+
-| #getBar      Method         int        void          One           |
-| #getFoo      Method         int        void          One           |
-| #getIt       Method         int        void          -             |
-| #resetIt     Method         int        void          -             |
-| #setBar      Method         int        int           One           |
-| #setFoo      Method         int        void          -             |
-| bar          int            -          -             -             |
-| foo          int            -          -             One           |
-| this         Class<Two>     -          -             -             |
-+--------------------------------------------------------------------+
 
 Method: Main#main -------------------------------------------+
 | Symbol     Type     Return     Signature     Inherited     |

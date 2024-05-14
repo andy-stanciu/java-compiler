@@ -7,52 +7,52 @@ Global -----------------------------------------------------------------------+
 | List           Class<List>           -          -             -             |
 +-----------------------------------------------------------------------------+
 
-Class: Element ----------------------------------------------------------------------+
-| Symbol          Type               Return      Signature             Inherited     |
-+------------------------------------------------------------------------------------+
-| #Compare        Method             boolean     int, int              -             |
-| #Equal          Method             boolean     Element               -             |
-| #GetAge         Method             int         void                  -             |
-| #GetMarried     Method             boolean     void                  -             |
-| #GetSalary      Method             int         void                  -             |
-| #Init           Method             boolean     int, int, boolean     -             |
-| Age             int                -           -                     -             |
-| Married         boolean            -           -                     -             |
-| Salary          int                -           -                     -             |
-| this            Class<Element>     -           -                     -             |
-+------------------------------------------------------------------------------------+
+Class: Element ---------------------------------------------------------------------+
+| Symbol         Type               Return      Signature             Inherited     |
++-----------------------------------------------------------------------------------+
+| Compare        Method             boolean     int, int              -             |
+| Equal          Method             boolean     Element               -             |
+| GetAge         Method             int         void                  -             |
+| GetMarried     Method             boolean     void                  -             |
+| GetSalary      Method             int         void                  -             |
+| Init           Method             boolean     int, int, boolean     -             |
+| Age            int                -           -                     -             |
+| Married        boolean            -           -                     -             |
+| Salary         int                -           -                     -             |
+| this           Class<Element>     -           -                     -             |
++-----------------------------------------------------------------------------------+
 
 Class: LL --------------------------------------------------------+
 | Symbol     Type          Return     Signature     Inherited     |
 +-----------------------------------------------------------------+
-| #Start     Method        int        void          -             |
+| Start      Method        int        void          -             |
 | this       Class<LL>     -          -             -             |
 +-----------------------------------------------------------------+
 
 Class: LinkedList ---------------------------------------------+
 | Symbol     Type       Return     Signature     Inherited     |
 +--------------------------------------------------------------+
-| #main      Method     void       String[]      -             |
+| main       Method     void       String[]      -             |
 +--------------------------------------------------------------+
 
-Class: List ------------------------------------------------------------------------+
-| Symbol       Type            Return      Signature                  Inherited     |
-+-----------------------------------------------------------------------------------+
-| #Delete      Method          List        Element                    -             |
-| #GetElem     Method          Element     void                       -             |
-| #GetEnd      Method          boolean     void                       -             |
-| #GetNext     Method          List        void                       -             |
-| #Init        Method          boolean     void                       -             |
-| #InitNew     Method          boolean     Element, List, boolean     -             |
-| #Insert      Method          List        Element                    -             |
-| #Print       Method          boolean     void                       -             |
-| #Search      Method          int         Element                    -             |
-| #SetNext     Method          boolean     List                       -             |
-| elem         Element         -           -                          -             |
-| end          boolean         -           -                          -             |
-| next         List            -           -                          -             |
-| this         Class<List>     -           -                          -             |
-+-----------------------------------------------------------------------------------+
+Class: List -----------------------------------------------------------------------+
+| Symbol      Type            Return      Signature                  Inherited     |
++----------------------------------------------------------------------------------+
+| Delete      Method          List        Element                    -             |
+| GetElem     Method          Element     void                       -             |
+| GetEnd      Method          boolean     void                       -             |
+| GetNext     Method          List        void                       -             |
+| Init        Method          boolean     void                       -             |
+| InitNew     Method          boolean     Element, List, boolean     -             |
+| Insert      Method          List        Element                    -             |
+| Print       Method          boolean     void                       -             |
+| Search      Method          int         Element                    -             |
+| SetNext     Method          boolean     List                       -             |
+| elem        Element         -           -                          -             |
+| end         boolean         -           -                          -             |
+| next        List            -           -                          -             |
+| this        Class<List>     -           -                          -             |
++----------------------------------------------------------------------------------+
 
 Method: Element#Compare ----------------------------------------+
 | Symbol     Type        Return     Signature     Inherited     |

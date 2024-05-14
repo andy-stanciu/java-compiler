@@ -48,8 +48,8 @@ public final class ClassVisitor implements Visitor {
             throw new IllegalSemanticException("unreachable");
         }
 
-        symbolContext.enter(n.i.s);
-        symbolContext.addEntry("this", this_); // point to this class
+        symbolContext.enterClass(n.i.s);
+        symbolContext.addEntry("this", this_);  // point to this class
         n.vl.forEach(v -> v.accept(this));
         n.ml.forEach(m -> m.accept(this));
         symbolContext.exit();
@@ -75,7 +75,7 @@ public final class ClassVisitor implements Visitor {
             logger.logError("Cannot resolve class \"%s\"%n", n.j.s);
         }
 
-        symbolContext.enter(n.i.s);
+        symbolContext.enterClass(n.i.s);
         symbolContext.addEntry("this", derived);  // point to derived class
         n.vl.forEach(v -> v.accept(this));
         n.ml.forEach(m -> m.accept(this));
@@ -119,14 +119,14 @@ public final class ClassVisitor implements Visitor {
 
     @Override
     public void visit(MethodDecl n) {
-        var methodInfo = symbolContext.addMethodEntry("#" + n.i.s);
+        var methodInfo = symbolContext.addMethodEntry(n.i.s);
         n.conflict = methodInfo == null;
         if (n.conflict) return;
 
         n.t.accept(this);  // return type
         methodInfo.returnType = n.type = n.t.type;
 
-        symbolContext.enter("#" + n.i.s);
+        symbolContext.enterMethod(n.i.s);
 
         // validate parameters first
         n.fl.forEach(f -> {

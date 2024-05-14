@@ -32,8 +32,8 @@ public final class LocalVisitor implements Visitor {
 
     @Override
     public void visit(MainClass n) {
-        symbolContext.enter(n.i1.s);
-        symbolContext.enter("#main");
+        symbolContext.enterClass(n.i1.s);
+        symbolContext.enterMethod("main");
         n.s.accept(this);  // main method statement
         symbolContext.exit();
         symbolContext.exit();
@@ -43,7 +43,7 @@ public final class LocalVisitor implements Visitor {
     public void visit(ClassDeclSimple n) {
         if (n.conflict) return;
 
-        symbolContext.enter(n.i.s);
+        symbolContext.enterClass(n.i.s);
         n.ml.forEach(m -> m.accept(this));
         symbolContext.exit();
     }
@@ -52,7 +52,7 @@ public final class LocalVisitor implements Visitor {
     public void visit(ClassDeclExtends n) {
         if (n.conflict) return;
 
-        symbolContext.enter(n.i.s);
+        symbolContext.enterClass(n.i.s);
         n.ml.forEach(m -> m.accept(this));
         symbolContext.exit();
     }
@@ -66,7 +66,7 @@ public final class LocalVisitor implements Visitor {
     public void visit(MethodDecl n) {
         if (n.conflict) return;
 
-        symbolContext.enter("#" + n.i.s);
+        symbolContext.enterMethod(n.i.s);
         n.sl.forEach(s -> s.accept(this));  // method statements
         n.e.accept(this);                   // return expression
 
@@ -255,7 +255,6 @@ public final class LocalVisitor implements Visitor {
     public void visit(GreaterThan n) {
         visitBinaryExp(n, ">", TypeBoolean.getInstance(), TypeInt.getInstance());
     }
-
     @Override
     public void visit(GreaterThanOrEqual n) {
         visitBinaryExp(n, ">=", TypeBoolean.getInstance(), TypeInt.getInstance());
@@ -360,17 +359,19 @@ public final class LocalVisitor implements Visitor {
         }
 
         if (n.e.type instanceof TypeObject obj) {
-            var m = symbolContext.lookupMethod("#" + n.i, obj.base);
+            var m = symbolContext.lookupMethod(n.i.s, obj.base);
             if (m == null) {
-                logger.logError("Cannot resolve method \"%s\" in \"%s\"%n",
-                        n.i, obj.base.name);
+                if (!symbolContext.isUndefined(n.i.s)) {
+                    logger.logError("Cannot resolve method \"%s\" in \"%s\"%n",
+                            n.i, obj.base.name);
+                }
                 return;
             }
 
             n.type = m.returnType;  // call node type = method return type
 
             if (m.argumentCount() != n.el.size()) {
-                logger.logError("Expected %d arguments for method \"%s\", but got %d",
+                logger.logError("Expected %d arguments for method \"%s\", but provided %d%n",
                         m.argumentCount(), n.i, n.el.size());
             } else {
                 // argument counts now match. verify that they are all assignable
@@ -402,8 +403,10 @@ public final class LocalVisitor implements Visitor {
         if (n.e.type instanceof TypeObject obj) {
             var v = symbolContext.lookupInstanceVariable(n.i.s, obj.base);
             if (v == null) {
-                logger.logError("Cannot resolve field \"%s\" in \"%s\"%n",
-                        n.i.s, obj.base.name);
+                if (!symbolContext.isUndefined(n.i.s)) {
+                    logger.logError("Cannot resolve field \"%s\" in \"%s\"%n",
+                            n.i.s, obj.base.name);
+                }
                 return;
             }
 
@@ -448,8 +451,10 @@ public final class LocalVisitor implements Visitor {
                         n.e.type, n.i.s);
             }
         } else {
-            logger.logError("Cannot apply instanceof to \"%s\". Is it a class?%n",
-                    n.i.s);
+            if (!symbolContext.isUndefined(n.i.s)) {
+                logger.logError("Cannot apply instanceof to \"%s\". Is it a class?%n",
+                        n.i.s);
+            }
         }
 
         n.type = TypeBoolean.getInstance();
@@ -476,8 +481,10 @@ public final class LocalVisitor implements Visitor {
         if (v != null) {
             n.type = v.type;
         } else {
-            logger.logError("Cannot interpret \"%s\" as an expression. Is it a variable?%n",
-                    n.s);
+            if (!symbolContext.isUndefined(n.s)) {
+                logger.logError("Cannot interpret \"%s\" as an expression. Is it a variable?%n",
+                        n.s);
+            }
             n.type = TypeUndefined.getInstance(); // mark as undefined
         }
     }
@@ -502,7 +509,9 @@ public final class LocalVisitor implements Visitor {
     public void visit(NewObject n) {
         var classInfo = symbolContext.lookupClass(n.i.s);
         if (classInfo == null) {
-            logger.logError("Cannot resolve class \"%s\"%n", n.i.s);
+            if (!symbolContext.isUndefined(n.i.s)) {
+                logger.logError("Cannot resolve class \"%s\"%n", n.i.s);
+            }
             n.type = TypeUndefined.getInstance();
         } else {
             n.type = new TypeObject(classInfo);

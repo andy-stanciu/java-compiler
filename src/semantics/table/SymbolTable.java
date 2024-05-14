@@ -1,10 +1,7 @@
 package semantics.table;
 
 import semantics.Logger;
-import semantics.info.ClassInfo;
-import semantics.info.Info;
-import semantics.info.MethodInfo;
-import semantics.info.VariableInfo;
+import semantics.info.*;
 
 import java.util.*;
 
@@ -12,6 +9,7 @@ public final class SymbolTable {
     private final SymbolTable parent;
     private final Logger logger;
     private final Map<String, Info> symbols;
+    private final Set<String> undefined;
     private final TableType type;
     private final String name;
 
@@ -30,6 +28,7 @@ public final class SymbolTable {
      */
     public SymbolTable(SymbolTable parent, TableType type, String name) {
         this.symbols = new HashMap<>();
+        this.undefined = new HashSet<>();
         this.logger = Logger.getInstance();
         this.parent = parent;
         this.type = type;
@@ -77,6 +76,13 @@ public final class SymbolTable {
     }
 
     /**
+     * @return Whether the specified symbol is marked as undefined in this symbol table.
+     */
+    public boolean isUndefined(String symbol) {
+        return undefined.contains(symbol);
+    }
+
+    /**
      * @return Whether this symbol table has a parent.
      */
     public boolean hasParent() {
@@ -97,6 +103,7 @@ public final class SymbolTable {
             return false;
         }
 
+        undefined.remove(symbol);  // remove from undefined set
         symbols.put(symbol, info);
         return true;
     }
@@ -109,8 +116,9 @@ public final class SymbolTable {
      * @return Information associated with the symbol, or null if the symbol is undefined.
      */
     public Info lookup(String symbol, boolean report) {
-        if (report && !symbols.containsKey(symbol)) {
+        if (report && !symbols.containsKey(symbol) && !undefined.contains(symbol)) {
             logger.logError("Undefined symbol \"%s\"%n", symbol);
+            undefined.add(symbol); // marked as undefined
         }
 
         return symbols.get(symbol);
@@ -166,7 +174,11 @@ public final class SymbolTable {
 
         var entries = new TreeMap<>(symbols);
         entries.forEach((s, i) -> {
+            if (s.startsWith(SymbolContext.METHOD_PREFIX)) {
+                s = s.substring(1);
+            }
             symbolNames.add(s);
+
             if (i instanceof ClassInfo c) {
                 symbolTypes.add("Class<" + c.name + ">");
                 returnTypes.add("-");
@@ -174,7 +186,7 @@ public final class SymbolTable {
                 inherited.add("-");
             } else if (i instanceof MethodInfo m) {
                 symbolTypes.add("Method");
-                if (m.name.equals("#main")) {
+                if (m.name.equals("main")) {
                     returnTypes.add("void");
                     signatures.add("String[]");
                     inherited.add("-");
