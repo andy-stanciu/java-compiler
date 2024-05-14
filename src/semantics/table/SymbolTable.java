@@ -1,10 +1,7 @@
 package semantics.table;
 
 import semantics.Logger;
-import semantics.info.ClassInfo;
-import semantics.info.Info;
-import semantics.info.MethodInfo;
-import semantics.info.VariableInfo;
+import semantics.info.*;
 
 import java.util.*;
 
@@ -93,7 +90,7 @@ public final class SymbolTable {
     public boolean addEntry(String symbol, Info info) {
         if (symbol == null) return false;
 
-        if (symbols.containsKey(symbol)) {
+        if (symbols.containsKey(symbol) && symbols.get(symbol) != UndefinedInfo.getInstance()) {
             return false;
         }
 
@@ -111,6 +108,7 @@ public final class SymbolTable {
     public Info lookup(String symbol, boolean report) {
         if (report && !symbols.containsKey(symbol)) {
             logger.logError("Undefined symbol \"%s\"%n", symbol);
+            symbols.put(symbol, UndefinedInfo.getInstance());  // marked as undefined
         }
 
         return symbols.get(symbol);
