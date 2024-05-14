@@ -150,7 +150,7 @@ public final class LocalVisitor implements Visitor {
             if (!n.e.type.isAssignableTo(v.type)) {
                 logger.logError("Cannot assign %s to %s%n", n.e.type, v.type);
             }
-        } else {
+        } else if (!symbolContext.isUndefined(n.i.s)) {
             logger.logError("Cannot assign to \"%s\". Is it a variable?%n", n.i.s);
         }
     }
@@ -176,7 +176,7 @@ public final class LocalVisitor implements Visitor {
             if (!v.type.isAssignableTo(TypeIntArray.getInstance())) {
                 logger.logError("Cannot index \"%s\". Is it an array?%n", n.i.s);
             }
-        } else {
+        } else if (!symbolContext.isUndefined(n.i.s)) {
             logger.logError("Cannot assign to \"%s\". Is it a variable?%n", n.i.s);
         }
     }
@@ -294,8 +294,10 @@ public final class LocalVisitor implements Visitor {
         if (n.e.type instanceof TypeObject obj) {
             var m = symbolContext.lookupMethod("#" + n.i, obj.base);
             if (m == null) {
-                logger.logError("Cannot resolve method \"%s\" in \"%s\"%n",
-                        n.i, obj.base.name);
+                if (!symbolContext.isUndefined(n.i.s)) {
+                    logger.logError("Cannot resolve method \"%s\" in \"%s\"%n",
+                            n.i, obj.base.name);
+                }
                 return;
             }
 
@@ -342,8 +344,10 @@ public final class LocalVisitor implements Visitor {
         if (v != null) {
             n.type = v.type;
         } else {
-            logger.logError("Cannot interpret \"%s\" as an expression. Is it a variable?%n",
-                    n.s);
+            if (!symbolContext.isUndefined(n.s)) {
+                logger.logError("Cannot interpret \"%s\" as an expression. Is it a variable?%n",
+                        n.s);
+            }
             n.type = TypeUndefined.getInstance(); // mark as undefined
         }
     }
@@ -368,7 +372,9 @@ public final class LocalVisitor implements Visitor {
     public void visit(NewObject n) {
         var classInfo = symbolContext.lookupClass(n.i.s);
         if (classInfo == null) {
-            logger.logError("Cannot resolve class \"%s\"%n", n.i.s);
+            if (!symbolContext.isUndefined(n.i.s)) {
+                logger.logError("Cannot resolve class \"%s\"%n", n.i.s);
+            }
             n.type = TypeUndefined.getInstance();
         } else {
             n.type = new TypeObject(classInfo);

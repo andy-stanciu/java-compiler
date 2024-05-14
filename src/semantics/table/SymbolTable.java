@@ -9,6 +9,7 @@ public final class SymbolTable {
     private final SymbolTable parent;
     private final Logger logger;
     private final Map<String, Info> symbols;
+    private final Set<String> undefined;
     private final TableType type;
     private final String name;
 
@@ -27,6 +28,7 @@ public final class SymbolTable {
      */
     public SymbolTable(SymbolTable parent, TableType type, String name) {
         this.symbols = new HashMap<>();
+        this.undefined = new HashSet<>();
         this.logger = Logger.getInstance();
         this.parent = parent;
         this.type = type;
@@ -74,6 +76,13 @@ public final class SymbolTable {
     }
 
     /**
+     * @return Whether the specified symbol is marked as undefined in this symbol table.
+     */
+    public boolean isUndefined(String symbol) {
+        return undefined.contains(symbol);
+    }
+
+    /**
      * @return Whether this symbol table has a parent.
      */
     public boolean hasParent() {
@@ -90,10 +99,11 @@ public final class SymbolTable {
     public boolean addEntry(String symbol, Info info) {
         if (symbol == null) return false;
 
-        if (symbols.containsKey(symbol) && symbols.get(symbol) != UndefinedInfo.getInstance()) {
+        if (symbols.containsKey(symbol)) {
             return false;
         }
 
+        undefined.remove(symbol);  // remove from undefined set
         symbols.put(symbol, info);
         return true;
     }
@@ -106,9 +116,9 @@ public final class SymbolTable {
      * @return Information associated with the symbol, or null if the symbol is undefined.
      */
     public Info lookup(String symbol, boolean report) {
-        if (report && !symbols.containsKey(symbol)) {
+        if (report && !symbols.containsKey(symbol) && !undefined.contains(symbol)) {
             logger.logError("Undefined symbol \"%s\"%n", symbol);
-            symbols.put(symbol, UndefinedInfo.getInstance());  // marked as undefined
+            undefined.add(symbol); // marked as undefined
         }
 
         return symbols.get(symbol);

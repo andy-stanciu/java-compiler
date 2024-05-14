@@ -208,6 +208,22 @@ public final class SymbolContext {
     }
 
     /**
+     * Checks whether the specified symbol is marked as undefined.
+     * @param symbol The symbol to check.
+     * @return Whether the symbol is undefined.
+     */
+    public boolean isUndefined(String symbol) {
+        var curr = table;
+        var result = curr.isUndefined(symbol);
+        while (!result && curr.hasParent()) {
+            curr = curr.getParent();
+            result = curr.isUndefined(symbol);
+        }
+
+        return result;
+    }
+
+    /**
      * Propagates inherited members of all base classes to their derived classes.
      * Assumes the inheritance graph is acyclic.
      */

@@ -23,9 +23,5 @@ ERROR @ Undefined1Fail.java:31: Undefined symbol "W"
 ERROR @ Undefined1Fail.java:32: Undefined symbol "X"
 ERROR @ Undefined1Fail.java:33: Undefined symbol "Y"
 ERROR @ Undefined1Fail.java:34: Undefined symbol "Z"
-ERROR @ Undefined1Fail.java:41: Undefined symbol "B"
-ERROR @ Undefined1Fail.java:42: Undefined symbol "C"
-ERROR @ Undefined1Fail.java:46: Undefined symbol "B"
-ERROR @ Undefined1Fail.java:46: Cannot resolve class "B"
 ERROR @ Undefined1Fail.java:48: Cannot assign int to A
-Static semantic analysis found 30 error(s), 0 warning(s)
+Static semantic analysis found 26 error(s), 0 warning(s)
