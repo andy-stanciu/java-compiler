@@ -41,6 +41,26 @@ public class TestSemantics {
     }
 
     @Test
+    public void testAllErrorsFail() {
+        runSemanticsFailTestCase("AllErrorsFail");
+    }
+
+    @Test
+    public void testConflictsFail() {
+        runSemanticsFailTestCase("ConflictsFail");
+    }
+
+    @Test
+    public void testCyclicFail() {
+        runSemanticsFailTestCase("CyclicFail");
+    }
+
+    @Test
+    public void testUndeclaredRepeatFail() {
+        runSemanticsFailTestCase("UndeclaredRepeatFail");
+    }
+
+    @Test
     public void testCrazyInheritance() {
         runSemanticsSuccessTestCase("CrazyInheritance");
     }
