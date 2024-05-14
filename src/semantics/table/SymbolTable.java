@@ -174,7 +174,11 @@ public final class SymbolTable {
 
         var entries = new TreeMap<>(symbols);
         entries.forEach((s, i) -> {
+            if (s.startsWith(SymbolContext.METHOD_PREFIX)) {
+                s = s.substring(1);
+            }
             symbolNames.add(s);
+
             if (i instanceof ClassInfo c) {
                 symbolTypes.add("Class<" + c.name + ">");
                 returnTypes.add("-");
@@ -182,7 +186,7 @@ public final class SymbolTable {
                 inherited.add("-");
             } else if (i instanceof MethodInfo m) {
                 symbolTypes.add("Method");
-                if (m.name.equals("#main")) {
+                if (m.name.equals("main")) {
                     returnTypes.add("void");
                     signatures.add("String[]");
                     inherited.add("-");

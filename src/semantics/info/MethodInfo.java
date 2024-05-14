@@ -1,5 +1,6 @@
 package semantics.info;
 
+import semantics.table.SymbolContext;
 import semantics.table.SymbolTable;
 import semantics.table.TableType;
 import semantics.type.Type;
@@ -14,7 +15,8 @@ public final class MethodInfo extends Info {
 
     public MethodInfo(SymbolTable parent, String name) {
         super(name);
-        this.table = new SymbolTable(parent, TableType.LOCAL, parent.getName() + name);
+        this.table = new SymbolTable(parent, TableType.LOCAL, parent.getName() +
+                SymbolContext.METHOD_PREFIX + name);
         this.argumentTypes = new ArrayList<>();
     }
 

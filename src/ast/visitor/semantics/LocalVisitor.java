@@ -31,8 +31,8 @@ public final class LocalVisitor implements Visitor {
 
     @Override
     public void visit(MainClass n) {
-        symbolContext.enter(n.i1.s);
-        symbolContext.enter("#main");
+        symbolContext.enterClass(n.i1.s);
+        symbolContext.enterMethod("main");
         n.s.accept(this);  // main method statement
         symbolContext.exit();
         symbolContext.exit();
@@ -42,7 +42,7 @@ public final class LocalVisitor implements Visitor {
     public void visit(ClassDeclSimple n) {
         if (n.conflict) return;
 
-        symbolContext.enter(n.i.s);
+        symbolContext.enterClass(n.i.s);
         n.ml.forEach(m -> m.accept(this));
         symbolContext.exit();
     }
@@ -51,7 +51,7 @@ public final class LocalVisitor implements Visitor {
     public void visit(ClassDeclExtends n) {
         if (n.conflict) return;
 
-        symbolContext.enter(n.i.s);
+        symbolContext.enterClass(n.i.s);
         n.ml.forEach(m -> m.accept(this));
         symbolContext.exit();
     }
@@ -65,7 +65,7 @@ public final class LocalVisitor implements Visitor {
     public void visit(MethodDecl n) {
         if (n.conflict) return;
 
-        symbolContext.enter("#" + n.i.s);
+        symbolContext.enterMethod(n.i.s);
         n.sl.forEach(s -> s.accept(this));  // method statements
         n.e.accept(this);                   // return expression
 
@@ -292,7 +292,7 @@ public final class LocalVisitor implements Visitor {
         }
 
         if (n.e.type instanceof TypeObject obj) {
-            var m = symbolContext.lookupMethod("#" + n.i, obj.base);
+            var m = symbolContext.lookupMethod(n.i.s, obj.base);
             if (m == null) {
                 if (!symbolContext.isUndefined(n.i.s)) {
                     logger.logError("Cannot resolve method \"%s\" in \"%s\"%n",

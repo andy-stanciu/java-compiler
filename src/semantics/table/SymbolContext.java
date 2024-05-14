@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Set;
 
 public final class SymbolContext {
+    public static final String METHOD_PREFIX = "#";
+
     public static SymbolContext create() {
         return new SymbolContext();
     }
@@ -34,17 +36,30 @@ public final class SymbolContext {
     }
 
     /**
-     * Enters a child symbol table with the specified name.
-     * @param name The name of the table to enter.
-     * @throws IllegalArgumentException If the child table does not exist.
+     * Enters a class with the specified name.
+     * @param name The name of the class to enter.
+     * @throws IllegalArgumentException If the class does not exist.
      */
-    public void enter(String name) {
+    public void enterClass(String name) {
         var info = lookup(name);
 
         if (info instanceof ClassInfo classInfo) {
             table = classInfo.getTable();
             currentClass = classInfo;
-        } else if (info instanceof MethodInfo methodInfo) {
+        } else {
+            throw new IllegalArgumentException();
+        }
+    }
+
+    /**
+     * Enters a method with the specified name.
+     * @param name The name of the method to enter.
+     * @throws IllegalArgumentException If the method does not exist.
+     */
+    public void enterMethod(String name) {
+        var info = lookup(METHOD_PREFIX + name);
+
+        if (info instanceof MethodInfo methodInfo) {
             table = methodInfo.getTable();
         } else {
             throw new IllegalArgumentException();
@@ -101,7 +116,8 @@ public final class SymbolContext {
         var class_ = new ClassInfo(table, name, main);
         if (main) {
             // define main method, special case
-            class_.getTable().addEntry("#main", new MethodInfo(class_.getTable(), "#main"));
+            class_.getTable().addEntry(METHOD_PREFIX + "main",
+                    new MethodInfo(class_.getTable(), "main"));
         }
 
         return addEntry(name, class_) ? class_ : null;
@@ -119,7 +135,7 @@ public final class SymbolContext {
         }
 
         var methodInfo = new MethodInfo(table, name);
-        return addEntry(name, methodInfo) ? methodInfo : null;
+        return addEntry(METHOD_PREFIX + name, methodInfo) ? methodInfo : null;
     }
 
     /**
@@ -165,7 +181,7 @@ public final class SymbolContext {
     public MethodInfo lookupMethod(String name, ClassInfo classInfo) {
         if (name == null) return null;
 
-        var result = classInfo.getTable().lookup(name, false);
+        var result = classInfo.getTable().lookup(METHOD_PREFIX + name, false);
         if (result instanceof MethodInfo methodInfo) {
             return methodInfo;
         }
@@ -201,6 +217,9 @@ public final class SymbolContext {
      */
     public boolean addEntry(String symbol, Info info) {
         if (!table.addEntry(symbol, info)) {
+            if (symbol.startsWith(METHOD_PREFIX)) {
+                symbol = symbol.substring(1);
+            }
             logger.logError("Symbol \"%s\" is already defined%n", symbol);
             return false;
         }
