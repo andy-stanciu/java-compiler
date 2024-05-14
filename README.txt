@@ -21,10 +21,10 @@ is done, the original demonstration programs may well no longer work
 because of changes needed to support MiniJava that are not compatible
 with the original demo language.)
 
-The AST classes provided are closely based on those on the MiniJava
+The ast classes provided are closely based on those on the MiniJava
 website, slightly modified to add tracking of line numbers, as well as
 adding a separate Display node only used in the toy language, but not
-for MiniJava.  The AST classes have also been updated to use Lists with
+for MiniJava.  The ast classes have also been updated to use Lists with
 type parameters instead of the original Vector class used in the code on
 the MiniJava website.
 
@@ -36,11 +36,11 @@ with the main program for your project, but the test code here should
 provide some useful hints.  The rest of the compiler is stored in
 several subdirectories:
 
-    Scanner: the implementation of the demo scanner
+    scanner: the implementation of the demo scanner
 
-    Parser: the implementation of the demo parser
+    parser: the implementation of the demo parser
 
-    AST: the implementation of the abstract syntax tree
+    ast: the implementation of the abstract syntax tree
 
     runtime: interface between compiled code and C environment
 
@@ -78,7 +78,7 @@ of organizing testing for the different phases of the project.  Even if
 your group does not adopt it, you should take a careful look at it before
 deciding whether or not to use it.
 
-Sources: AST classes and SampleMiniJavaPrograms from the Appel /
+Sources: ast classes and SampleMiniJavaPrograms from the Appel /
 Palsberg MiniJava project.  Some code and ideas borrowed from an earlier
 UW version by Craig Chambers with modifications by Jonathan Beall and
 Hal Perkins.  Updates to include more recent releases of JFlex and CUP

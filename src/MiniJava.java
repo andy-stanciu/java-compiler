@@ -1,12 +1,16 @@
-import AST.Program;
-import AST.Visitor.ASTVisitor;
-import AST.Visitor.PrettyPrintVisitor;
-import AST.Visitor.Visitor;
-import Parser.parser;
-import Scanner.*;
-import Parser.sym;
+import ast.Program;
+import ast.visitor.ASTVisitor;
+import ast.visitor.PrettyPrintVisitor;
+import ast.visitor.Visitor;
+import ast.visitor.semantics.ClassVisitor;
+import ast.visitor.semantics.GlobalVisitor;
+import ast.visitor.semantics.LocalVisitor;
+import parser.parser;
+import scanner.*;
+import parser.sym;
 import java_cup.runtime.ComplexSymbolFactory;
-import java_cup.runtime.Symbol;
+import semantics.Logger;
+import semantics.table.SymbolContext;
 
 import java.io.*;
 import java.util.LinkedList;
@@ -14,9 +18,9 @@ import java.util.Queue;
 
 public class MiniJava {
     public static void main(String[] args) {
-        Queue<Task> tasks = parseTasks(args);
+        var tasks = parseTasks(args);
         if (tasks == null) {
-            System.err.println("Usage: MiniJava -S | -P | -A <file1.java, file2.java, ...>");
+            System.err.println("Usage: MiniJava -S | -P | -A | -T <file1.java, file2.java, ...>");
             System.exit(1);
         }
 
@@ -27,6 +31,7 @@ public class MiniJava {
                 case SCAN -> status |= scan(task);
                 case PRETTY_PRINT -> status |= parse(task, new PrettyPrintVisitor());
                 case AST -> status |= parse(task, new ASTVisitor());
+                case TABLE -> status |= validate(task);
             }
         }
 
@@ -36,11 +41,11 @@ public class MiniJava {
     private static int scan(Task task) {
         int status = 0;
         try {
-            ComplexSymbolFactory sf = new ComplexSymbolFactory();
-            Reader in = new BufferedReader(new InputStreamReader(new FileInputStream(task.input)));
+            var sf = new ComplexSymbolFactory();
+            var in = new BufferedReader(new InputStreamReader(new FileInputStream(task.input)));
 
-            scanner s = new scanner(in, sf);
-            Symbol t = s.next_token();
+            var s = new scanner(in, sf);
+            var t = s.next_token();
 
             while (t.sym != sym.EOF) {
                 // print each token that we scan
@@ -64,15 +69,48 @@ public class MiniJava {
     private static int parse(Task task, Visitor visitor) {
         int status = 0;
         try {
-            ComplexSymbolFactory sf = new ComplexSymbolFactory();
-            Reader in = new BufferedReader(new InputStreamReader(new FileInputStream(task.input)));
+            var sf = new ComplexSymbolFactory();
+            var in = new BufferedReader(new InputStreamReader(new FileInputStream(task.input)));
 
-            scanner s = new scanner(in, sf);
-            parser p = new parser(s, sf);
-            Symbol root = p.parse();
+            var s = new scanner(in, sf);
+            var p = new parser(s, sf);
+            var root = p.parse();
 
-            Program program = (Program) root.value;
+            var program = (Program) root.value;
             program.accept(visitor);
+        } catch (Exception e) {
+            System.err.println("Unexpected internal compiler error: " + e);
+            e.printStackTrace();
+            status = 1;
+        }
+
+        return status;
+    }
+
+    private static int validate(Task task) {
+        int status = 0;
+        try {
+            var sf = new ComplexSymbolFactory();
+            var in = new BufferedReader(new InputStreamReader(new FileInputStream(task.input)));
+
+            var logger = Logger.getInstance();
+            logger.start(task.input.getName());
+
+            var s = new scanner(in, sf);
+            var p = new parser(s, sf);
+            var root = p.parse();
+
+            var program = (Program) root.value;
+            var symbolContext = SymbolContext.create();
+            program.accept(new GlobalVisitor(symbolContext));
+            program.accept(new ClassVisitor(symbolContext));
+            program.accept(new LocalVisitor(symbolContext));
+
+            if (logger.hasError()) {
+                status = 1;
+                System.err.printf("Static semantic analysis found %d error(s), %d warning(s)%n",
+                        logger.getErrorCount(), logger.getWarningCount());
+            }
         } catch (Exception e) {
             System.err.println("Unexpected internal compiler error: " + e);
             e.printStackTrace();
@@ -97,6 +135,7 @@ public class MiniJava {
                 case "-s", "--scan" -> type = TaskType.SCAN;
                 case "-p", "--pretty-print" -> type = TaskType.PRETTY_PRINT;
                 case "-a", "--ast" -> type = TaskType.AST;
+                case "-t", "--table" -> type = TaskType.TABLE;
                 default -> {
                     System.err.printf("Unrecognized operand: %s%n", operator);
                     return null;
@@ -107,17 +146,17 @@ public class MiniJava {
             boolean foundValidArgs = false;
             while (j < args.length && args[j].charAt(0) != '-') {  // while not an operand
                 String path = args[j];
-                File f = new File(path);
+                var f = new File(path);
 
                 if (f.isDirectory()) {
                     // read all files within directory
-                    File[] children = f.listFiles();
+                    var children = f.listFiles();
                     if (children == null) {
                         System.err.printf("Empty directory: %s%n", path);
                         return null;
                     }
 
-                    for (File child : children) {
+                    for (var child : children) {
                         if (child.isFile() && child.getName().endsWith(".java")) {
                             if (!child.canRead()) {
                                 System.err.printf("Cannot read file: %s%n", child.getPath());
@@ -152,6 +191,9 @@ public class MiniJava {
     private record Task(TaskType type, File input) {}
 
     private enum TaskType {
-        SCAN, PRETTY_PRINT, AST
+        SCAN,          // scan
+        PRETTY_PRINT,  // scan, parse, and pretty-print
+        AST,           // scan, parse, and print ast
+        TABLE          // scan, parse, static semantic analysis, and print symbol tables
     }
 }

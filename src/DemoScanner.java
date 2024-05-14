@@ -1,5 +1,5 @@
-import Scanner.*;
-import Parser.sym;
+import scanner.*;
+import parser.sym;
 import java_cup.runtime.Symbol;
 import java_cup.runtime.ComplexSymbolFactory;
 import java.io.*;

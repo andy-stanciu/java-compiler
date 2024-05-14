@@ -8,9 +8,9 @@
 *.a
 
 # JFlex/CUP generated files
-src/Parser/parser.java
-src/Parser/sym.java
-src/Scanner/scanner.java
+src/parser/parser.java
+src/parser/sym.java
+src/scanner/scanner.java
 
 # Gradle and ant build files:
 .gradle/*

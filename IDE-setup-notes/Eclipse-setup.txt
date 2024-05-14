@@ -124,7 +124,7 @@ other targets besides "compile" to show up.
 5. Once you've created the project and opened the Ant window, you can
 select the various targets to run the code. If you'd just like to test
 that your code compiles, select "compile" (the default task). If you'd
-like to run the Scanner demo, select "demo-scanner" and you should see
+like to run the scanner demo, select "demo-scanner" and you should see
 output in the Eclipse console. As you add your own ant targets, they
 should appear here.
 

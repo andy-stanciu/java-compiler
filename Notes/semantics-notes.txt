@@ -1,0 +1,16 @@
+Extra stuff:
+We did not include any additional checks or extensions in this phase of the compiler. However, in our "better-minijava"
+branch, we started to implement scanning, parsing, and semantic validation of many more language features. So far,
+we've added a bunch of operators, instanceof, assign operators (+=, -=, ++, etc.), and made assignment statements more
+complex by allowing qualified identifiers, or more generally any expression that implements Assignable.
+
+Changes:
+We didn't make many significant changes to previous parts of the project. We added a Type field to various AST nodes
+like expressions and methods to keep track of their semantic result types. We also added a conflict field to method,
+class, and variable declarations to mark them as duplicates. Also, since we created a logger class that keeps track of
+the current line number in the source file, we update the line number in every ASTNode's accept method.
+
+Workload:
+The work for this part of the project was once again completed synchronously and in person. Victor ended up writing
+the majority of the visitor logic, and I implemented the symbol table and SymbolContext API, as well as the symbol info.
+We spent a pretty equal amount of time writing semantics tests.

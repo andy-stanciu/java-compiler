@@ -1,0 +1,4 @@
+ERROR @ CyclicFail.java:8: Cyclic inheritance detected for class "A"
+ERROR @ CyclicFail.java:10: Cyclic inheritance detected for class "C"
+ERROR @ CyclicFail.java:24: Cyclic inheritance detected for class "Y"
+Static semantic analysis found 3 error(s), 0 warning(s)

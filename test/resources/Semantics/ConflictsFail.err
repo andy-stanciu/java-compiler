@@ -1,0 +1,10 @@
+ERROR @ ConflictsFail.java:9: Symbol "A" is already defined
+ERROR @ ConflictsFail.java:11: Symbol "B" is already defined
+ERROR @ ConflictsFail.java:12: Symbol "A" is already defined
+ERROR @ ConflictsFail.java:13: Symbol "B" is already defined
+ERROR @ ConflictsFail.java:18: Symbol "x" is already defined
+ERROR @ ConflictsFail.java:25: Symbol "foo" is already defined
+ERROR @ ConflictsFail.java:26: Symbol "foo" is already defined
+ERROR @ ConflictsFail.java:28: Symbol "bar" is already defined
+ERROR @ ConflictsFail.java:32: Symbol "f" is already defined
+Static semantic analysis found 9 error(s), 0 warning(s)

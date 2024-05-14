@@ -1,0 +1,36 @@
+ERROR @ AllErrorsFail.java:129: Expected overriding method "Y#getC" to have 0 arguments, but got 1
+ERROR @ AllErrorsFail.java:129: Expected argument 2 of overriding method "Y#poly" (S) to be assignable to argument 2 of "X#poly" (S1)
+ERROR @ AllErrorsFail.java:17: Method "getFoo" expected to return Foo, but provided int
+ERROR @ AllErrorsFail.java:19: If statement condition expected boolean, but provided int
+ERROR @ AllErrorsFail.java:29: While loop condition expected boolean, but provided Foo
+ERROR @ AllErrorsFail.java:37: Print statement expected int, but provided Foo
+ERROR @ AllErrorsFail.java:38: Print statement expected int, but provided boolean
+ERROR @ AllErrorsFail.java:45: Cannot assign Foo to int
+ERROR @ AllErrorsFail.java:46: Cannot assign int to Foo2
+ERROR @ AllErrorsFail.java:47: Undefined symbol "g"
+ERROR @ AllErrorsFail.java:52: Array assignment expected an int, but provided boolean
+ERROR @ AllErrorsFail.java:52: Array index expected an int, but provided boolean
+ERROR @ AllErrorsFail.java:53: Undefined symbol "garbage"
+ERROR @ AllErrorsFail.java:54: Cannot index "a". Is it an array?
+ERROR @ AllErrorsFail.java:64: Operator && cannot be applied to boolean, int
+ERROR @ AllErrorsFail.java:65: Operator < cannot be applied to int, boolean
+ERROR @ AllErrorsFail.java:67: Operator + cannot be applied to int, boolean
+ERROR @ AllErrorsFail.java:69: Operator - cannot be applied to int, boolean
+ERROR @ AllErrorsFail.java:69: Cannot assign int to boolean
+ERROR @ AllErrorsFail.java:70: Operator * cannot be applied to int, boolean
+ERROR @ AllErrorsFail.java:71: Array index expected an int, but provided boolean
+ERROR @ AllErrorsFail.java:71: Cannot assign int to boolean
+ERROR @ AllErrorsFail.java:72: Cannot index on boolean, expected an int[]
+ERROR @ AllErrorsFail.java:79: Cannot get length of int, expected an int[]
+ERROR @ AllErrorsFail.java:80: Cannot interpret "A" as an expression. Is it a variable?
+ERROR @ AllErrorsFail.java:81: Array instantiation expected an int, but provided boolean
+ERROR @ AllErrorsFail.java:82: Undefined symbol "x"
+ERROR @ AllErrorsFail.java:83: Operator ! cannot be applied to int
+ERROR @ AllErrorsFail.java:93: Cannot assign Foo to Foo2 for argument 1 of method "misc"
+ERROR @ AllErrorsFail.java:94: Cannot assign int to Foo2 for argument 1 of method "misc"
+ERROR @ AllErrorsFail.java:95: Expected 1 arguments for method "arrayAssign", but provided 2
+ERROR @ AllErrorsFail.java:97: Cannot assign Foo to Foo2 for argument 2 of method "assign"
+ERROR @ AllErrorsFail.java:98: Expected reference type for method invocation, but provided int
+ERROR @ AllErrorsFail.java:99: Cannot resolve method "undefined" in "A"
+ERROR @ AllErrorsFail.java:126: Method "getS" expected to return S1, but provided S
+Static semantic analysis found 35 error(s), 0 warning(s)

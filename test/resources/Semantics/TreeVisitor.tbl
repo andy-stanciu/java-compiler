@@ -1,0 +1,259 @@
+Global -------------------------------------------------------------------------+
+| Symbol          Type                   Return     Signature     Inherited     |
++-------------------------------------------------------------------------------+
+| MyVisitor       Class<MyVisitor>       -          -             -             |
+| TV              Class<TV>              -          -             -             |
+| Tree            Class<Tree>            -          -             -             |
+| TreeVisitor     Class<TreeVisitor>     -          -             -             |
+| Visitor         Class<Visitor>         -          -             -             |
++-------------------------------------------------------------------------------+
+
+Class: MyVisitor extends Visitor ----------------------------------------+
+| Symbol     Type                 Return     Signature     Inherited     |
++------------------------------------------------------------------------+
+| visit      Method               int        Tree          -             |
+| l          Tree                 -          -             Visitor       |
+| r          Tree                 -          -             Visitor       |
+| this       Class<MyVisitor>     -          -             -             |
++------------------------------------------------------------------------+
+
+Class: TV --------------------------------------------------------+
+| Symbol     Type          Return     Signature     Inherited     |
++-----------------------------------------------------------------+
+| Start      Method        int        void          -             |
+| this       Class<TV>     -          -             -             |
++-----------------------------------------------------------------+
+
+Class: Tree ----------------------------------------------------------------+
+| Symbol           Type            Return      Signature      Inherited     |
++---------------------------------------------------------------------------+
+| Compare          Method          boolean     int, int       -             |
+| Delete           Method          boolean     int            -             |
+| GetHas_Left      Method          boolean     void           -             |
+| GetHas_Right     Method          boolean     void           -             |
+| GetKey           Method          int         void           -             |
+| GetLeft          Method          Tree        void           -             |
+| GetRight         Method          Tree        void           -             |
+| Init             Method          boolean     int            -             |
+| Insert           Method          boolean     int            -             |
+| Print            Method          boolean     void           -             |
+| RecPrint         Method          boolean     Tree           -             |
+| Remove           Method          boolean     Tree, Tree     -             |
+| RemoveLeft       Method          boolean     Tree, Tree     -             |
+| RemoveRight      Method          boolean     Tree, Tree     -             |
+| Search           Method          int         int            -             |
+| SetHas_Left      Method          boolean     boolean        -             |
+| SetHas_Right     Method          boolean     boolean        -             |
+| SetKey           Method          boolean     int            -             |
+| SetLeft          Method          boolean     Tree           -             |
+| SetRight         Method          boolean     Tree           -             |
+| accept           Method          int         Visitor        -             |
+| has_left         boolean         -           -              -             |
+| has_right        boolean         -           -              -             |
+| key              int             -           -              -             |
+| left             Tree            -           -              -             |
+| my_null          Tree            -           -              -             |
+| right            Tree            -           -              -             |
+| this             Class<Tree>     -           -              -             |
++---------------------------------------------------------------------------+
+
+Class: TreeVisitor --------------------------------------------+
+| Symbol     Type       Return     Signature     Inherited     |
++--------------------------------------------------------------+
+| main       Method     void       String[]      -             |
++--------------------------------------------------------------+
+
+Class: Visitor --------------------------------------------------------+
+| Symbol     Type               Return     Signature     Inherited     |
++----------------------------------------------------------------------+
+| visit      Method             int        Tree          -             |
+| l          Tree               -          -             -             |
+| r          Tree               -          -             -             |
+| this       Class<Visitor>     -          -             -             |
++----------------------------------------------------------------------+
+
+Method: MyVisitor#visit -------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| n          Tree     -          -             -             |
+| nti        int      -          -             -             |
++------------------------------------------------------------+
+
+Method: TV#Start -------------------------------------------------+
+| Symbol     Type          Return     Signature     Inherited     |
++-----------------------------------------------------------------+
+| ntb        boolean       -          -             -             |
+| nti        int           -          -             -             |
+| root       Tree          -          -             -             |
+| v          MyVisitor     -          -             -             |
++-----------------------------------------------------------------+
+
+Method: Tree#Compare -------------------------------------------+
+| Symbol     Type        Return     Signature     Inherited     |
++---------------------------------------------------------------+
+| ntb        boolean     -          -             -             |
+| nti        int         -          -             -             |
+| num1       int         -          -             -             |
+| num2       int         -          -             -             |
++---------------------------------------------------------------+
+
+Method: Tree#Delete --------------------------------------------------+
+| Symbol           Type        Return     Signature     Inherited     |
++---------------------------------------------------------------------+
+| cont             boolean     -          -             -             |
+| current_node     Tree        -          -             -             |
+| found            boolean     -          -             -             |
+| is_root          boolean     -          -             -             |
+| key_aux          int         -          -             -             |
+| ntb              boolean     -          -             -             |
+| parent_node      Tree        -          -             -             |
+| v_key            int         -          -             -             |
++---------------------------------------------------------------------+
+
+Method: Tree#GetHas_Left ------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Method: Tree#GetHas_Right -----------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Method: Tree#GetKey -----------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Method: Tree#GetLeft ----------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Method: Tree#GetRight ---------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Method: Tree#Init -------------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| v_key      int      -          -             -             |
++------------------------------------------------------------+
+
+Method: Tree#Insert --------------------------------------------------+
+| Symbol           Type        Return     Signature     Inherited     |
++---------------------------------------------------------------------+
+| cont             boolean     -          -             -             |
+| current_node     Tree        -          -             -             |
+| key_aux          int         -          -             -             |
+| new_node         Tree        -          -             -             |
+| ntb              boolean     -          -             -             |
+| v_key            int         -          -             -             |
++---------------------------------------------------------------------+
+
+Method: Tree#Print ---------------------------------------------------+
+| Symbol           Type        Return     Signature     Inherited     |
++---------------------------------------------------------------------+
+| current_node     Tree        -          -             -             |
+| ntb              boolean     -          -             -             |
++---------------------------------------------------------------------+
+
+Method: Tree#RecPrint ------------------------------------------+
+| Symbol     Type        Return     Signature     Inherited     |
++---------------------------------------------------------------+
+| node       Tree        -          -             -             |
+| ntb        boolean     -          -             -             |
++---------------------------------------------------------------+
+
+Method: Tree#Remove ---------------------------------------------+
+| Symbol      Type        Return     Signature     Inherited     |
++----------------------------------------------------------------+
+| auxkey1     int         -          -             -             |
+| auxkey2     int         -          -             -             |
+| c_node      Tree        -          -             -             |
+| ntb         boolean     -          -             -             |
+| p_node      Tree        -          -             -             |
++----------------------------------------------------------------+
+
+Method: Tree#RemoveLeft ----------------------------------------+
+| Symbol     Type        Return     Signature     Inherited     |
++---------------------------------------------------------------+
+| c_node     Tree        -          -             -             |
+| ntb        boolean     -          -             -             |
+| p_node     Tree        -          -             -             |
++---------------------------------------------------------------+
+
+Method: Tree#RemoveRight ---------------------------------------+
+| Symbol     Type        Return     Signature     Inherited     |
++---------------------------------------------------------------+
+| c_node     Tree        -          -             -             |
+| ntb        boolean     -          -             -             |
+| p_node     Tree        -          -             -             |
++---------------------------------------------------------------+
+
+Method: Tree#Search --------------------------------------------------+
+| Symbol           Type        Return     Signature     Inherited     |
++---------------------------------------------------------------------+
+| cont             boolean     -          -             -             |
+| current_node     Tree        -          -             -             |
+| ifound           int         -          -             -             |
+| key_aux          int         -          -             -             |
+| v_key            int         -          -             -             |
++---------------------------------------------------------------------+
+
+Method: Tree#SetHas_Left ---------------------------------------+
+| Symbol     Type        Return     Signature     Inherited     |
++---------------------------------------------------------------+
+| val        boolean     -          -             -             |
++---------------------------------------------------------------+
+
+Method: Tree#SetHas_Right --------------------------------------+
+| Symbol     Type        Return     Signature     Inherited     |
++---------------------------------------------------------------+
+| val        boolean     -          -             -             |
++---------------------------------------------------------------+
+
+Method: Tree#SetKey -----------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| v_key      int      -          -             -             |
++------------------------------------------------------------+
+
+Method: Tree#SetLeft ----------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| ln         Tree     -          -             -             |
++------------------------------------------------------------+
+
+Method: Tree#SetRight ---------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| rn         Tree     -          -             -             |
++------------------------------------------------------------+
+
+Method: Tree#accept --------------------------------------------+
+| Symbol     Type        Return     Signature     Inherited     |
++---------------------------------------------------------------+
+| nti        int         -          -             -             |
+| v          Visitor     -          -             -             |
++---------------------------------------------------------------+
+
+Method: TreeVisitor#main ------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Method: Visitor#visit ---------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| n          Tree     -          -             -             |
+| nti        int      -          -             -             |
++------------------------------------------------------------+
+

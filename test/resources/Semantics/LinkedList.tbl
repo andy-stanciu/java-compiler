@@ -1,0 +1,199 @@
+Global -----------------------------------------------------------------------+
+| Symbol         Type                  Return     Signature     Inherited     |
++-----------------------------------------------------------------------------+
+| Element        Class<Element>        -          -             -             |
+| LL             Class<LL>             -          -             -             |
+| LinkedList     Class<LinkedList>     -          -             -             |
+| List           Class<List>           -          -             -             |
++-----------------------------------------------------------------------------+
+
+Class: Element ---------------------------------------------------------------------+
+| Symbol         Type               Return      Signature             Inherited     |
++-----------------------------------------------------------------------------------+
+| Compare        Method             boolean     int, int              -             |
+| Equal          Method             boolean     Element               -             |
+| GetAge         Method             int         void                  -             |
+| GetMarried     Method             boolean     void                  -             |
+| GetSalary      Method             int         void                  -             |
+| Init           Method             boolean     int, int, boolean     -             |
+| Age            int                -           -                     -             |
+| Married        boolean            -           -                     -             |
+| Salary         int                -           -                     -             |
+| this           Class<Element>     -           -                     -             |
++-----------------------------------------------------------------------------------+
+
+Class: LL --------------------------------------------------------+
+| Symbol     Type          Return     Signature     Inherited     |
++-----------------------------------------------------------------+
+| Start      Method        int        void          -             |
+| this       Class<LL>     -          -             -             |
++-----------------------------------------------------------------+
+
+Class: LinkedList ---------------------------------------------+
+| Symbol     Type       Return     Signature     Inherited     |
++--------------------------------------------------------------+
+| main       Method     void       String[]      -             |
++--------------------------------------------------------------+
+
+Class: List -----------------------------------------------------------------------+
+| Symbol      Type            Return      Signature                  Inherited     |
++----------------------------------------------------------------------------------+
+| Delete      Method          List        Element                    -             |
+| GetElem     Method          Element     void                       -             |
+| GetEnd      Method          boolean     void                       -             |
+| GetNext     Method          List        void                       -             |
+| Init        Method          boolean     void                       -             |
+| InitNew     Method          boolean     Element, List, boolean     -             |
+| Insert      Method          List        Element                    -             |
+| Print       Method          boolean     void                       -             |
+| Search      Method          int         Element                    -             |
+| SetNext     Method          boolean     List                       -             |
+| elem        Element         -           -                          -             |
+| end         boolean         -           -                          -             |
+| next        List            -           -                          -             |
+| this        Class<List>     -           -                          -             |
++----------------------------------------------------------------------------------+
+
+Method: Element#Compare ----------------------------------------+
+| Symbol     Type        Return     Signature     Inherited     |
++---------------------------------------------------------------+
+| aux02      int         -          -             -             |
+| num1       int         -          -             -             |
+| num2       int         -          -             -             |
+| retval     boolean     -          -             -             |
++---------------------------------------------------------------+
+
+Method: Element#Equal -------------------------------------------+
+| Symbol      Type        Return     Signature     Inherited     |
++----------------------------------------------------------------+
+| aux01       int         -          -             -             |
+| aux02       int         -          -             -             |
+| nt          int         -          -             -             |
+| other       Element     -          -             -             |
+| ret_val     boolean     -          -             -             |
++----------------------------------------------------------------+
+
+Method: Element#GetAge --------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Method: Element#GetMarried ----------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Method: Element#GetSalary -----------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Method: Element#Init ----------------------------------------------+
+| Symbol        Type        Return     Signature     Inherited     |
++------------------------------------------------------------------+
+| v_Age         int         -          -             -             |
+| v_Married     boolean     -          -             -             |
+| v_Salary      int         -          -             -             |
++------------------------------------------------------------------+
+
+Method: LL#Start --------------------------------------------------+
+| Symbol        Type        Return     Signature     Inherited     |
++------------------------------------------------------------------+
+| aux01         boolean     -          -             -             |
+| el01          Element     -          -             -             |
+| el02          Element     -          -             -             |
+| el03          Element     -          -             -             |
+| head          List        -          -             -             |
+| last_elem     List        -          -             -             |
++------------------------------------------------------------------+
+
+Method: LinkedList#main -------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Method: List#Delete ----------------------------------------------+
+| Symbol       Type        Return     Signature     Inherited     |
++-----------------------------------------------------------------+
+| aux01        List        -          -             -             |
+| aux04        int         -          -             -             |
+| aux05        boolean     -          -             -             |
+| e            Element     -          -             -             |
+| my_head      List        -          -             -             |
+| nt           int         -          -             -             |
+| prev         List        -          -             -             |
+| ret_val      boolean     -          -             -             |
+| var_elem     Element     -          -             -             |
+| var_end      boolean     -          -             -             |
++-----------------------------------------------------------------+
+
+Method: List#GetElem ----------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Method: List#GetEnd -----------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Method: List#GetNext ----------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Method: List#Init -------------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Method: List#InitNew -------------------------------------------+
+| Symbol     Type        Return     Signature     Inherited     |
++---------------------------------------------------------------+
+| v_elem     Element     -          -             -             |
+| v_end      boolean     -          -             -             |
+| v_next     List        -          -             -             |
++---------------------------------------------------------------+
+
+Method: List#Insert ----------------------------------------------+
+| Symbol       Type        Return     Signature     Inherited     |
++-----------------------------------------------------------------+
+| aux02        List        -          -             -             |
+| aux03        List        -          -             -             |
+| new_elem     Element     -          -             -             |
+| ret_val      boolean     -          -             -             |
++-----------------------------------------------------------------+
+
+Method: List#Print -----------------------------------------------+
+| Symbol       Type        Return     Signature     Inherited     |
++-----------------------------------------------------------------+
+| aux01        List        -          -             -             |
+| var_elem     Element     -          -             -             |
+| var_end      boolean     -          -             -             |
++-----------------------------------------------------------------+
+
+Method: List#Search -------------------------------------------------+
+| Symbol          Type        Return     Signature     Inherited     |
++--------------------------------------------------------------------+
+| aux01           List        -          -             -             |
+| e               Element     -          -             -             |
+| int_ret_val     int         -          -             -             |
+| nt              int         -          -             -             |
+| var_elem        Element     -          -             -             |
+| var_end         boolean     -          -             -             |
++--------------------------------------------------------------------+
+
+Method: List#SetNext ----------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| v_next     List     -          -             -             |
++------------------------------------------------------------+
+
