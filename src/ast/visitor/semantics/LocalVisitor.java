@@ -304,7 +304,7 @@ public final class LocalVisitor implements Visitor {
             n.type = m.returnType;  // call node type = method return type
 
             if (m.argumentCount() != n.el.size()) {
-                logger.logError("Expected %d arguments for method \"%s\", but got %d",
+                logger.logError("Expected %d arguments for method \"%s\", but provided %d%n",
                         m.argumentCount(), n.i, n.el.size());
             } else {
                 // argument counts now match. verify that they are all assignable

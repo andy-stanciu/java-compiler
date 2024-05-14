@@ -292,21 +292,22 @@ public final class SymbolContext {
         var base = derived.getParent();
         for (var entry : base.getTable().getEntries()) {
             if (entry instanceof MethodInfo method) {
-                var overridingMethod = (MethodInfo)derived.getTable().lookup(method.name, false);
+                var overridingMethod = (MethodInfo)derived.getTable().lookup(
+                        METHOD_PREFIX + method.name, false);
                 if (overridingMethod == null) {
                     // Add base method to derived class
-                    derived.getTable().addEntry(method.name, method);
+                    derived.getTable().addEntry(METHOD_PREFIX + method.name, method);
                 } else {
                     // Verify overriding method signature assignable to base method signature
                     if (!overridingMethod.returnType.isAssignableTo(method.returnType)) {
-                        logger.logError("Expected return type of overriding method \"%s%s\" " +
-                                "(%s) to be assignable to return type of \"%s%s\" (%s)%n",
+                        logger.logError("Expected return type of overriding method \"%s#%s\" " +
+                                "(%s) to be assignable to return type of \"%s#%s\" (%s)%n",
                                 derived.name, overridingMethod.name, overridingMethod.returnType,
                                 base.name, method.name, method.returnType);
                     }
 
                     if (overridingMethod.argumentCount() != method.argumentCount()) {
-                        logger.logError("Expected overriding method \"%s%s\" to have %d " +
+                        logger.logError("Expected overriding method \"%s#%s\" to have %d " +
                                 "arguments, but got %d%n", derived.name,
                                 overridingMethod.name, method.argumentCount(),
                                 overridingMethod.argumentCount());
@@ -317,8 +318,8 @@ public final class SymbolContext {
                             var derivedType = overridingMethod.getArgument(i);
                             if (!derivedType.isAssignableTo(baseType)) {
                                 logger.logError("Expected argument %d of overriding method " +
-                                        "\"%s%s\" (%s) to be assignable to argument %d of " +
-                                        "\"%s%s\" (%s)%n", i + 1, derived.name,
+                                        "\"%s#%s\" (%s) to be assignable to argument %d of " +
+                                        "\"%s#%s\" (%s)%n", i + 1, derived.name,
                                         overridingMethod.name, derivedType, i + 1, base.name,
                                         method.name, baseType);
                             }

@@ -27,15 +27,14 @@ Class: One --------------------------------------------------------+
 Class: Two extends One ---------------------------------------------+
 | Symbol      Type           Return     Signature     Inherited     |
 +-------------------------------------------------------------------+
+| getBar      Method         int        void          One           |
+| getFoo      Method         int        void          One           |
 | getIt       Method         int        void          -             |
 | resetIt     Method         int        void          -             |
+| setBar      Method         int        int           One           |
 | setFoo      Method         int        void          -             |
 | bar         int            -          -             -             |
 | foo         int            -          -             One           |
-| getBar      Method         int        void          One           |
-| getFoo      Method         int        void          One           |
-| setBar      Method         int        int           One           |
-| setFoo      Method         int        void          One           |
 | this        Class<Two>     -          -             -             |
 +-------------------------------------------------------------------+
 
@@ -76,6 +75,12 @@ Method: Two#getIt -------------------------------------------+
 +------------------------------------------------------------+
 
 Method: Two#resetIt -----------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Method: Two#setFoo ------------------------------------------+
 | Symbol     Type     Return     Signature     Inherited     |
 +------------------------------------------------------------+
 | -          -        -          -             -             |

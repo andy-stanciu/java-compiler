@@ -49,7 +49,7 @@ public final class ClassVisitor implements Visitor {
         }
 
         symbolContext.enterClass(n.i.s);
-        symbolContext.addEntry("this", this_); // point to this class
+        symbolContext.addEntry("this", this_);  // point to this class
         n.vl.forEach(v -> v.accept(this));
         n.ml.forEach(m -> m.accept(this));
         symbolContext.exit();

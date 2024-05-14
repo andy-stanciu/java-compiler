@@ -15,7 +15,6 @@ Class: MyVisitor extends Visitor ----------------------------------------+
 | l          Tree                 -          -             Visitor       |
 | r          Tree                 -          -             Visitor       |
 | this       Class<MyVisitor>     -          -             -             |
-| visit      Method               int        Tree          Visitor       |
 +------------------------------------------------------------------------+
 
 Class: TV --------------------------------------------------------+

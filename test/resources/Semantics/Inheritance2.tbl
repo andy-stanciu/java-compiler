@@ -19,20 +19,19 @@ Class: B extends A ----------------------------------------------+
 | Symbol     Type         Return     Signature     Inherited     |
 +----------------------------------------------------------------+
 | x          Method       int        void          -             |
+| y          Method       int        void          A             |
 | z          Method       int        void          -             |
 | this       Class<B>     -          -             -             |
-| x          Method       int        void          A             |
-| y          Method       int        void          A             |
 +----------------------------------------------------------------+
 
 Class: C extends B ----------------------------------------------+
 | Symbol     Type         Return     Signature     Inherited     |
 +----------------------------------------------------------------+
 | w          Method       int        void          -             |
-| this       Class<C>     -          -             -             |
 | x          Method       int        void          B             |
 | y          Method       int        void          A             |
 | z          Method       int        void          B             |
+| this       Class<C>     -          -             -             |
 +----------------------------------------------------------------+
 
 Class: Main ---------------------------------------------------+
