@@ -8,10 +8,10 @@ ERROR @ AllErrorsFail.java:38: Print statement expected int, but provided boolea
 ERROR @ AllErrorsFail.java:45: Cannot assign Foo to int
 ERROR @ AllErrorsFail.java:46: Cannot assign int to Foo2
 ERROR @ AllErrorsFail.java:47: Undefined symbol "g"
-ERROR @ AllErrorsFail.java:52: Array assignment expected an int, but provided boolean
 ERROR @ AllErrorsFail.java:52: Array index expected an int, but provided boolean
+ERROR @ AllErrorsFail.java:52: Cannot assign boolean to int
 ERROR @ AllErrorsFail.java:53: Undefined symbol "garbage"
-ERROR @ AllErrorsFail.java:54: Cannot index "a". Is it an array?
+ERROR @ AllErrorsFail.java:54: Cannot index on int, expected an int[]
 ERROR @ AllErrorsFail.java:64: Operator && cannot be applied to boolean, int
 ERROR @ AllErrorsFail.java:65: Operator < cannot be applied to int, boolean
 ERROR @ AllErrorsFail.java:67: Operator + cannot be applied to int, boolean
