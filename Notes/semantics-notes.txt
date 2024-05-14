@@ -1,1 +1,5 @@
-TODO
+Extra stuff:
+We did not include any additional checks or extensions in this phase of the compiler. However, in our "better-minijava"
+branch, we started to implement scanning, parsing, and semantic validation of many more language features. So far,
+we've added a bunch of operators, instanceof, assign operators (+=, -=, ++, etc.), and made assignment statements more
+complex by allowing qualified identifiers, or more generally any expression that implements Assignable.
