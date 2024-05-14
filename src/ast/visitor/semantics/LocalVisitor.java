@@ -171,6 +171,7 @@ public final class LocalVisitor implements Visitor {
         visitAssign(n, "%=", TypeInt.getInstance());
     }
 
+
     @Override
     public void visit(AssignAnd n) {
         visitAssign(n, "&=", TypeInt.getInstance(), TypeBoolean.getInstance());
