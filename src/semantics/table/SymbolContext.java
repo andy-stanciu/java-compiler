@@ -1,6 +1,5 @@
 package semantics.table;
 
-import semantics.IllegalSemanticException;
 import semantics.Logger;
 import semantics.info.*;
 
@@ -8,9 +7,10 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public final class SymbolContext {
-    public static final String METHOD_PREFIX = "#";
+    public static final String METHOD_PREFIX = "$";
 
     public static SymbolContext create() {
         return new SymbolContext();
@@ -149,7 +149,7 @@ public final class SymbolContext {
             throw new IllegalStateException("Cannot add variable entry to current scope");
         }
 
-        var variableInfo = new VariableInfo(table, name);
+        var variableInfo = new VariableInfo(table, name, table.isClass());
         return addEntry(name, variableInfo) ? variableInfo : null;
     }
 
@@ -187,6 +187,16 @@ public final class SymbolContext {
         }
 
         return null;
+    }
+
+    /**
+     * Looks up a method within the current scope.
+     * @param name The name of the method.
+     * @return Information associated with the method, or null if
+     *         the method is undefined.
+     */
+    public MethodInfo lookupMethod(String name) {
+        return lookupMethod(name, getCurrentClass());
     }
 
     /**
@@ -243,10 +253,35 @@ public final class SymbolContext {
     }
 
     /**
+     * Builds virtual tables of all classes in topological order.
+     * Assumes the inheritance graph is acyclic.
+     */
+    public void buildVirtualTables() {
+        visitClasses(this::buildVTable);
+    }
+
+    /**
+     * Assigns variables offsets of all classes in topological order.
+     * Assumes the inheritance graph is acyclic.
+     */
+    public void assignVariableOffsets() {
+        visitClasses(this::assignVariableOffsets);
+    }
+
+    /**
      * Propagates inherited members of all base classes to their derived classes.
      * Assumes the inheritance graph is acyclic.
      */
     public void propagateInheritedMembers() {
+        visitClasses(this::inheritMembers);
+    }
+
+    /**
+     * Visits all classes in topological order. Applies the specified
+     * action to each class.
+     * @param action The action to apply to each class.
+     */
+    private void visitClasses(Consumer<ClassInfo> action) {
         Set<ClassInfo> baseClasses = new HashSet<>();
         Set<ClassInfo> derivedClasses = new HashSet<>();
 
@@ -254,6 +289,7 @@ public final class SymbolContext {
             ClassInfo class_ = (ClassInfo) entry;
             if (class_.isBase()) {
                 baseClasses.add(class_);
+                action.accept(class_);
             }
             if (class_.isDerived()) {
                 derivedClasses.add(class_);
@@ -268,16 +304,23 @@ public final class SymbolContext {
                 var derived = itr.next();
                 if (baseClasses.contains(derived.getParent())) {
                     itr.remove();  // remove from derived set
-                    // class is directly derived from a base class, so we inherit its members
-                    inheritMembers(derived);
+                    action.accept(derived);
                     baseClasses.add(derived);  // add to base set
                 }
             }
 
             if (initialSize == derivedClasses.size()) {
-                throw new IllegalSemanticException("unreachable");
+                throw new IllegalStateException("unreachable");
             }
         }
+    }
+
+    private void buildVTable(ClassInfo class_) {
+        class_.constructVirtualTable();
+    }
+
+    private void assignVariableOffsets(ClassInfo class_) {
+        class_.assignVariableOffsets();
     }
 
     /**
@@ -285,8 +328,8 @@ public final class SymbolContext {
      * @param derived The derived class that should inherit its superclass' members.
      */
     private void inheritMembers(ClassInfo derived) {
-        if (!derived.isDerived()) {
-            throw new IllegalArgumentException("Expected derived class");
+        if (derived.isBase()) {  // nothing to do if the class is a base class
+            return;
         }
 
         var base = derived.getParent();
@@ -298,16 +341,17 @@ public final class SymbolContext {
                     // Add base method to derived class
                     derived.getTable().addEntry(METHOD_PREFIX + method.name, method);
                 } else {
+                    overridingMethod.overridden = method;
                     // Verify overriding method signature assignable to base method signature
                     if (!overridingMethod.returnType.isAssignableTo(method.returnType)) {
-                        logger.logError("Expected return type of overriding method \"%s#%s\" " +
-                                "(%s) to be assignable to return type of \"%s#%s\" (%s)%n",
+                        logger.logError("Expected return type of overriding method \"%s$%s\" " +
+                                "(%s) to be assignable to return type of \"%s$%s\" (%s)%n",
                                 derived.name, overridingMethod.name, overridingMethod.returnType,
                                 base.name, method.name, method.returnType);
                     }
 
                     if (overridingMethod.argumentCount() != method.argumentCount()) {
-                        logger.logError("Expected overriding method \"%s#%s\" to have %d " +
+                        logger.logError("Expected overriding method \"%s$%s\" to have %d " +
                                 "arguments, but got %d%n", derived.name,
                                 overridingMethod.name, method.argumentCount(),
                                 overridingMethod.argumentCount());
@@ -318,8 +362,8 @@ public final class SymbolContext {
                             var derivedType = overridingMethod.getArgument(i);
                             if (!derivedType.isAssignableTo(baseType)) {
                                 logger.logError("Expected argument %d of overriding method " +
-                                        "\"%s#%s\" (%s) to be assignable to argument %d of " +
-                                        "\"%s#%s\" (%s)%n", i + 1, derived.name,
+                                        "\"%s$%s\" (%s) to be assignable to argument %d of " +
+                                        "\"%s$%s\" (%s)%n", i + 1, derived.name,
                                         overridingMethod.name, derivedType, i + 1, base.name,
                                         method.name, baseType);
                             }
@@ -328,7 +372,9 @@ public final class SymbolContext {
                 }
             } else if (entry instanceof VariableInfo variable) {
                 // Inherit the instance variable. If it is already defined, will not overwrite
-                derived.getTable().addEntry(variable.name, variable);
+                // We inherit it as a "transient", i.e. we don't increment the # of instance
+                // variables declared by the derived class.
+                derived.getTable().addEntry(variable.name, variable, true);
             }
         }
     }
