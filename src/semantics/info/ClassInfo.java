@@ -73,6 +73,7 @@ public final class ClassInfo extends Info {
             if (i instanceof MethodInfo m) {
                 if (m.overridden != null) {  // overrides another method
                     addMethod(m, m.overridden.vIndex);
+                    m.vIndex = m.overridden.vIndex;
                 } else if (m.vIndex != 0) {  // inherited method
                     addMethod(m, m.vIndex);
                 } else {  // regular, non-inherited method

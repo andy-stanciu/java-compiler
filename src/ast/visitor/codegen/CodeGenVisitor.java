@@ -6,6 +6,7 @@ import ast.visitor.util.FlowContext;
 import codegen.BooleanContext;
 import codegen.Generator;
 import semantics.table.SymbolContext;
+import semantics.type.TypeIntArray;
 import semantics.type.TypeObject;
 
 public class CodeGenVisitor implements Visitor {
@@ -22,8 +23,6 @@ public class CodeGenVisitor implements Visitor {
     @Override
     public void visit(Program n) {
         generator.genCodeSection();
-        generator.genLabel("exception_array");
-        generator.genCall("exception_array");
         n.m.accept(this);
         n.cl.forEach(c -> c.accept(this));
     }
@@ -160,12 +159,6 @@ public class CodeGenVisitor implements Visitor {
     public void visit(Assign n) {
         n.i.accept(this);
         generator.genPush("%rax");  // push addr of var onto stack
-
-        var v = symbolContext.lookupVariable(n.i.s);
-        if (v == null) {
-            throw new IllegalStateException();
-        }
-
         n.e.accept(this);
         generator.genPop("%rdx");  // pop lvalue off stack
         generator.genBinary("movq", "%rax", "0(%rdx)");
@@ -173,7 +166,24 @@ public class CodeGenVisitor implements Visitor {
 
     @Override
     public void visit(ArrayAssign n) {
-        throw new IllegalStateException();
+        n.i.accept(this);
+        generator.genPush("0(%rax)");                                  // push arr ptr onto stack
+        n.e1.accept(this);
+        generator.genPop("%rdx");                                      // pop arr pointer into rdx
+        generator.genBinary("movq", "%rax", "%rdi");           // load index into rdi
+        generator.genBinary("movq", "0(%rdx)", "%rsi");        // load sizeof(arr) into rsi
+        generator.genBinary("cmpq", "$0", "%rdi");             // check if index < 0
+        generator.genUnary("jl", "exception_array");               // array index out of bounds exception
+        generator.genBinary("cmpq", "%rsi", "%rdi");           // check if index >= sizeof(arr)
+        generator.genUnary("jge", "exception_array");              // array index out of bounds exception
+        generator.genBinary("addq", "$1", "%rdi");             // index++ (since we store size at index 0)
+        generator.genPush("%rdx");                                     // push arr pointer on stack
+        generator.genPush("%rdi");                                     // push index on stack
+        n.e2.accept(this);
+        generator.genPop("%rdi");                                      // pop index into rdi
+        generator.genPop("%rdx");                                      // pop arr pointer into rdx
+        generator.genBinary("movq", "%rax", "(%rdx,%rdi," +    // load rax into arr[i]
+                Generator.WORD_SIZE + ")");
     }
 
     @Override
@@ -258,17 +268,18 @@ public class CodeGenVisitor implements Visitor {
     @Override
     public void visit(ArrayLookup n) {
         n.e1.accept(this);
-        generator.genPush("%rax");
+        generator.genPush("%rax");                                     // push arr ptr onto stack
         n.e2.accept(this);
-        generator.genPop("%rdx");                                      // pop arr pointer into rdx
+        generator.genPop("%rdx");                                      // pop arr ptr into rdx
         generator.genBinary("movq", "%rax", "%rdi");           // load index into rdi
         generator.genBinary("movq", "0(%rdx)", "%rsi");        // load sizeof(arr) into rsi
         generator.genBinary("cmpq", "$0", "%rdi");             // check if index < 0
         generator.genUnary("jl", "exception_array");               // array index out of bounds exception
-        generator.genBinary("cmpq", "%rsi", "%rdi");           // check if index < sizeof(arr)
-        generator.genUnary("jl", "exception_array");               // array index out of bounds exception
+        generator.genBinary("cmpq", "%rsi", "%rdi");           // check if index >= sizeof(arr)
+        generator.genUnary("jge", "exception_array");              // array index out of bounds exception
         generator.genBinary("addq", "$1", "%rdi");             // index++ (since we store size at index 0)
-        generator.genBinary("movq", "(%rdx,%rdi,1)", "%rax");  // load arr[i] into rax
+        generator.genBinary("movq", "(%rdx,%rdi," +                // load arr[i] into rax
+                Generator.WORD_SIZE + ")", "%rax");
     }
 
     @Override

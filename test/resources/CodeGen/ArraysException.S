@@ -1,0 +1,112 @@
+    .data
+Broken$$:
+    .quad   0
+    .quad   Broken$illegal
+
+    .text
+    .globl  asm_main
+asm_main:
+    pushq   %rbp
+    movq    %rsp,%rbp
+    movq    $8,%rdi
+    call    mjcalloc
+    leaq    Broken$$(%rip),%rdx
+    movq    %rdx,0(%rax)
+    pushq   %rax
+    movq    $5,%rax
+    pushq   %rax
+    addq    $1,%rax
+    shlq    $3,%rax
+    movq    %rax,%rdi
+    call    mjcalloc
+    popq    %rdx
+    movq    %rdx,0(%rax)
+    pushq   %rax
+    popq    %rsi
+    popq    %rdi
+    movq    0(%rdi),%rax
+    call    *8(%rax)
+    movq    %rax,%rdi
+    call    put
+    movq    %rbp,%rsp
+    popq    %rbp
+    ret
+Broken$illegal:
+    pushq   %rbp
+    movq    %rsp,%rbp
+    subq    $16,%rsp
+    movq    %rdi,-8(%rbp)
+    movq    %rsi,-16(%rbp)
+    movq    $1,%rax
+    movq    %rax,%rdi
+    call    put
+    movq    $2,%rax
+    movq    %rax,%rdi
+    call    put
+    movq    $3,%rax
+    movq    %rax,%rdi
+    call    put
+    movq    $0,%rax
+    jmp     else0
+    leaq    -16(%rbp),%rax
+    pushq   0(%rax)
+    movq    $7,%rax
+    pushq   %rax
+    movq    $2,%rax
+    popq    %rdx
+    movq    %rax,%rcx
+    subq    %rcx,%rdx
+    movq    %rdx,%rax
+    popq    %rdx
+    movq    %rax,%rdi
+    movq    0(%rdx),%rsi
+    cmpq    $0,%rdi
+    jl      exception_array
+    cmpq    %rsi,%rdi
+    jge     exception_array
+    addq    $1,%rdi
+    pushq   %rdx
+    pushq   %rdi
+    movq    $1,%rax
+    popq    %rdi
+    popq    %rdx
+    movq    %rax,(%rdx,%rdi,8)
+    jmp     end_if0
+else0:
+    leaq    -16(%rbp),%rax
+    pushq   0(%rax)
+    movq    $2,%rax
+    pushq   %rax
+    movq    $3,%rax
+    popq    %rdx
+    movq    %rax,%rcx
+    subq    %rcx,%rdx
+    movq    %rdx,%rax
+    popq    %rdx
+    movq    %rax,%rdi
+    movq    0(%rdx),%rsi
+    cmpq    $0,%rdi
+    jl      exception_array
+    cmpq    %rsi,%rdi
+    jge     exception_array
+    addq    $1,%rdi
+    pushq   %rdx
+    pushq   %rdi
+    movq    $3,%rax
+    popq    %rdi
+    popq    %rdx
+    movq    %rax,(%rdx,%rdi,8)
+end_if0:
+    movq    $4,%rax
+    movq    %rax,%rdi
+    call    put
+    movq    $5,%rax
+    movq    %rax,%rdi
+    call    put
+    movq    $6,%rax
+    movq    %rax,%rdi
+    call    put
+    movq    $0,%rax
+    movq    %rbp,%rsp
+    popq    %rbp
+    ret
