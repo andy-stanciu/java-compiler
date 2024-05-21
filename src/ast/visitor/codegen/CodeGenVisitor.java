@@ -22,6 +22,8 @@ public class CodeGenVisitor implements Visitor {
     @Override
     public void visit(Program n) {
         generator.genCodeSection();
+        generator.genLabel("exception_array");
+        generator.genCall("exception_array");
         n.m.accept(this);
         n.cl.forEach(c -> c.accept(this));
     }
@@ -255,12 +257,24 @@ public class CodeGenVisitor implements Visitor {
 
     @Override
     public void visit(ArrayLookup n) {
-        throw new IllegalStateException();
+        n.e1.accept(this);
+        generator.genPush("%rax");
+        n.e2.accept(this);
+        generator.genPop("%rdx");                                      // pop arr pointer into rdx
+        generator.genBinary("movq", "%rax", "%rdi");           // load index into rdi
+        generator.genBinary("movq", "0(%rdx)", "%rsi");        // load sizeof(arr) into rsi
+        generator.genBinary("cmpq", "$0", "%rdi");             // check if index < 0
+        generator.genUnary("jl", "exception_array");               // array index out of bounds exception
+        generator.genBinary("cmpq", "%rsi", "%rdi");           // check if index < sizeof(arr)
+        generator.genUnary("jl", "exception_array");               // array index out of bounds exception
+        generator.genBinary("addq", "$1", "%rdi");             // index++ (since we store size at index 0)
+        generator.genBinary("movq", "(%rdx,%rdi,1)", "%rax");  // load arr[i] into rax
     }
 
     @Override
     public void visit(ArrayLength n) {
-        throw new IllegalStateException();
+        n.e.accept(this);
+        generator.genBinary("movq", "0(%rax)", "%rax");
     }
 
     @Override
@@ -286,7 +300,7 @@ public class CodeGenVisitor implements Visitor {
         }
 
         generator.genPop("%rdi");                                 // pop obj ptr off stack
-        generator.genBinary("movq", "0(%rdi)", "%rax");  // load vtable addr
+        generator.genBinary("movq", "0(%rdi)", "%rax");   // load vtable addr
         generator.genCall("*" + method.getOffset() + "(%rax)");  // call method from vtable
     }
 
@@ -335,7 +349,14 @@ public class CodeGenVisitor implements Visitor {
 
     @Override
     public void visit(NewArray n) {
-        throw new IllegalStateException();
+        n.e.accept(this);
+        generator.genPush("%rax");                               // push sizeof(arr) onto stack
+        generator.genBinary("addq", "$1", "%rax");       // sizeof(arr) + 1 bytes
+        generator.genBinary("shlq", "$3", "%rax");       // multiply size by word size (8)
+        generator.genBinary("movq", "%rax", "%rdi");     // load heap size into first arg
+        generator.genCall("mjcalloc");                          // allocate space on heap
+        generator.genPop("%rdx");                                // pop sizeof(arr) off stack
+        generator.genBinary("movq", "%rdx", "0(%rax)");  // store sizeof(arr) at start of array
     }
 
     @Override
@@ -346,7 +367,7 @@ public class CodeGenVisitor implements Visitor {
         }
 
         generator.genBinary("movq", "$" + class_.size(), "%rdi");       // load obj size into first arg
-        generator.genCall("mjcalloc");                                          // allocate space on heap
+        generator.genCall("mjcalloc");                                         // allocate space on heap
         generator.genBinary("leaq", class_.name + "$$(%rip)", "%rdx");  // lea of vtable
         generator.genBinary("movq", "%rdx", "0(%rax)");                 // store vtable at start of obj
     }

@@ -97,8 +97,7 @@ public final class ClassInfo extends Info {
      * @return The size of an instance this class.
      */
     public int size() {
-        int alignment = (variableCount + 1) % 2;
-        return (variableCount + 1 + alignment) * Generator.WORD_SIZE;
+        return (variableCount + 1) * Generator.WORD_SIZE;
     }
 
     public SymbolTable getTable() {
