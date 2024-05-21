@@ -48,9 +48,9 @@ public class Generator {
 
     public void genCall(String label, String comment) {
         boolean aligned = stackSize % 2 == 0;
-        if (!aligned) genPush("%rcx");
+        if (!aligned) genBinary("subq", "$" + WORD_SIZE, "%rsp");
         genUnary("call", label, comment);
-        if (!aligned) genPop("%rcx");
+        if (!aligned) genBinary("addq", "$" + WORD_SIZE, "%rsp");
     }
 
     public void genPush(String arg) {

@@ -48,6 +48,9 @@ BT$Start:
     movq    %rsp,%rbp
     subq    $32,%rsp
     movq    %rdi,-8(%rbp)
+    movq    $1,%rax
+    movq    %rax,%rdi
+    call    put
     leaq    -16(%rbp),%rax
     pushq   %rax
     movq    $56,%rdi
@@ -58,6 +61,9 @@ BT$Start:
     movq    %rdx,0(%rax)
     popq    %rdx
     movq    %rax,0(%rdx)
+    movq    $2,%rax
+    movq    %rax,%rdi
+    call    put
     leaq    -24(%rbp),%rax
     pushq   %rax
     movq    -16(%rbp),%rax
@@ -72,6 +78,9 @@ BT$Start:
     popq    %rcx
     popq    %rdx
     movq    %rax,0(%rdx)
+    movq    $3,%rax
+    movq    %rax,%rdi
+    call    put
     leaq    -24(%rbp),%rax
     pushq   %rax
     movq    -16(%rbp),%rax
@@ -370,6 +379,9 @@ Tree$GetLeft:
     movq    %rsp,%rbp
     subq    $16,%rsp
     movq    %rdi,-8(%rbp)
+    movq    $9,%rax
+    movq    %rax,%rdi
+    call    put
     movq    -8(%rbp),%rdx
     movq    32(%rdx),%rax
     movq    %rbp,%rsp
@@ -416,6 +428,9 @@ Tree$GetHas_Left:
     movq    %rsp,%rbp
     subq    $16,%rsp
     movq    %rdi,-8(%rbp)
+    movq    $7,%rax
+    movq    %rax,%rdi
+    call    put
     movq    -8(%rbp),%rdx
     movq    8(%rdx),%rax
     movq    %rbp,%rsp
@@ -1409,11 +1424,17 @@ Tree$Print:
     movq    %rsp,%rbp
     subq    $32,%rsp
     movq    %rdi,-8(%rbp)
+    movq    $4,%rax
+    movq    %rax,%rdi
+    call    put
     leaq    -16(%rbp),%rax
     pushq   %rax
     movq    -8(%rbp),%rax
     popq    %rdx
     movq    %rax,0(%rdx)
+    movq    $5,%rax
+    movq    %rax,%rdi
+    call    put
     leaq    -24(%rbp),%rax
     pushq   %rax
     movq    -8(%rbp),%rax
@@ -1428,6 +1449,9 @@ Tree$Print:
     popq    %rcx
     popq    %rdx
     movq    %rax,0(%rdx)
+    movq    $999999,%rax
+    movq    %rax,%rdi
+    call    put
     movq    $1,%rax
     movq    %rbp,%rsp
     popq    %rbp
@@ -1438,6 +1462,9 @@ Tree$RecPrint:
     subq    $32,%rsp
     movq    %rdi,-8(%rbp)
     movq    %rsi,-16(%rbp)
+    movq    $6,%rax
+    movq    %rax,%rdi
+    call    put
     movq    -16(%rbp),%rax
     pushq   %rax
     popq    %rdi
@@ -1445,6 +1472,9 @@ Tree$RecPrint:
     call    *24(%rax)
     cmpq    $0,%rax
     je      else18
+    movq    $8,%rax
+    movq    %rax,%rdi
+    call    put
     leaq    -24(%rbp),%rax
     pushq   %rax
     movq    -8(%rbp),%rax
@@ -1471,6 +1501,9 @@ else18:
     popq    %rdx
     movq    %rax,0(%rdx)
 end_if18:
+    movq    $8888888,%rax
+    movq    %rax,%rdi
+    call    put
     movq    -16(%rbp),%rax
     pushq   %rax
     popq    %rdi

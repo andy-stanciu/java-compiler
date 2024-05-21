@@ -68,6 +68,8 @@ BS$Start:
     popq    %rdi
     movq    0(%rdi),%rax
     call    *40(%rax)
+    cmpq    $0,%rax
+    je      else0
     movq    $1,%rax
     movq    %rax,%rdi
     call    put
@@ -85,6 +87,8 @@ end_if0:
     popq    %rdi
     movq    0(%rdi),%rax
     call    *40(%rax)
+    cmpq    $0,%rax
+    je      else1
     movq    $1,%rax
     movq    %rax,%rdi
     call    put
@@ -102,6 +106,8 @@ end_if1:
     popq    %rdi
     movq    0(%rdi),%rax
     call    *40(%rax)
+    cmpq    $0,%rax
+    je      else2
     movq    $1,%rax
     movq    %rax,%rdi
     call    put
@@ -119,6 +125,8 @@ end_if2:
     popq    %rdi
     movq    0(%rdi),%rax
     call    *40(%rax)
+    cmpq    $0,%rax
+    je      else3
     movq    $1,%rax
     movq    %rax,%rdi
     call    put
@@ -136,6 +144,8 @@ end_if3:
     popq    %rdi
     movq    0(%rdi),%rax
     call    *40(%rax)
+    cmpq    $0,%rax
+    je      else4
     movq    $1,%rax
     movq    %rax,%rdi
     call    put
@@ -153,6 +163,8 @@ end_if4:
     popq    %rdi
     movq    0(%rdi),%rax
     call    *40(%rax)
+    cmpq    $0,%rax
+    je      else5
     movq    $1,%rax
     movq    %rax,%rdi
     call    put
@@ -170,6 +182,8 @@ end_if5:
     popq    %rdi
     movq    0(%rdi),%rax
     call    *40(%rax)
+    cmpq    $0,%rax
+    je      else6
     movq    $1,%rax
     movq    %rax,%rdi
     call    put
@@ -187,6 +201,8 @@ end_if6:
     popq    %rdi
     movq    0(%rdi),%rax
     call    *40(%rax)
+    cmpq    $0,%rax
+    je      else7
     movq    $1,%rax
     movq    %rax,%rdi
     call    put
@@ -214,7 +230,6 @@ BS$Search:
     leaq    -24(%rbp),%rax
     pushq   %rax
     movq    $0,%rax
-    jmp     else7
     popq    %rdx
     movq    %rax,0(%rdx)
     leaq    -32(%rbp),%rax
@@ -332,10 +347,11 @@ end_if8:
     popq    %rdi
     movq    0(%rdi),%rax
     call    *8(%rax)
+    cmpq    $0,%rax
+    je      else9
     leaq    -48(%rbp),%rax
     pushq   %rax
     movq    $0,%rax
-    jmp     else9
     popq    %rdx
     movq    %rax,0(%rdx)
     jmp     end_if9
@@ -372,6 +388,8 @@ else10:
 end_if10:
 while_test0:
     movq    -48(%rbp),%rax
+    cmpq    $0,%rax
+    jne     while0
     movq    -8(%rbp),%rax
     pushq   %rax
     movq    -64(%rbp),%rax
@@ -383,6 +401,8 @@ while_test0:
     popq    %rdi
     movq    0(%rdi),%rax
     call    *8(%rax)
+    cmpq    $0,%rax
+    je      else11
     leaq    -24(%rbp),%rax
     pushq   %rax
     movq    $1,%rax

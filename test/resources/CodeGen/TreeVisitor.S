@@ -622,6 +622,8 @@ join2:
     popq    %rdi
     movq    0(%rdi),%rax
     call    *24(%rax)
+    cmpq    $0,%rax
+    je      else3
     leaq    -40(%rbp),%rax
     pushq   %rax
     movq    -40(%rbp),%rax
@@ -638,7 +640,6 @@ else3:
     leaq    -48(%rbp),%rax
     pushq   %rax
     movq    $0,%rax
-    jmp     else3
     popq    %rdx
     movq    %rax,0(%rdx)
     leaq    -32(%rbp),%rax
@@ -677,6 +678,8 @@ else2:
     popq    %rdi
     movq    0(%rdi),%rax
     call    *32(%rax)
+    cmpq    $0,%rax
+    je      else4
     leaq    -40(%rbp),%rax
     pushq   %rax
     movq    -40(%rbp),%rax
@@ -693,7 +696,6 @@ else4:
     leaq    -48(%rbp),%rax
     pushq   %rax
     movq    $0,%rax
-    jmp     else4
     popq    %rdx
     movq    %rax,0(%rdx)
     leaq    -32(%rbp),%rax
@@ -728,8 +730,9 @@ end_if4:
 end_if2:
 while_test0:
     movq    -48(%rbp),%rax
+    cmpq    $0,%rax
+    jne     while0
     movq    $1,%rax
-    jmp     while0
     movq    %rbp,%rsp
     popq    %rbp
     ret
@@ -793,6 +796,8 @@ join3:
     popq    %rdi
     movq    0(%rdi),%rax
     call    *24(%rax)
+    cmpq    $0,%rax
+    je      else6
     leaq    -32(%rbp),%rax
     pushq   %rax
     movq    -24(%rbp),%rax
@@ -814,7 +819,6 @@ else6:
     leaq    -40(%rbp),%rax
     pushq   %rax
     movq    $0,%rax
-    jmp     else6
     popq    %rdx
     movq    %rax,0(%rdx)
 end_if6:
@@ -836,6 +840,8 @@ join4:
     popq    %rdi
     movq    0(%rdi),%rax
     call    *32(%rax)
+    cmpq    $0,%rax
+    je      else8
     leaq    -32(%rbp),%rax
     pushq   %rax
     movq    -24(%rbp),%rax
@@ -857,13 +863,14 @@ else8:
     leaq    -40(%rbp),%rax
     pushq   %rax
     movq    $0,%rax
-    jmp     else8
     popq    %rdx
     movq    %rax,0(%rdx)
 end_if8:
     jmp     end_if7
 else7:
     movq    -64(%rbp),%rax
+    cmpq    $0,%rax
+    je      else9
     movq    -24(%rbp),%rax
     pushq   %rax
     popq    %rdi
@@ -945,6 +952,8 @@ end_if5:
     movq    %rax,0(%rdx)
 while_test1:
     movq    -40(%rbp),%rax
+    cmpq    $0,%rax
+    jne     while1
     movq    -48(%rbp),%rax
     movq    %rbp,%rsp
     popq    %rbp
@@ -961,6 +970,8 @@ Tree$Remove:
     popq    %rdi
     movq    0(%rdi),%rax
     call    *24(%rax)
+    cmpq    $0,%rax
+    je      else11
     leaq    -32(%rbp),%rax
     pushq   %rax
     movq    -8(%rbp),%rax
@@ -985,6 +996,8 @@ else11:
     popq    %rdi
     movq    0(%rdi),%rax
     call    *32(%rax)
+    cmpq    $0,%rax
+    je      else12
     leaq    -32(%rbp),%rax
     pushq   %rax
     movq    -8(%rbp),%rax
@@ -1043,6 +1056,8 @@ else12:
     popq    %rdi
     movq    0(%rdi),%rax
     call    *8(%rax)
+    cmpq    $0,%rax
+    je      else13
     leaq    -32(%rbp),%rax
     pushq   %rax
     movq    -16(%rbp),%rax
@@ -1063,7 +1078,6 @@ else12:
     movq    -16(%rbp),%rax
     pushq   %rax
     movq    $0,%rax
-    jmp     else13
     pushq   %rax
     popq    %rsi
     popq    %rdi
@@ -1164,6 +1178,8 @@ while_test2:
     popq    %rdi
     movq    0(%rdi),%rax
     call    *32(%rax)
+    cmpq    $0,%rax
+    jne     while2
     leaq    -32(%rbp),%rax
     pushq   %rax
     movq    -16(%rbp),%rax
@@ -1250,6 +1266,8 @@ while_test3:
     popq    %rdi
     movq    0(%rdi),%rax
     call    *24(%rax)
+    cmpq    $0,%rax
+    jne     while3
     leaq    -32(%rbp),%rax
     pushq   %rax
     movq    -16(%rbp),%rax
@@ -1333,6 +1351,8 @@ join6:
     popq    %rdi
     movq    0(%rdi),%rax
     call    *24(%rax)
+    cmpq    $0,%rax
+    je      else15
     leaq    -24(%rbp),%rax
     pushq   %rax
     movq    -24(%rbp),%rax
@@ -1349,7 +1369,6 @@ else15:
     leaq    -40(%rbp),%rax
     pushq   %rax
     movq    $0,%rax
-    jmp     else15
     popq    %rdx
     movq    %rax,0(%rdx)
 end_if15:
@@ -1371,6 +1390,8 @@ join7:
     popq    %rdi
     movq    0(%rdi),%rax
     call    *32(%rax)
+    cmpq    $0,%rax
+    je      else17
     leaq    -24(%rbp),%rax
     pushq   %rax
     movq    -24(%rbp),%rax
@@ -1387,7 +1408,6 @@ else17:
     leaq    -40(%rbp),%rax
     pushq   %rax
     movq    $0,%rax
-    jmp     else17
     popq    %rdx
     movq    %rax,0(%rdx)
 end_if17:
@@ -1407,6 +1427,8 @@ end_if16:
 end_if14:
 while_test4:
     movq    -40(%rbp),%rax
+    cmpq    $0,%rax
+    jne     while4
     movq    -32(%rbp),%rax
     movq    %rbp,%rsp
     popq    %rbp
@@ -1436,7 +1458,6 @@ Tree$Print:
     popq    %rdx
     movq    %rax,0(%rdx)
     movq    $1,%rax
-    jmp     while4
     movq    %rbp,%rsp
     popq    %rbp
     ret
@@ -1451,6 +1472,8 @@ Tree$RecPrint:
     popq    %rdi
     movq    0(%rdi),%rax
     call    *24(%rax)
+    cmpq    $0,%rax
+    je      else18
     leaq    -24(%rbp),%rax
     pushq   %rax
     movq    -8(%rbp),%rax
@@ -1489,6 +1512,8 @@ end_if18:
     popq    %rdi
     movq    0(%rdi),%rax
     call    *32(%rax)
+    cmpq    $0,%rax
+    je      else19
     leaq    -24(%rbp),%rax
     pushq   %rax
     movq    -8(%rbp),%rax
@@ -1557,6 +1582,8 @@ Visitor$visit:
     popq    %rdi
     movq    0(%rdi),%rax
     call    *32(%rax)
+    cmpq    $0,%rax
+    je      else20
     movq    -8(%rbp),%rdx
     leaq    16(%rdx),%rax
     pushq   %rax
@@ -1597,6 +1624,8 @@ end_if20:
     popq    %rdi
     movq    0(%rdi),%rax
     call    *24(%rax)
+    cmpq    $0,%rax
+    je      else21
     movq    -8(%rbp),%rdx
     leaq    8(%rdx),%rax
     pushq   %rax
@@ -1647,6 +1676,8 @@ MyVisitor$visit:
     popq    %rdi
     movq    0(%rdi),%rax
     call    *32(%rax)
+    cmpq    $0,%rax
+    je      else22
     movq    -8(%rbp),%rdx
     leaq    16(%rdx),%rax
     pushq   %rax
@@ -1694,6 +1725,8 @@ end_if22:
     popq    %rdi
     movq    0(%rdi),%rax
     call    *24(%rax)
+    cmpq    $0,%rax
+    je      else23
     movq    -8(%rbp),%rdx
     leaq    8(%rdx),%rax
     pushq   %rax

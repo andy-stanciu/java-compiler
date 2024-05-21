@@ -6,6 +6,7 @@ import ast.visitor.util.FlowContext;
 import codegen.BooleanContext;
 import codegen.Generator;
 import semantics.table.SymbolContext;
+import semantics.type.TypeBoolean;
 import semantics.type.TypeIntArray;
 import semantics.type.TypeObject;
 
@@ -125,7 +126,7 @@ public class CodeGenVisitor implements Visitor {
         String endifLabel = generator.nextLabel("end_if");
 
         flowContext.push(new BooleanContext(elseLabel, false));
-        n.e.accept(this);
+        n.e.accept(this);  // bool expression
 
         n.s1.accept(this);
         generator.genUnary("jmp", endifLabel);
@@ -145,7 +146,7 @@ public class CodeGenVisitor implements Visitor {
         generator.genLabel(testLabel);
 
         flowContext.push(new BooleanContext(bodyLabel, true));
-        n.e.accept(this);
+        n.e.accept(this);  // bool expression
     }
 
     @Override
@@ -290,6 +291,7 @@ public class CodeGenVisitor implements Visitor {
 
     @Override
     public void visit(Call n) {
+        var context = flowContext.pop();
         n.e.accept(this);
         generator.genPush("%rax");  // push obj ptr onto stack
 
@@ -313,6 +315,21 @@ public class CodeGenVisitor implements Visitor {
         generator.genPop("%rdi");                                 // pop obj ptr off stack
         generator.genBinary("movq", "0(%rdi)", "%rax");   // load vtable addr
         generator.genCall("*" + method.getOffset() + "(%rax)");  // call method from vtable
+
+        if (context != null) {
+            if (method.returnType != TypeBoolean.getInstance()) {
+                // sanity check that if we're in a flow context, it must be the
+                // case that this method returns a boolean
+                throw new IllegalStateException();
+            }
+
+            generator.genBinary("cmpq", "$0", "%rax");
+            if (!context.jumpIf()) {
+                generator.genUnary("je", context.targetLabel());
+            } else {
+                generator.genUnary("jne", context.targetLabel());
+            }
+        }
     }
 
     @Override
@@ -340,6 +357,7 @@ public class CodeGenVisitor implements Visitor {
 
     @Override
     public void visit(IdentifierExp n) {
+        var context = flowContext.pop();
         var v = symbolContext.lookupVariable(n.s);
         if (v == null) {
             throw new IllegalStateException();
@@ -350,6 +368,21 @@ public class CodeGenVisitor implements Visitor {
             generator.genBinary("movq", v.getOffset() + "(%rdx)", "%rax");         // load var from obj
         } else {
             generator.genBinary("movq", v.getOffset() + "(%rbp)", "%rax");         // load var from frame
+        }
+
+        if (context != null) {
+            if (v.type != TypeBoolean.getInstance()) {
+                // sanity check that if we're in a flow context, it must be the
+                // case that this variable has type boolean
+                throw new IllegalStateException();
+            }
+
+            generator.genBinary("cmpq", "$0", "%rax");
+            if (!context.jumpIf()) {
+                generator.genUnary("je", context.targetLabel());
+            } else {
+                generator.genUnary("jne", context.targetLabel());
+            }
         }
     }
 

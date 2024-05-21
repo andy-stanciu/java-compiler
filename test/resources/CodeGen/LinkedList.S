@@ -180,6 +180,8 @@ else0:
 else1:
     movq    -8(%rbp),%rdx
     movq    16(%rdx),%rax
+    cmpq    $0,%rax
+    je      else2
     movq    -16(%rbp),%rax
     pushq   %rax
     popq    %rdi
@@ -208,10 +210,11 @@ else2:
     popq    %rdi
     movq    0(%rdi),%rax
     call    *32(%rax)
+    cmpq    $0,%rax
+    je      else4
     leaq    -24(%rbp),%rax
     pushq   %rax
     movq    $0,%rax
-    jmp     else4
     popq    %rdx
     movq    %rax,0(%rdx)
     jmp     end_if4
@@ -465,6 +468,8 @@ while0:
     popq    %rdi
     movq    0(%rdi),%rax
     call    *16(%rax)
+    cmpq    $0,%rax
+    je      else7
     leaq    -32(%rbp),%rax
     pushq   %rax
     movq    $1,%rax
@@ -646,6 +651,8 @@ while1:
     popq    %rdi
     movq    0(%rdi),%rax
     call    *16(%rax)
+    cmpq    $0,%rax
+    je      else10
     leaq    -24(%rbp),%rax
     pushq   %rax
     movq    $1,%rax

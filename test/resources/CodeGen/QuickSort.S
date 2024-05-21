@@ -230,10 +230,11 @@ else1:
 end_if1:
 while_test1:
     movq    -80(%rbp),%rax
+    cmpq    $0,%rax
+    jne     while1
     leaq    -80(%rbp),%rax
     pushq   %rax
     movq    $1,%rax
-    jmp     while1
     popq    %rdx
     movq    %rax,0(%rdx)
     jmp     while_test2
@@ -295,6 +296,8 @@ else2:
 end_if2:
 while_test2:
     movq    -80(%rbp),%rax
+    cmpq    $0,%rax
+    jne     while2
     leaq    -64(%rbp),%rax
     pushq   %rax
     movq    -8(%rbp),%rdx
@@ -390,6 +393,8 @@ else3:
 end_if3:
 while_test0:
     movq    -72(%rbp),%rax
+    cmpq    $0,%rax
+    jne     while0
     movq    -8(%rbp),%rdx
     leaq    8(%rdx),%rax
     pushq   0(%rax)
