@@ -15,6 +15,11 @@ public class TypeUndefined extends Type {
     }
 
     @Override
+    public boolean equals(Type other) {
+        return true;
+    }
+
+    @Override
     public String toString() {
         return "undefined";
     }

@@ -356,13 +356,13 @@ public final class SymbolContext {
                                 overridingMethod.name, method.argumentCount(),
                                 overridingMethod.argumentCount());
                     } else {
-                        // argument counts match. verify that arguments are assignable
+                        // argument counts match. verify that argument types are equal
                         for (int i = 0; i < method.argumentCount(); i++) {
                             var baseType = method.getArgument(i);
                             var derivedType = overridingMethod.getArgument(i);
-                            if (!derivedType.isAssignableTo(baseType)) {
+                            if (!derivedType.equals(baseType)) {
                                 logger.logError("Expected argument %d of overriding method " +
-                                        "\"%s$%s\" (%s) to be assignable to argument %d of " +
+                                        "\"%s$%s\" (%s) to be equal to argument %d of " +
                                         "\"%s$%s\" (%s)%n", i + 1, derived.name,
                                         overridingMethod.name, derivedType, i + 1, base.name,
                                         method.name, baseType);
