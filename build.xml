@@ -75,14 +75,6 @@
   <!-- run scanner and parser test programs on initial demo input
        located in SamplePrograms/Example.java. -->
 
-  <target name="demo-scanner" depends="compile">
-    <java classname="DemoScanner" classpath="build/classes;lib/java-cup-11b.jar"
-          fork="true"
-          input="SamplePrograms/Example.java">
-      <assertions> <enable/> </assertions>
-    </java>
-  </target>
-
   <target name="demo-parser" depends="compile">
     <java classname="DemoParser" classpath="build/classes;lib/java-cup-11b.jar"
           fork="true"
