@@ -5,7 +5,7 @@ import ast.visitor.Visitor;
 import codegen.Generator;
 import semantics.table.SymbolContext;
 
-public class CodeDataVisitor implements Visitor {
+public final class CodeDataVisitor implements Visitor {
     private final Generator generator;
     private final SymbolContext symbolContext;
 

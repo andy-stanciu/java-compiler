@@ -3,15 +3,16 @@ package codegen;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Generator {
-    public static final int WORD_SIZE = 8;
+public final class Generator {
     private static final Generator instance = new Generator();
+    public static final int WORD_SIZE = 8;
     private static final int OPERATOR_SIZE = 8;
     private static final int INDENT_SIZE = 4;
     private static final int INSTRUCTION_SIZE = 32;
     private static final boolean COMMENTS_ENABLED = true;
     private static final String[] ARGUMENT_REGISTERS = new String[] { "%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9" };
     private int stackSize;
+    private FlowContext context;
     private final Map<String, Integer> labelCounts;
 
     public static Generator getInstance() {
@@ -128,6 +129,16 @@ public class Generator {
         labelCounts.put(name, count + 1);
 
         return name + count;
+    }
+
+    public void push(FlowContext context) {
+        this.context = context;
+    }
+
+    public FlowContext pop() {
+        var ret = context;
+        context = null;
+        return ret;
     }
 
     private void genInstruction(String instruction, String comment) {

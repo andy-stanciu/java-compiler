@@ -2,23 +2,19 @@ package ast.visitor.codegen;
 
 import ast.*;
 import ast.visitor.Visitor;
-import ast.visitor.util.FlowContext;
-import codegen.BooleanContext;
+import codegen.FlowContext;
 import codegen.Generator;
 import semantics.table.SymbolContext;
 import semantics.type.TypeBoolean;
-import semantics.type.TypeIntArray;
 import semantics.type.TypeObject;
 
-public class CodeGenVisitor implements Visitor {
+public final class CodeGenVisitor implements Visitor {
     private final Generator generator;
     private final SymbolContext symbolContext;
-    private final FlowContext flowContext;
 
     public CodeGenVisitor(SymbolContext symbolContext) {
         this.generator = Generator.getInstance();
         this.symbolContext = symbolContext;
-        this.flowContext = FlowContext.create();
     }
 
     @Override
@@ -125,7 +121,7 @@ public class CodeGenVisitor implements Visitor {
         String elseLabel = generator.nextLabel("else");
         String endifLabel = generator.nextLabel("end_if");
 
-        flowContext.push(new BooleanContext(elseLabel, false));
+        generator.push(new FlowContext(elseLabel, false));
         n.e.accept(this);  // bool expression
 
         n.s1.accept(this);
@@ -145,7 +141,7 @@ public class CodeGenVisitor implements Visitor {
         n.s.accept(this);
         generator.genLabel(testLabel);
 
-        flowContext.push(new BooleanContext(bodyLabel, true));
+        generator.push(new FlowContext(bodyLabel, true));
         n.e.accept(this);  // bool expression
     }
 
@@ -189,7 +185,7 @@ public class CodeGenVisitor implements Visitor {
 
     @Override
     public void visit(And n) {
-        var context = flowContext.pop();
+        var context = generator.pop();
         String joinLabel = generator.nextLabel("join");
 
         n.e1.accept(this);
@@ -213,7 +209,7 @@ public class CodeGenVisitor implements Visitor {
 
     @Override
     public void visit(LessThan n) {
-        var context = flowContext.pop();
+        var context = generator.pop();
         String joinLabel = generator.nextLabel("join");
         String trueLabel = generator.nextLabel("true");
 
@@ -291,7 +287,7 @@ public class CodeGenVisitor implements Visitor {
 
     @Override
     public void visit(Call n) {
-        var context = flowContext.pop();
+        var context = generator.pop();
         n.e.accept(this);
         generator.genPush("%rax");  // push obj ptr onto stack
 
@@ -339,7 +335,7 @@ public class CodeGenVisitor implements Visitor {
 
     @Override
     public void visit(True n) {
-        var context = flowContext.pop();
+        var context = generator.pop();
         generator.genBinary("movq", "$1", "%rax");
         if (context != null && context.jumpIf()) {
             generator.genUnary("jmp", context.targetLabel());
@@ -348,7 +344,7 @@ public class CodeGenVisitor implements Visitor {
 
     @Override
     public void visit(False n) {
-        var context = flowContext.pop();
+        var context = generator.pop();
         generator.genBinary("movq", "$0", "%rax");
         if (context != null && !context.jumpIf()) {
             generator.genUnary("jmp", context.targetLabel());
@@ -357,7 +353,7 @@ public class CodeGenVisitor implements Visitor {
 
     @Override
     public void visit(IdentifierExp n) {
-        var context = flowContext.pop();
+        var context = generator.pop();
         var v = symbolContext.lookupVariable(n.s);
         if (v == null) {
             throw new IllegalStateException();
@@ -418,7 +414,7 @@ public class CodeGenVisitor implements Visitor {
 
     @Override
     public void visit(Not n) {
-        var context = flowContext.pop();
+        var context = generator.pop();
 
         n.e.accept(this);
         generator.genBinary("xorq", "$1", "%rax");
