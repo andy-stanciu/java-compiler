@@ -153,8 +153,10 @@ public final class CodeGenVisitor implements Visitor {
     }
 
     @Override
-    public void visit(Assign n) {
-        n.i.accept(this);
+    public void visit(AssignSimple n) {
+        generator.signalAssignable();
+        n.a.accept(this);
+
         generator.genPush("%rax");  // push addr of var onto stack
         n.e.accept(this);
         generator.genPop("%rdx");  // pop lvalue off stack
@@ -162,25 +164,78 @@ public final class CodeGenVisitor implements Visitor {
     }
 
     @Override
-    public void visit(ArrayAssign n) {
-        n.i.accept(this);
-        generator.genPush("0(%rax)");                                  // push arr ptr onto stack
-        n.e1.accept(this);
-        generator.genPop("%rdx");                                      // pop arr pointer into rdx
-        generator.genBinary("movq", "%rax", "%rdi");           // load index into rdi
-        generator.genBinary("movq", "0(%rdx)", "%rsi");        // load sizeof(arr) into rsi
-        generator.genBinary("cmpq", "$0", "%rdi");             // check if index < 0
-        generator.genUnary("jl", "exception_array");               // array index out of bounds exception
-        generator.genBinary("cmpq", "%rsi", "%rdi");           // check if index >= sizeof(arr)
-        generator.genUnary("jge", "exception_array");              // array index out of bounds exception
-        generator.genBinary("addq", "$1", "%rdi");             // index++ (since we store size at index 0)
-        generator.genPush("%rdx");                                     // push arr pointer on stack
-        generator.genPush("%rdi");                                     // push index on stack
-        n.e2.accept(this);
-        generator.genPop("%rdi");                                      // pop index into rdi
-        generator.genPop("%rdx");                                      // pop arr pointer into rdx
-        generator.genBinary("movq", "%rax", "(%rdx,%rdi," +    // load rax into arr[i]
-                Generator.WORD_SIZE + ")");
+    public void visit(AssignPlus n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(AssignMinus n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(AssignTimes n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(AssignDivide n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(AssignMod n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(AssignAnd n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(AssignOr n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(AssignXor n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(AssignLeftShift n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(AssignRightShift n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(AssignUnsignedRightShift n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(PostIncrement n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(PreIncrement n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(PostDecrement n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(PreDecrement n) {
+        throw new IllegalStateException();
     }
 
     @Override
@@ -208,6 +263,21 @@ public final class CodeGenVisitor implements Visitor {
     }
 
     @Override
+    public void visit(Or n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(Equal n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(NotEqual n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
     public void visit(LessThan n) {
         var context = generator.pop();
         String joinLabel = generator.nextLabel("join");
@@ -231,6 +301,36 @@ public final class CodeGenVisitor implements Visitor {
             generator.genUnary("jmp", context.targetLabel());
         }
         generator.genLabel(joinLabel);
+    }
+
+    @Override
+    public void visit(LessThanOrEqual n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(GreaterThan n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(GreaterThanOrEqual n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(BitwiseAnd n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(BitwiseOr n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(BitwiseXor n) {
+        throw new IllegalStateException();
     }
 
     @Override
@@ -263,7 +363,34 @@ public final class CodeGenVisitor implements Visitor {
     }
 
     @Override
+    public void visit(Divide n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(Mod n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(LeftShift n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(RightShift n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(UnsignedRightShift n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
     public void visit(ArrayLookup n) {
+        boolean assignable = generator.isAssignable();
+
         n.e1.accept(this);
         generator.genPush("%rax");                                     // push arr ptr onto stack
         n.e2.accept(this);
@@ -275,7 +402,9 @@ public final class CodeGenVisitor implements Visitor {
         generator.genBinary("cmpq", "%rsi", "%rdi");           // check if index >= sizeof(arr)
         generator.genUnary("jge", "exception_array");              // array index out of bounds exception
         generator.genBinary("addq", "$1", "%rdi");             // index++ (since we store size at index 0)
-        generator.genBinary("movq", "(%rdx,%rdi," +                // load arr[i] into rax
+
+        String instr = assignable ? "leaq" : "movq";
+        generator.genBinary(instr, "(%rdx,%rdi," +                      // load arr[i] or &arr[i] into rax
                 Generator.WORD_SIZE + ")", "%rax");
     }
 
@@ -329,6 +458,21 @@ public final class CodeGenVisitor implements Visitor {
     }
 
     @Override
+    public void visit(Field n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(Ternary n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(InstanceOf n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
     public void visit(IntegerLiteral n) {
         generator.genBinary("movq", "$" + n.i, "%rax");
     }
@@ -354,22 +498,30 @@ public final class CodeGenVisitor implements Visitor {
     @Override
     public void visit(IdentifierExp n) {
         var context = generator.pop();
+        boolean assignable = generator.isAssignable();
         var v = symbolContext.lookupVariable(n.s);
         if (v == null) {
             throw new IllegalStateException();
         }
 
+        String instr = assignable ? "leaq" : "movq";
         if (v.isInstanceVariable()) {
             generator.genBinary("movq", -Generator.WORD_SIZE + "(%rbp)", "%rdx");  // load obj ptr in rdx
-            generator.genBinary("movq", v.getOffset() + "(%rdx)", "%rax");         // load var from obj
+            generator.genBinary(instr, v.getOffset() + "(%rdx)", "%rax");              // load var from obj
         } else {
-            generator.genBinary("movq", v.getOffset() + "(%rbp)", "%rax");         // load var from frame
+            generator.genBinary(instr, v.getOffset() + "(%rbp)", "%rax");              // load var from frame
         }
 
         if (context != null) {
             if (v.type != TypeBoolean.getInstance()) {
                 // sanity check that if we're in a flow context, it must be the
                 // case that this variable has type boolean
+                throw new IllegalStateException();
+            }
+
+            if (assignable) {
+                // impossible to be an assignable and be involved in a flow context
+                // (for now!!)
                 throw new IllegalStateException();
             }
 
@@ -427,6 +579,11 @@ public final class CodeGenVisitor implements Visitor {
                 generator.genUnary("jne", context.targetLabel());
             }
         }
+    }
+
+    @Override
+    public void visit(BitwiseNot n) {
+        throw new IllegalStateException();
     }
 
     @Override

@@ -13,6 +13,7 @@ public final class Generator {
     private static final boolean COMMENTS_ENABLED = true;
     private int stackSize;
     private FlowContext context;
+    private boolean assignable;
     private final Map<String, Integer> labelCounts;
 
     public static Generator getInstance() {
@@ -138,6 +139,16 @@ public final class Generator {
     public FlowContext pop() {
         var ret = context;
         context = null;
+        return ret;
+    }
+
+    public void signalAssignable() {
+        assignable = true;
+    }
+
+    public boolean isAssignable() {
+        var ret = assignable;
+        assignable = false;
         return ret;
     }
 
