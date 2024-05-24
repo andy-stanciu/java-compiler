@@ -6,11 +6,11 @@ import java.util.Map;
 public final class Generator {
     private static final Generator instance = new Generator();
     public static final int WORD_SIZE = 8;
+    public static final String[] ARGUMENT_REGISTERS = new String[] { "%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9" };
     private static final int OPERATOR_SIZE = 8;
     private static final int INDENT_SIZE = 4;
     private static final int INSTRUCTION_SIZE = 32;
     private static final boolean COMMENTS_ENABLED = true;
-    private static final String[] ARGUMENT_REGISTERS = new String[] { "%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9" };
     private int stackSize;
     private FlowContext context;
     private final Map<String, Integer> labelCounts;
