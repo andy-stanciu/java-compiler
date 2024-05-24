@@ -2,6 +2,8 @@ import ast.Program;
 import ast.visitor.ASTVisitor;
 import ast.visitor.PrettyPrintVisitor;
 import ast.visitor.Visitor;
+import ast.visitor.codegen.CodeDataVisitor;
+import ast.visitor.codegen.CodeGenVisitor;
 import ast.visitor.semantics.ClassVisitor;
 import ast.visitor.semantics.GlobalVisitor;
 import ast.visitor.semantics.LocalVisitor;
@@ -20,18 +22,19 @@ public class MiniJava {
     public static void main(String[] args) {
         var tasks = parseTasks(args);
         if (tasks == null) {
-            System.err.println("Usage: MiniJava -S | -P | -A | -T <file1.java, file2.java, ...>");
+            System.err.println("Usage: MiniJava [-S | -P | -A | -T] <file1.java, file2.java, ...>");
             System.exit(1);
         }
 
         int status = 0;
         while (!tasks.isEmpty()) {
-            Task task = tasks.poll();
+            var task = tasks.poll();
             switch (task.type) {
                 case SCAN -> status |= scan(task);
                 case PRETTY_PRINT -> status |= parse(task, new PrettyPrintVisitor());
                 case AST -> status |= parse(task, new ASTVisitor());
                 case TABLE -> status |= validate(task);
+                case COMPILE -> status |= compile(task);
             }
         }
 
@@ -106,7 +109,46 @@ public class MiniJava {
             program.accept(new ClassVisitor(symbolContext));
             program.accept(new LocalVisitor(symbolContext));
 
+            // dump symbol tables
+            symbolContext.dump();
+
             if (logger.hasError()) {
+                status = 1;
+                System.err.printf("Static semantic analysis found %d error(s), %d warning(s)%n",
+                        logger.getErrorCount(), logger.getWarningCount());
+            }
+        } catch (Exception e) {
+            System.err.println("Unexpected internal compiler error: " + e);
+            e.printStackTrace();
+            status = 1;
+        }
+
+        return status;
+    }
+
+    private static int compile(Task task) {
+        int status = 0;
+        try {
+            var sf = new ComplexSymbolFactory();
+            var in = new BufferedReader(new InputStreamReader(new FileInputStream(task.input)));
+
+            var logger = Logger.getInstance();
+            logger.start(task.input.getName());
+
+            var s = new scanner(in, sf);
+            var p = new parser(s, sf);
+            var root = p.parse();
+
+            var program = (Program) root.value;
+            var symbolContext = SymbolContext.create();
+            program.accept(new GlobalVisitor(symbolContext));
+            program.accept(new ClassVisitor(symbolContext));
+            program.accept(new LocalVisitor(symbolContext));
+
+            if (!logger.hasError()) {  // generate code only if no error
+                program.accept(new CodeDataVisitor(symbolContext));
+                program.accept(new CodeGenVisitor(symbolContext));
+            } else {
                 status = 1;
                 System.err.printf("Static semantic analysis found %d error(s), %d warning(s)%n",
                         logger.getErrorCount(), logger.getWarningCount());
@@ -128,21 +170,27 @@ public class MiniJava {
         Queue<Task> tasks = new LinkedList<>();
 
         for (int i = 0; i < args.length; i++) {
-            String operator = args[i];
-
             TaskType type;
-            switch (operator.toLowerCase()) {
-                case "-s", "--scan" -> type = TaskType.SCAN;
-                case "-p", "--pretty-print" -> type = TaskType.PRETTY_PRINT;
-                case "-a", "--ast" -> type = TaskType.AST;
-                case "-t", "--table" -> type = TaskType.TABLE;
-                default -> {
-                    System.err.printf("Unrecognized operand: %s%n", operator);
-                    return null;
+            int j;
+
+            if (args[i].charAt(0) == '-') {  // operator found
+                j = i + 1;
+                String operator = args[i];
+                switch (operator.toLowerCase()) {
+                    case "-s", "--scan" -> type = TaskType.SCAN;
+                    case "-p", "--pretty-print" -> type = TaskType.PRETTY_PRINT;
+                    case "-a", "--ast" -> type = TaskType.AST;
+                    case "-t", "--table" -> type = TaskType.TABLE;
+                    default -> {
+                        System.err.printf("Unrecognized operand: %s%n", operator);
+                        return null;
+                    }
                 }
+            } else {  // no operands => we want to compile everything
+                j = i;
+                type = TaskType.COMPILE;
             }
 
-            int j = i + 1;
             boolean foundValidArgs = false;
             while (j < args.length && args[j].charAt(0) != '-') {  // while not an operand
                 String path = args[j];
@@ -194,6 +242,7 @@ public class MiniJava {
         SCAN,          // scan
         PRETTY_PRINT,  // scan, parse, and pretty-print
         AST,           // scan, parse, and print ast
-        TABLE          // scan, parse, static semantic analysis, and print symbol tables
+        TABLE,         // scan, parse, static semantic analysis, and print symbol tables
+        COMPILE        // scan, parse, static semantic analysis, code generation
     }
 }

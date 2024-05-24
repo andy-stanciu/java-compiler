@@ -1,0 +1,19 @@
+Extra stuff:
+No extensions included in this phase of the project.
+
+Clever code generation strategies:
+Nothing too special. Stored the size of arrays in the first 8 bytes and used xor
+in a not expression, but I think these are both necessary to do...
+
+Project status:
+Everything is working (we hope!). No major surprises, though we decided to include a
+semantics check for > 5 parameters for methods since the generated code would
+produce undefined behavior otherwise since we don't support pushing overflow arguments
+on the stack.
+
+Workload:
+The work for this part of the project was once again completed synchronously and in
+person. Andy wrote about the first half of the code gen visitor, and I finished up the
+rest of it and started writing tests. The work was pretty evenly split, and we spent
+a decent amount of time debugging arrays in GDB.
+

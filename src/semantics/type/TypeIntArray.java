@@ -1,5 +1,4 @@
 package semantics.type;
-
 public class TypeIntArray extends Type {
     private static final TypeIntArray instance = new TypeIntArray();
 
@@ -11,6 +10,11 @@ public class TypeIntArray extends Type {
 
     @Override
     public boolean isAssignableTo(Type other) {
+        return equals(other);
+    }
+
+    @Override
+    public boolean equals(Type other) {
         return this == other || other == TypeUndefined.getInstance();
     }
 

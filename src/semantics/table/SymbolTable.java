@@ -12,6 +12,9 @@ public final class SymbolTable {
     private final Set<String> undefined;
     private final TableType type;
     private final String name;
+    private int classCount;
+    private int methodCount;
+    private int variableCount;
 
     /**
      * Constructs a global symbol table.
@@ -33,6 +36,13 @@ public final class SymbolTable {
         this.parent = parent;
         this.type = type;
         this.name = name;
+    }
+
+    /**
+     * @return The size (number of entries) in this symbol table.
+     */
+    public int size() {
+        return symbols.size();
     }
 
     /**
@@ -97,6 +107,19 @@ public final class SymbolTable {
      * @return Whether the entry was successfully added.
      */
     public boolean addEntry(String symbol, Info info) {
+        return addEntry(symbol, info, false);
+    }
+
+    /**
+     * Adds the specified entry to this symbol table.
+     *
+     * @param symbol      Symbol associated with the entry.
+     * @param info        Information associated with the symbol.
+     * @param isTransient Whether the entry is transient. A transient entry does not
+     *                    contribute to its reference count.
+     * @return Whether the entry was successfully added.
+     */
+    public boolean addEntry(String symbol, Info info, boolean isTransient) {
         if (symbol == null) return false;
 
         if (symbols.containsKey(symbol)) {
@@ -105,6 +128,17 @@ public final class SymbolTable {
 
         undefined.remove(symbol);  // remove from undefined set
         symbols.put(symbol, info);
+
+        if (!isTransient) {
+            if (info instanceof ClassInfo) {
+                classCount++;
+            } else if (info instanceof MethodInfo) {
+                methodCount++;
+            } else if (info instanceof VariableInfo) {
+                variableCount++;
+            }
+        }
+
         return true;
     }
 
@@ -136,6 +170,20 @@ public final class SymbolTable {
      */
     public Iterable<Info> getEntriesSorted() {
         return new TreeSet<>(symbols.values());
+    }
+
+    /**
+     * @return The number of methods defined in this symbol table.
+     */
+    public int getMethodCount() {
+        return methodCount;
+    }
+
+    /**
+     * @return The number of variables defined in this symbol table.
+     */
+    public int getVariableCount() {
+        return variableCount;
     }
 
     @Override

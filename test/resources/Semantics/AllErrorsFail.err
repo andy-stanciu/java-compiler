@@ -1,5 +1,6 @@
-ERROR @ AllErrorsFail.java:129: Expected overriding method "Y#getC" to have 0 arguments, but got 1
-ERROR @ AllErrorsFail.java:129: Expected argument 2 of overriding method "Y#poly" (S) to be assignable to argument 2 of "X#poly" (S1)
+ERROR @ AllErrorsFail.java:129: Expected overriding method "Y$getC" to have 0 arguments, but got 1
+ERROR @ AllErrorsFail.java:129: Expected argument 1 of overriding method "Y$poly" (T1) to be equal to argument 1 of "X$poly" (T)
+ERROR @ AllErrorsFail.java:129: Expected argument 2 of overriding method "Y$poly" (S) to be equal to argument 2 of "X$poly" (S1)
 ERROR @ AllErrorsFail.java:17: Method "getFoo" expected to return Foo, but provided int
 ERROR @ AllErrorsFail.java:19: If statement condition expected boolean, but provided int
 ERROR @ AllErrorsFail.java:29: While loop condition expected boolean, but provided Foo
@@ -33,4 +34,4 @@ ERROR @ AllErrorsFail.java:97: Cannot assign Foo to Foo2 for argument 2 of metho
 ERROR @ AllErrorsFail.java:98: Expected reference type for method invocation, but provided int
 ERROR @ AllErrorsFail.java:99: Cannot resolve method "undefined" in "A"
 ERROR @ AllErrorsFail.java:126: Method "getS" expected to return S1, but provided S
-Static semantic analysis found 35 error(s), 0 warning(s)
+Static semantic analysis found 36 error(s), 0 warning(s)

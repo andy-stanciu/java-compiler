@@ -23,10 +23,6 @@ public final class LocalVisitor implements Visitor {
     public void visit(Program n) {
         n.m.accept(this);
         n.cl.forEach(c -> c.accept(this));
-
-        // after this visitor is done, we have completed static semantic
-        // analysis, so we dump the symbol tables!
-        symbolContext.dump();
     }
 
     @Override

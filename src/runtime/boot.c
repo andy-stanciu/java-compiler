@@ -37,6 +37,12 @@ void * mjcalloc(size_t num_bytes) {
   return (calloc(1, num_bytes));
 }
 
+/* Write array exception to standard output and exit with failure */
+void exception_array(int64_t x, int64_t s) {
+  printf("Array index %" PRId64 " out of bounds for array with length %" PRId64 "\n", x, s);
+  exit(1);
+}
+
 /* Execute compiled program asm_main */
 int main() {
   asm_main();
