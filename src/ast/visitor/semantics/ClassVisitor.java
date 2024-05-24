@@ -2,6 +2,7 @@ package ast.visitor.semantics;
 
 import ast.*;
 import ast.visitor.Visitor;
+import codegen.Generator;
 import semantics.IllegalSemanticException;
 import semantics.Logger;
 import semantics.info.ClassInfo;
@@ -135,6 +136,13 @@ public final class ClassVisitor implements Visitor {
             // another parameter
             methodInfo.addArgument(f.type);
         });
+
+        // does the method have more than 5 parameters? If so, we don't allow
+        // this in MiniJava
+        if (methodInfo.argumentCount() > Generator.ARGUMENT_REGISTERS.length) {
+            logger.logError("Encountered %d arguments for method \"%s\" (too many!)%n",
+                    methodInfo.argumentCount(), n.i);
+        }
 
         n.vl.forEach(v -> v.accept(this));  // local variables
         symbolContext.exit();

@@ -1,0 +1,6 @@
+Part III of the MiniJava compiler project, the typechecker
+
+TOTAL: 58/60
+Late days used for this assignment: 0
+
+Missing error report: an overridden method in a subclass must have the same argument type list as the superclass’s method. (-2)
