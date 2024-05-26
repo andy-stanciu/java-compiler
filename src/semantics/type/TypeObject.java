@@ -33,10 +33,6 @@ public class TypeObject extends Type {
     @Override
     public boolean equals(Type other) {
         if (other instanceof TypeObject obj) {
-            if (base.isMain() || obj.base.isMain()) {
-                return false;
-            }
-
             return base == obj.base;
         }
 

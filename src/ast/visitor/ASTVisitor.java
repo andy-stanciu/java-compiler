@@ -196,25 +196,154 @@ public final class ASTVisitor implements Visitor {
     }
 
     @Override
-    public void visit(Assign n) {
+    public void visit(AssignSimple n) {
         indenter.print();
         System.out.print("Assign ");
-        n.i.accept(this);
+        n.a.accept(this);
         System.out.print(" <- ");
         n.e.accept(this);
         System.out.printf(" (line %d)", n.line_number);
     }
 
     @Override
-    public void visit(ArrayAssign n) {
+    public void visit(AssignPlus n) {
         indenter.print();
-        System.out.print("ArrayAssign ");
-        n.i.accept(this);
-        System.out.print("[");
-        n.e1.accept(this);
-        System.out.print("]");
+        System.out.print("AssignPlus ");
+        n.a.accept(this);
         System.out.print(" <- ");
-        n.e2.accept(this);
+        n.e.accept(this);
+        System.out.printf(" (line %d)", n.line_number);
+    }
+
+    @Override
+    public void visit(AssignMinus n) {
+        indenter.print();
+        System.out.print("AssignMinus ");
+        n.a.accept(this);
+        System.out.print(" <- ");
+        n.e.accept(this);
+        System.out.printf(" (line %d)", n.line_number);
+    }
+
+    @Override
+    public void visit(AssignTimes n) {
+        indenter.print();
+        System.out.print("AssignTimes ");
+        n.a.accept(this);
+        System.out.print(" <- ");
+        n.e.accept(this);
+        System.out.printf(" (line %d)", n.line_number);
+    }
+
+    @Override
+    public void visit(AssignDivide n) {
+        indenter.print();
+        System.out.print("AssignDivide ");
+        n.a.accept(this);
+        System.out.print(" <- ");
+        n.e.accept(this);
+        System.out.printf(" (line %d)", n.line_number);
+    }
+
+    @Override
+    public void visit(AssignMod n) {
+        indenter.print();
+        System.out.print("AssignMod ");
+        n.a.accept(this);
+        System.out.print(" <- ");
+        n.e.accept(this);
+        System.out.printf(" (line %d)", n.line_number);
+    }
+
+    @Override
+    public void visit(AssignAnd n) {
+        indenter.print();
+        System.out.print("AssignAnd ");
+        n.a.accept(this);
+        System.out.print(" <- ");
+        n.e.accept(this);
+        System.out.printf(" (line %d)", n.line_number);
+    }
+
+    @Override
+    public void visit(AssignOr n) {
+        indenter.print();
+        System.out.print("AssignOr ");
+        n.a.accept(this);
+        System.out.print(" <- ");
+        n.e.accept(this);
+        System.out.printf(" (line %d)", n.line_number);
+    }
+
+    @Override
+    public void visit(AssignXor n) {
+        indenter.print();
+        System.out.print("AssignXor ");
+        n.a.accept(this);
+        System.out.print(" <- ");
+        n.e.accept(this);
+        System.out.printf(" (line %d)", n.line_number);
+    }
+
+    @Override
+    public void visit(AssignLeftShift n) {
+        indenter.print();
+        System.out.print("AssignLeftShift ");
+        n.a.accept(this);
+        System.out.print(" <- ");
+        n.e.accept(this);
+        System.out.printf(" (line %d)", n.line_number);
+    }
+
+    @Override
+    public void visit(AssignRightShift n) {
+        indenter.print();
+        System.out.print("AssignRightShift ");
+        n.a.accept(this);
+        System.out.print(" <- ");
+        n.e.accept(this);
+        System.out.printf(" (line %d)", n.line_number);
+    }
+
+    @Override
+    public void visit(AssignUnsignedRightShift n) {
+        indenter.print();
+        System.out.print("AssignUnsignedRightShift ");
+        n.a.accept(this);
+        System.out.print(" <- ");
+        n.e.accept(this);
+        System.out.printf(" (line %d)", n.line_number);
+    }
+
+    @Override
+    public void visit(PostIncrement n) {
+        indenter.print();
+        System.out.print("PostIncrement ");
+        n.a.accept(this);
+        System.out.printf(" (line %d)", n.line_number);
+    }
+
+    @Override
+    public void visit(PreIncrement n) {
+        indenter.print();
+        System.out.print("PreIncrement ");
+        n.a.accept(this);
+        System.out.printf(" (line %d)", n.line_number);
+    }
+
+    @Override
+    public void visit(PostDecrement n) {
+        indenter.print();
+        System.out.print("PostDecrement ");
+        n.a.accept(this);
+        System.out.printf(" (line %d)", n.line_number);
+    }
+
+    @Override
+    public void visit(PreDecrement n) {
+        indenter.print();
+        System.out.print("PreDecrement ");
+        n.a.accept(this);
         System.out.printf(" (line %d)", n.line_number);
     }
 
@@ -228,8 +357,89 @@ public final class ASTVisitor implements Visitor {
     }
 
     @Override
+    public void visit(Or n) {
+        System.out.print("Or (");
+        n.e1.accept(this);
+        System.out.print(", ");
+        n.e2.accept(this);
+        System.out.print(")");
+    }
+
+    @Override
+    public void visit(Equal n) {
+        System.out.print("Equal (");
+        n.e1.accept(this);
+        System.out.print(", ");
+        n.e2.accept(this);
+        System.out.print(")");
+    }
+
+    @Override
+    public void visit(NotEqual n) {
+        System.out.print("NotEqual (");
+        n.e1.accept(this);
+        System.out.print(", ");
+        n.e2.accept(this);
+        System.out.print(")");
+    }
+
+    @Override
     public void visit(LessThan n) {
         System.out.print("LessThan (");
+        n.e1.accept(this);
+        System.out.print(", ");
+        n.e2.accept(this);
+        System.out.print(")");
+    }
+
+    @Override
+    public void visit(LessThanOrEqual n) {
+        System.out.print("LessThanOrEqual (");
+        n.e1.accept(this);
+        System.out.print(", ");
+        n.e2.accept(this);
+        System.out.print(")");
+    }
+
+    @Override
+    public void visit(GreaterThan n) {
+        System.out.print("GreaterThan (");
+        n.e1.accept(this);
+        System.out.print(", ");
+        n.e2.accept(this);
+        System.out.print(")");
+    }
+
+    @Override
+    public void visit(GreaterThanOrEqual n) {
+        System.out.print("GreaterThanOrEqual (");
+        n.e1.accept(this);
+        System.out.print(", ");
+        n.e2.accept(this);
+        System.out.print(")");
+    }
+
+    @Override
+    public void visit(BitwiseAnd n) {
+        System.out.print("BitwiseAnd (");
+        n.e1.accept(this);
+        System.out.print(", ");
+        n.e2.accept(this);
+        System.out.print(")");
+    }
+
+    @Override
+    public void visit(BitwiseOr n) {
+        System.out.print("BitwiseOr (");
+        n.e1.accept(this);
+        System.out.print(", ");
+        n.e2.accept(this);
+        System.out.print(")");
+    }
+
+    @Override
+    public void visit(BitwiseXor n) {
+        System.out.print("BitwiseXor (");
         n.e1.accept(this);
         System.out.print(", ");
         n.e2.accept(this);
@@ -264,6 +474,51 @@ public final class ASTVisitor implements Visitor {
     }
 
     @Override
+    public void visit(Divide n) {
+        System.out.print("(");
+        n.e1.accept(this);
+        System.out.print(" / ");
+        n.e2.accept(this);
+        System.out.print(")");
+    }
+
+    @Override
+    public void visit(Mod n) {
+        System.out.print("(");
+        n.e1.accept(this);
+        System.out.print(" % ");
+        n.e2.accept(this);
+        System.out.print(")");
+    }
+
+    @Override
+    public void visit(LeftShift n) {
+        System.out.print("(");
+        n.e1.accept(this);
+        System.out.print(" << ");
+        n.e2.accept(this);
+        System.out.print(")");
+    }
+
+    @Override
+    public void visit(RightShift n) {
+        System.out.print("(");
+        n.e1.accept(this);
+        System.out.print(" >> ");
+        n.e2.accept(this);
+        System.out.print(")");
+    }
+
+    @Override
+    public void visit(UnsignedRightShift n) {
+        System.out.print("(");
+        n.e1.accept(this);
+        System.out.print(" >>> ");
+        n.e2.accept(this);
+        System.out.print(")");
+    }
+
+    @Override
     public void visit(ArrayLookup n) {
         System.out.print("ArrayLookup ");
         n.e1.accept(this);
@@ -292,6 +547,35 @@ public final class ASTVisitor implements Visitor {
             }
         }
         System.out.print("))");
+    }
+
+    @Override
+    public void visit(Field n) {
+        System.out.print("(");
+        n.e.accept(this);
+        System.out.print(".");
+        n.i.accept(this);
+        System.out.print(")");
+    }
+
+    @Override
+    public void visit(Ternary n) {
+        System.out.print("(");
+        n.c.accept(this);
+        System.out.print(" ? ");
+        n.e1.accept(this);
+        System.out.print(" : ");
+        n.e2.accept(this);
+        System.out.print(")");
+    }
+
+    @Override
+    public void visit(InstanceOf n) {
+        System.out.print("(");
+        n.e.accept(this);
+        System.out.print(" instanceof ");
+        n.i.accept(this);
+        System.out.print(")");
     }
 
     @Override
@@ -336,6 +620,12 @@ public final class ASTVisitor implements Visitor {
     @Override
     public void visit(Not n) {
         System.out.print("Not ");
+        n.e.accept(this);
+    }
+
+    @Override
+    public void visit(BitwiseNot n) {
+        System.out.print("BitwiseNot ");
         n.e.accept(this);
     }
 

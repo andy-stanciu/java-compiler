@@ -37,9 +37,18 @@ void * mjcalloc(size_t num_bytes) {
   return (calloc(1, num_bytes));
 }
 
-/* Write array exception to standard output and exit with failure */
-void exception_array(int64_t x, int64_t s) {
-  printf("Array index %" PRId64 " out of bounds for array with length %" PRId64 "\n", x, s);
+/* Write array exception to standard error and exit with failure */
+void exception_array(int64_t x, int64_t s, int64_t l) {
+  fprintf(stderr,
+          "Error on line %" PRId64 ": Array index %" PRId64
+          " out of bounds for array with length %" PRId64 "\n",
+          l, x, s);
+  exit(1);
+}
+
+/* Write division exception to standard error and exit with failure */
+void exception_division(int64_t l) {
+  fprintf(stderr, "Error on line %" PRId64 ": Division by zero\n", l);
   exit(1);
 }
 

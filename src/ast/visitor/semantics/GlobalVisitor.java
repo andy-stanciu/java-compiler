@@ -94,12 +94,82 @@ public final class GlobalVisitor implements Visitor {
     }
 
     @Override
-    public void visit(Assign n) {
+    public void visit(AssignSimple n) {
         throw new IllegalStateException();
     }
 
     @Override
-    public void visit(ArrayAssign n) {
+    public void visit(AssignPlus n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(AssignMinus n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(AssignTimes n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(AssignDivide n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(AssignMod n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(AssignAnd n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(AssignOr n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(AssignXor n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(AssignLeftShift n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(AssignRightShift n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(AssignUnsignedRightShift n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(PostIncrement n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(PreIncrement n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(PostDecrement n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(PreDecrement n) {
         throw new IllegalStateException();
     }
 
@@ -109,7 +179,52 @@ public final class GlobalVisitor implements Visitor {
     }
 
     @Override
+    public void visit(Or n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(Equal n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(NotEqual n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
     public void visit(LessThan n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(LessThanOrEqual n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(GreaterThan n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(GreaterThanOrEqual n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(BitwiseAnd n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(BitwiseOr n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(BitwiseXor n) {
         throw new IllegalStateException();
     }
 
@@ -129,6 +244,31 @@ public final class GlobalVisitor implements Visitor {
     }
 
     @Override
+    public void visit(Divide n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(Mod n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(LeftShift n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(RightShift n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(UnsignedRightShift n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
     public void visit(ArrayLookup n) {
         throw new IllegalStateException();
     }
@@ -140,6 +280,21 @@ public final class GlobalVisitor implements Visitor {
 
     @Override
     public void visit(Call n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(Field n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(Ternary n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(InstanceOf n) {
         throw new IllegalStateException();
     }
 
@@ -180,6 +335,11 @@ public final class GlobalVisitor implements Visitor {
 
     @Override
     public void visit(Not n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(BitwiseNot n) {
         throw new IllegalStateException();
     }
 

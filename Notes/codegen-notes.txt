@@ -1,5 +1,14 @@
 Extra stuff:
-No extensions included in this phase of the project.
+A lot of extra stuff was included. These are discussed in significantly more detail
+in the project report, but at a high level, we added:
+- Better assignment: assignment to qualified identifiers, generalized assignment to
+  assign to any location that should be assignable really
+- All assignment operators: +=, -=, *=, /=, %=, &=, |=, ^=, <<=, >>=, >>>=
+- Post/pre increment/decrement operators: ++i, --i, i++, i--
+- The rest of the operators that exist in Java: /, %, &, |, ^, ~, <<, >>, >>>, <=, >, >=, ||, ==, !=
+- Field access, i.e. obj.obj2.obj3.a = 1; or a statement as simple as this.x = 1;
+- Instanceof operator
+- Ternary expressions
 
 Clever code generation strategies:
 Nothing too special. Stored the size of arrays in the first 8 bytes and used xor

@@ -41,6 +41,16 @@ public class TestSemantics {
     }
 
     @Test
+    public void testComplexAssign() {
+        runSemanticsSuccessTestCase("ComplexAssign");
+    }
+
+    @Test
+    public void testNewExpressions() {
+        runSemanticsSuccessTestCase("NewExpressions");
+    }
+
+    @Test
     public void testAllErrorsFail() {
         runSemanticsFailTestCase("AllErrorsFail");
     }

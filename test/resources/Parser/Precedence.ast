@@ -7,7 +7,7 @@ Program
       Assign a <- (a + (b.f())) (line 9)
       Assign c <- ((d.g()) * (ArrayLookup a[((4 * (f.h())) - 1)] + 1)) (line 10)
       Assign foo <- (((f.a()).b()).c()) (line 11)
-      ArrayAssign a[5] <- ArrayLookup a[(1 + (g.h()))] (line 12)
+      Assign ArrayLookup a[5] <- ArrayLookup a[(1 + (g.h()))] (line 12)
       Assign arr <- (((f.g()) + 1) + ArrayLength arr) (line 13)
       Assign x <- new int[((f.g()) * (a.c()))] (line 14)
       Assign y <- (new Bar().foo((1 - ArrayLookup a[2]))) (line 15)

@@ -157,7 +157,7 @@ Program
       While LessThan (j, size) (line 135)
         Assign aux01 <- (2 * j) (line 136)
         Assign aux02 <- (k - 3) (line 137)
-        ArrayAssign number[j] <- (aux01 + aux02) (line 138)
+        Assign ArrayLookup number[j] <- (aux01 + aux02) (line 138)
         Assign j <- (j + 1) (line 139)
         Assign k <- (k - 1) (line 140)
       Return 0 (line 142)

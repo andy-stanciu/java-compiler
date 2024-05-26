@@ -200,6 +200,24 @@ public final class SymbolContext {
     }
 
     /**
+     * Looks up an instance variable within the specified class.
+     * @param name The name of the instance variable.
+     * @param classInfo The class to perform the lookup within.
+     * @return Information associated with the instance variable, or null if
+     *         the class does not define the instance variable.
+     */
+    public VariableInfo lookupInstanceVariable(String name, ClassInfo classInfo) {
+        if (name == null) return null;
+
+        var result = classInfo.getTable().lookup(name, false);
+        if (result instanceof VariableInfo variableInfo) {
+            return variableInfo;
+        }
+
+        return null;
+    }
+
+    /**
      * Looks up a variable within the current scope. If not found,
      * recursively searches the parent scopes until it is found or
      * the global scope is reached.

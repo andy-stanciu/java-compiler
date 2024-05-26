@@ -1,4 +1,5 @@
 package semantics.type;
+
 public class TypeIntArray extends Type {
     private static final TypeIntArray instance = new TypeIntArray();
 
