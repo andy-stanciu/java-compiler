@@ -29,9 +29,8 @@ public final class Generator {
     }
 
     public void genUnary(String op, String arg, String comment) {
-        indent();
         String instruction = String.format("%s%s%s", op, getTab(op), arg);
-        genInstruction(instruction, comment);
+        gen(instruction, comment);
     }
 
     public void genBinary(String op, String src, String dst) {
@@ -39,9 +38,8 @@ public final class Generator {
     }
 
     public void genBinary(String op, String src, String dst, String comment) {
-        indent();
         String instruction = String.format("%s%s%s,%s", op, getTab(op), src, dst);
-        genInstruction(instruction, comment);
+        gen(instruction, comment);
     }
 
     public void genCall(String label) {
@@ -152,12 +150,17 @@ public final class Generator {
         return ret;
     }
 
-    private void genInstruction(String instruction, String comment) {
+    public void gen(String instruction, String comment) {
+        indent();
         if (COMMENTS_ENABLED && !comment.isBlank()) {
             System.out.printf("%s%s# %s%n", instruction, getCommentTab(instruction), comment);
         } else {
             System.out.printf("%s%n", instruction);
         }
+    }
+
+    public void gen(String instruction) {
+        gen(instruction, "");
     }
 
     private void indent() {

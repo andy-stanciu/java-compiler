@@ -259,20 +259,17 @@ public final class LocalVisitor implements Visitor {
 
     @Override
     public void visit(BitwiseAnd n) {
-        visitBinaryExpEqualTypes(n, "&", TypeInt.getInstance(),
-                TypeInt.getInstance(), TypeBoolean.getInstance());
+        visitBinaryExpAllEqualTypes(n, "&", TypeInt.getInstance(), TypeBoolean.getInstance());
     }
 
     @Override
     public void visit(BitwiseOr n) {
-        visitBinaryExpEqualTypes(n, "|", TypeInt.getInstance(),
-                TypeInt.getInstance(), TypeBoolean.getInstance());
+        visitBinaryExpAllEqualTypes(n, "|", TypeInt.getInstance(), TypeBoolean.getInstance());
     }
 
     @Override
     public void visit(BitwiseXor n) {
-        visitBinaryExpEqualTypes(n, "^", TypeInt.getInstance(),
-                TypeInt.getInstance(), TypeBoolean.getInstance());
+        visitBinaryExpAllEqualTypes(n, "^", TypeInt.getInstance(), TypeBoolean.getInstance());
     }
 
     @Override
@@ -528,8 +525,7 @@ public final class LocalVisitor implements Visitor {
     @Override
     public void visit(BitwiseNot n) {
         n.e.accept(this);  // int expression
-        if (!n.e.type.isAssignableTo(TypeInt.getInstance()) &&
-                !n.e.type.isAssignableTo(TypeBoolean.getInstance())) {
+        if (!n.e.type.isAssignableTo(TypeInt.getInstance())) {
             logger.logError("Operator ~ cannot be applied to %s%n", n.e.type);
         }
 
@@ -603,7 +599,7 @@ public final class LocalVisitor implements Visitor {
 
         boolean legal = false;
         for (var type : expected) {
-            if (n.e1.type.isAssignableTo(type) && n.e2.type.isAssignableTo(type)) {
+            if (n.e1.type.equals(type) && n.e2.type.equals(type)) {
                 legal = true;
                 break;
             }
@@ -618,12 +614,13 @@ public final class LocalVisitor implements Visitor {
     }
 
     /**
-     * Visits the specified binary expression that expected LHS and RHS types
+     * Visits the specified binary expression that expects LHS and RHS types
      * to be equal.
      * @param n The binary expression to visit.
      * @param sym The symbol associated with the binary expression.
      * @param result The result type of the binary expression.
-     * @param accepted The types to accept (optional).
+     * @param accepted The types to accept (optional). If a type is accepted,
+     *                 both the LHS and RHS must have that type.
      */
     private void visitBinaryExpEqualTypes(BinaryExp n, String sym, Type result, Type... accepted) {
         n.e1.accept(this);
@@ -632,21 +629,57 @@ public final class LocalVisitor implements Visitor {
         if (!n.e1.type.equals(n.e2.type)) {
             logger.logError("Operator %s cannot be applied to %s, %s%n",
                     sym, n.e1.type, n.e2.type);
+        } else {
+            if (accepted != null && accepted.length > 0) {
+                boolean legal = false;
+                for (var type : accepted) {
+                    if (n.e1.type.equals(type)) {
+                        legal = true;
+                    }
+                }
+
+                if (!legal) {
+                    logger.logError("Operator %s cannot be applied to %s, %s%n",
+                            sym, n.e1.type, n.e2.type);
+                }
+            }
         }
 
-        if (accepted != null && accepted.length > 0) {
+        n.type = result;
+    }
+
+    /**
+     * Visits the specified binary expression that expects LHS and RHS types
+     * to be equal, setting the result type to the same type.
+     * @param n The binary expression to visit.
+     * @param sym The symbol associated with the binary expression.
+     * @param accepted The types to accept. If a type is accepted,
+     *                 both the LHS and RHS must have that type and the result
+     *                 becomes that type.
+     */
+    private void visitBinaryExpAllEqualTypes(BinaryExp n, String sym, Type... accepted) {
+        if (accepted == null) {
+            throw new IllegalStateException();
+        }
+
+        n.e1.accept(this);
+        n.e2.accept(this);
+
+        if (!n.e1.type.equals(n.e2.type)) {
+            logger.logError("Operator %s cannot be applied to %s, %s%n",
+                    sym, n.e1.type, n.e2.type);
+        } else {
             for (var type : accepted) {
                 if (n.e1.type.equals(type)) {
-                    n.type = result;
+                    n.type = type;
                     return;
                 }
             }
 
             logger.logError("Operator %s cannot be applied to %s, %s%n",
                     sym, n.e1.type, n.e2.type);
-            n.type = TypeUndefined.getInstance();
-        } else {
-            n.type = result;
         }
+
+        n.type = TypeUndefined.getInstance();
     }
 }
