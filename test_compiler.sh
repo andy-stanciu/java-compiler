@@ -10,7 +10,7 @@
 # Remember to modify these constants!
 PATH_TO_JAVA_FILES="test/resources/Codegen/src" # relative path to the directory containing java test files
 ATTU="andys22@attu.cs.washington.edu"           # attu connection string
-ATTU_PATH="~/401/codegen"                       # path to directory on attu containing boot.c and test_attu.sh
+ATTU_PATH="~/java-compiler"                     # path to directory on attu containing boot.c and test_attu.sh
 ##############################################################################################################
 
 echo "Compiling Java programs..."
