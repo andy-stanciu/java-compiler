@@ -6,9 +6,9 @@ for file in ./test/resources/Scanner/*.java; do
   echo "Generating tests for ${file%.*}.java..."
   if [[ $file != *"Broken"* ]];
   then
-    java -cp "build/classes;lib/*" MiniJava -S "$file" > "${file%.*}.expected"
+    java -cp "build/classes;lib/*" Java -S "$file" > "${file%.*}.expected"
   else
-    java -cp "build/classes;lib/*" MiniJava -S "$file" > "${file%.*}.expected" 2> "${file%.*}.err"
+    java -cp "build/classes;lib/*" Java -S "$file" > "${file%.*}.expected" 2> "${file%.*}.err"
   fi
 done
 exit 0

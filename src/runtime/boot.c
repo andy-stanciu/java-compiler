@@ -1,17 +1,3 @@
-/*
- *  boot.c: Main program for CSE minijava compiled code
- *          Ruth Anderson & Hal Perkins
- *
- *  Modified 11/11, 2/15 for 64-bit code
- *
- *  Contents:
- *    Main program that calls the compiled code as a function
- *    Function put that can be used by compiled code for integer output
- *    Function mjcalloc to allocate zeroed bytes for minijava's new operator
- *
- *  Additional functions used by compiled code can be added as desired.
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>

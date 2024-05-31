@@ -13,17 +13,17 @@ ATTU="andys22@attu.cs.washington.edu"           # attu connection string
 ATTU_PATH="~/401/codegen"                       # path to directory on attu containing boot.c and test_attu.sh
 ##############################################################################################################
 
-echo "Compiling MiniJava programs..."
+echo "Compiling Java programs..."
 echo ""
 mkdir -p "../${PATH_TO_JAVA_FILES}/out"
 for file in ${PATH_TO_JAVA_FILES}/*.java; do
   filename=$(basename "$file")
   echo "${filename} -> ${filename%.*}.S"
-  java -cp "build/classes;lib/*" MiniJava "$file" > "../${PATH_TO_JAVA_FILES}/out/${filename%.*}.S"
+  java -cp "build/classes;lib/*" Java "$file" > "../${PATH_TO_JAVA_FILES}/out/${filename%.*}.S"
 done
 
 echo ""
-echo "Sending MiniJava programs to attu..."
+echo "Sending Java programs to attu..."
 echo ""
 scp -r "../${PATH_TO_JAVA_FILES}/out" "${ATTU}:${ATTU_PATH}"
 

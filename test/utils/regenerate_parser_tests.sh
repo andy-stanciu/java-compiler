@@ -6,9 +6,9 @@ for file in ./test/resources/Parser/*.java; do
   if [[ $file != *"Broken"* ]];
   then
     echo "Generating ${file%.*}.ast..."
-    java -cp "build/classes;lib/*" MiniJava -A "$file" > "${file%.*}.ast"
+    java -cp "build/classes;lib/*" Java -A "$file" > "${file%.*}.ast"
     echo "Generating ${file%.*}.pretty..."
-    java -cp "build/classes;lib/*" MiniJava -P "$file" > "${file%.*}.pretty"
+    java -cp "build/classes;lib/*" Java -P "$file" > "${file%.*}.pretty"
   fi
 done
 exit 0

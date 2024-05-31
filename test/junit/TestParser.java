@@ -12,13 +12,13 @@ public class TestParser {
 
     private void runParserSuccessTestCase(String name) {
         try {
-            new MiniJavaTestBuilder()
+            new JavaTestBuilder()
                     .assertSystemOutMatchesContentsOf(
                             Path.of(TEST_FILES_LOCATION, name + TEST_FILES_AST_EXTENSION))
                     .assertSystemErrIsEmpty()
                     .assertExitSuccess()
                     .testCompiler("-A", TEST_FILES_LOCATION + name + TEST_FILES_INPUT_EXTENSION);
-            new MiniJavaTestBuilder()
+            new JavaTestBuilder()
                     .assertSystemOutMatchesContentsOf(
                             Path.of(TEST_FILES_LOCATION, name + TEST_FILES_PRETTY_EXTENSION))
                     .assertSystemErrIsEmpty()
@@ -30,7 +30,7 @@ public class TestParser {
     }
 
     private void runParserFailTestCase(String name) {
-        new MiniJavaTestBuilder()
+        new JavaTestBuilder()
                 .assertExitFailure()
                 .testCompiler("-A", TEST_FILES_LOCATION + name + TEST_FILES_INPUT_EXTENSION);
     }

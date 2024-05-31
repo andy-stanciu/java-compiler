@@ -6,9 +6,9 @@ for file in ./test/resources/Semantics/*.java; do
   echo "Generating tests for ${file%.*}.java..."
   if [[ $file != *"Fail"* ]];
   then
-    java -cp "build/classes;lib/*" MiniJava -T "$file" > "${file%.*}.tbl"
+    java -cp "build/classes;lib/*" Java -T "$file" > "${file%.*}.tbl"
   else
-    java -cp "build/classes;lib/*" MiniJava -T "$file" > "${file%.*}.tbl" 2> "${file%.*}.err"
+    java -cp "build/classes;lib/*" Java -T "$file" > "${file%.*}.tbl" 2> "${file%.*}.err"
   fi
 done
 exit 0

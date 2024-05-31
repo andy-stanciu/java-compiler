@@ -1,1 +1,0 @@
-The work for the scanner was done synchronously in person. We both discussed the regex for comments, implemented the MiniJava driver, and wrote tests together. We traded off on typing/discussing every once in a while. The work ended up being a pretty even split, and we believe that we can continue to work in this manner on future project phases.

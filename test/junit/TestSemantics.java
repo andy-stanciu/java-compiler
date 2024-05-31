@@ -12,7 +12,7 @@ public class TestSemantics {
 
     private void runSemanticsSuccessTestCase(String name) {
         try {
-            new MiniJavaTestBuilder()
+            new JavaTestBuilder()
                     .assertSystemOutMatchesContentsOf(
                             Path.of(TEST_FILES_LOCATION, name + TEST_FILES_TABLE_EXTENSION))
                     .assertSystemErrIsEmpty()
@@ -25,12 +25,12 @@ public class TestSemantics {
 
     private void runSemanticsFailTestCase(String name) {
         try {
-            new MiniJavaTestBuilder()
+            new JavaTestBuilder()
                     .assertSystemOutMatchesContentsOf(
                             Path.of(TEST_FILES_LOCATION, name + TEST_FILES_TABLE_EXTENSION))
                     .assertExitFailure()
                     .testCompiler("-T", TEST_FILES_LOCATION + name + TEST_FILES_INPUT_EXTENSION);
-            new MiniJavaTestBuilder()
+            new JavaTestBuilder()
                     .assertSystemErrMatchesContentsOf(
                             Path.of(TEST_FILES_LOCATION, name + TEST_FILES_ERROR_EXTENSION))
                     .assertExitFailure()

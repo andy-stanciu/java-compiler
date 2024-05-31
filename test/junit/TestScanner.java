@@ -12,7 +12,7 @@ public class TestScanner {
 
     private void runScannerSuccessTestCase(String name) {
         try {
-            new MiniJavaTestBuilder()
+            new JavaTestBuilder()
                     .assertSystemOutMatchesContentsOf(
                             Path.of(TEST_FILES_LOCATION, name + TEST_FILES_EXPECTED_EXTENSION))
                     .assertSystemErrIsEmpty()
@@ -25,7 +25,7 @@ public class TestScanner {
 
     private void runScannerFailTestCase(String name) {
         try {
-            new MiniJavaTestBuilder()
+            new JavaTestBuilder()
                     .assertSystemOutMatchesContentsOf(
                             Path.of(TEST_FILES_LOCATION, name + TEST_FILES_EXPECTED_EXTENSION))
                     .assertSystemErrMatchesContentsOf(

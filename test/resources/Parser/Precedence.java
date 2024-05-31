@@ -29,7 +29,7 @@ class Test {
         c = w && x && y && z; // left
         d = 1 < 2 < 3 < 4 < 5;  // left
         e = 1 * 2 * 3 * 4 * 5;  // left
-        x = y;  // right, but doesn't really matter since we can't chain equals in minijava grammar
+        x = y;
 
         return 0;
     }

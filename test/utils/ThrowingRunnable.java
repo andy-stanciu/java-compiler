@@ -1,5 +1,5 @@
 /**
- * A potentially throwing piece of code to be passed to {@code CSE401TestUtils}
+ * A potentially throwing piece of code to be passed to {@code TestUtils}
  * testing utility methods.
  * <p><br>
  * To pass your code to the utility methods, you can wrap your code like this
