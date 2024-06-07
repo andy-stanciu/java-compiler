@@ -1,0 +1,2 @@
+ERROR @ ForFail.java:22: For loop condition provided int
+Static semantic analysis found 1 error(s), 0 warning(s)

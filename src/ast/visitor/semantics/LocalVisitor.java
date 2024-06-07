@@ -72,6 +72,11 @@ public final class LocalVisitor implements Visitor {
                     n.i.s, n.type, n.r.getReturnableType());
         }
 
+        // if returning void, then the return expression MUST be a no-op
+        if (n.type.equals(TypeVoid.getInstance()) && !(n.r instanceof NoOpExp)) {
+            logger.logError("Cannot return a value from a method with void result type%n");
+        }
+
         symbolContext.exit();
     }
 
@@ -135,8 +140,17 @@ public final class LocalVisitor implements Visitor {
 
     @Override
     public void visit(For n) {
-        // TODO: implement
-        throw new IllegalStateException();
+        n.s0.accept(this);  // initializer clause
+        n.e.accept(this);  // condition clause
+
+        if (!n.e.type.equals(TypeBoolean.getInstance()) &&
+                !n.e.type.equals(TypeVoid.getInstance())) {
+            // loop condition can either be boolean, or void (will loop indefinitely)
+            logger.logError("For loop condition provided %s%n", n.e.type);
+        }
+
+        n.s1.accept(this);  // incrementer clause
+        n.s2.accept(this);  // loop body statement(s)
     }
 
     @Override
@@ -549,15 +563,11 @@ public final class LocalVisitor implements Visitor {
     }
 
     @Override
-    public void visit(NoOp n) {
-        // TODO: implement
-        throw new IllegalStateException();
-    }
+    public void visit(NoOp n) {}
 
     @Override
     public void visit(NoOpExp n) {
-        // TODO: implement
-        throw new IllegalStateException();
+        n.type = TypeVoid.getInstance();
     }
 
     /**

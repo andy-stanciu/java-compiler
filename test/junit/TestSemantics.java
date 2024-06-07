@@ -139,4 +139,14 @@ public class TestSemantics {
     public void testTreeVisitor() {
         runSemanticsSuccessTestCase("TreeVisitor");
     }
+
+    @Test
+    public void testVoidFail() {
+        runSemanticsFailTestCase("VoidFail");
+    }
+
+    @Test
+    public void testForFail() {
+        runSemanticsFailTestCase("ForFail");
+    }
 }

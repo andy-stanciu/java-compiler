@@ -1,0 +1,5 @@
+ERROR @ VoidFail.java:15: Cannot return a value from a method with void result type
+ERROR @ VoidFail.java:21: Cannot assign void to int
+ERROR @ VoidFail.java:22: Cannot assign void to int
+ERROR @ VoidFail.java:23: Cannot return a value from a method with void result type
+Static semantic analysis found 4 error(s), 0 warning(s)

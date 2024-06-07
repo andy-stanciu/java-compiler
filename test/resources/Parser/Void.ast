@@ -1,0 +1,12 @@
+Program
+  MainClass Main (line 1)
+    Print (line 3)
+      2
+  Class Void (line 7)
+    MethodDecl test1 (line 8)
+      returns void
+      Return NoOpExp (line 9)
+    MethodDecl test2 (line 12)
+      returns void
+      Assign x <- (this.test1()) (line 13)
+      Return NoOpExp (line 14)
