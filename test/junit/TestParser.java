@@ -81,6 +81,11 @@ public class TestParser {
     }
 
     @Test
+    public void testFor() {
+        runParserSuccessTestCase("For");
+    }
+
+    @Test
     public void testLinearSearch() {
         runParserSuccessTestCase("LinearSearch");
     }
