@@ -31,6 +31,8 @@ public interface Visitor {
 
     void visit(While n);
 
+    void visit(For n);
+
     void visit(Print n);
 
     void visit(AssignSimple n);
@@ -133,4 +135,8 @@ public interface Visitor {
     void visit(BitwiseNot n);
 
     void visit(Identifier n);
+
+    void visit(NoOp n);
+
+    void visit(NoOpExp n);
 }

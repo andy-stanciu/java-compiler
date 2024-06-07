@@ -148,6 +148,12 @@ public final class CodeGenVisitor implements Visitor {
     }
 
     @Override
+    public void visit(For n) {
+        // TODO: implement
+        throw new IllegalStateException();
+    }
+
+    @Override
     public void visit(Print n) {
         n.e.accept(this);
         generator.genBinary("movq", "%rax", "%rdi");
@@ -779,6 +785,18 @@ public final class CodeGenVisitor implements Visitor {
         } else {
             generator.genBinary("leaq", v.getOffset() + "(%rbp)", "%rax");         // lea of var in frame
         }
+    }
+
+    @Override
+    public void visit(NoOp n) {
+        // TODO: implement
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(NoOpExp n) {
+        // TODO: implement
+        throw new IllegalStateException();
     }
 
     /**

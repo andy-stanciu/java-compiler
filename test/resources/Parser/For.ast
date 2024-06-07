@@ -1,0 +1,141 @@
+Program
+  MainClass Main (line 1)
+    Print (line 3)
+      0
+  Class For (line 7)
+    MethodDecl noOp1 (line 8)
+      returns int
+      NoOp
+      NoOp
+      NoOp
+      NoOp
+      NoOp
+      NoOp
+      NoOp
+      Return 0 (line 10)
+    MethodDecl noOp2 (line 13)
+      returns int
+      NoOp
+      Return 0 (line 15)
+    MethodDecl test (line 18)
+      returns int
+      For
+        initializer: 
+          Assign i <- 0 (line 19)
+        condition: 
+          LessThan (i, 10)
+        incrementer: 
+          PostIncrement i (line 19)
+        Print (line 20)
+          5
+      For
+        initializer: 
+          AssignPlus i <- 2 (line 23)
+        condition: 
+          GreaterThanOrEqual (i, 10)
+        incrementer: 
+          PreDecrement i (line 23)
+        Print (line 24)
+          5
+        Print (line 25)
+          2
+      For
+        initializer: 
+          Print (line 28)
+            1
+        condition: 
+          LessThan (i, 10)
+        incrementer: 
+          Print (line 28)
+            2
+        Print (line 29)
+          5
+      For
+        initializer: 
+          NoOp
+        condition: 
+          LessThan (i, 10)
+        incrementer: 
+          PostIncrement i (line 32)
+        Print (line 33)
+          0
+      For
+        initializer: 
+          NoOp
+        condition: 
+          NoOpExp
+        incrementer: 
+          PostIncrement i (line 36)
+        Print (line 37)
+          0
+      For
+        initializer: 
+          NoOp
+        condition: 
+          NoOpExp
+        incrementer: 
+          NoOp
+        Print (line 41)
+          0
+      For
+        initializer: 
+          Assign i <- 0 (line 44)
+        condition: 
+          LessThan (i, 10)
+        incrementer: 
+          PostIncrement i (line 44)
+        For
+          initializer: 
+            Assign j <- 0 (line 45)
+          condition: 
+            LessThan (j, 20)
+          incrementer: 
+            PostIncrement j (line 45)
+          For
+            initializer: 
+              Assign k <- 0 (line 46)
+            condition: 
+              LessThan (k, 30)
+            incrementer: 
+              PostIncrement k (line 46)
+            Print (line 47)
+              1
+            Print (line 48)
+              2
+            Print (line 49)
+              3
+          Print (line 51)
+            4
+        Print (line 53)
+          5
+      For
+        initializer: 
+          NoOp
+        condition: 
+          NoOpExp
+        incrementer: 
+          NoOp
+        Print (line 56)
+          0
+      For
+        initializer: 
+          NoOp
+        condition: 
+          LessThan (x, 5)
+        incrementer: 
+          NoOp
+        Print (line 57)
+          0
+      For
+        initializer: 
+          AssignDivide i <- 7 (line 58)
+        condition: 
+          GreaterThan (x, 3)
+        incrementer: 
+          PreDecrement a (line 58)
+        Print (line 58)
+          0
+      While true (line 59)
+        Print (line 59)
+          0
+      Return 0 (line 60)

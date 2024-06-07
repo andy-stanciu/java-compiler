@@ -46,6 +46,7 @@ public final class PrecedentTracker {
         precedenceTable.put(IdentifierExp.class, 500);      // identifier
         precedenceTable.put(IntegerLiteral.class, 500);     // int literal
         precedenceTable.put(This.class, 500);               // this
+        precedenceTable.put(NoOpExp.class, 500);            // no-op
     }
 
     public static PrecedentTracker create() {

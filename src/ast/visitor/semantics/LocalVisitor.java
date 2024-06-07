@@ -129,6 +129,12 @@ public final class LocalVisitor implements Visitor {
     }
 
     @Override
+    public void visit(For n) {
+        // TODO: implement
+        throw new IllegalStateException();
+    }
+
+    @Override
     public void visit(Print n) {
         n.e.accept(this);
         if (!n.e.type.isAssignableTo(TypeInt.getInstance())) {
@@ -534,6 +540,18 @@ public final class LocalVisitor implements Visitor {
 
     @Override
     public void visit(Identifier n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(NoOp n) {
+        // TODO: implement
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(NoOpExp n) {
+        // TODO: implement
         throw new IllegalStateException();
     }
 

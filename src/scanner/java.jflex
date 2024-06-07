@@ -112,6 +112,7 @@ white = {eol}|[ \t]
 "else" { return symbol(sym.ELSE); }
 "extends" { return symbol(sym.EXTENDS); }
 "false" { return symbol(sym.FALSE); }
+"for" { return symbol(sym.FOR); }
 "if" { return symbol(sym.IF); }
 "instanceof" { return symbol(sym.INSTANCEOF); }
 "int" { return symbol(sym.INT); }

@@ -4,7 +4,7 @@ import ast.visitor.Visitor;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 import semantics.Logger;
 
-public class Print extends Statement {
+public class Print extends StatementSimple {
     public Exp e;
 
     public Print(Exp ae, Location pos) {

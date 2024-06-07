@@ -1,9 +1,8 @@
 package ast;
 
-import ast.visitor.Visitor;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 
-public abstract class Assign extends Statement {
+public abstract class Assign extends StatementSimple {
     public Assignable a;
     public Exp e;
 
@@ -12,6 +11,4 @@ public abstract class Assign extends Statement {
         a = ai;
         e = ae;
     }
-
-    public abstract void accept(Visitor v);
 }

@@ -7,7 +7,7 @@ import java_cup.runtime.*;
 /* Terminals (lexical tokens returned by the scanner): */
 
 /* reserved words */
-terminal BOOLEAN, CLASS, ELSE, EXTENDS, FALSE, IF, INSTANCEOF, INT, LENGTH, MAIN,
+terminal BOOLEAN, CLASS, ELSE, EXTENDS, FALSE, FOR, IF, INSTANCEOF, INT, LENGTH, MAIN,
          NEW, PUBLIC, RETURN, STATIC, STRING, PRINT, THIS, TRUE, VOID, WHILE;
 
 /* operators */
@@ -40,6 +40,7 @@ nonterminal Formal Formal;
 nonterminal Type Type;
 nonterminal StatementList StatementList;
 nonterminal Statement Statement;
+nonterminal StatementSimple StatementSimple;
 nonterminal ExpList ExpressionList;
 nonterminal Exp Expression;
 nonterminal Assignable Assignable;
@@ -167,7 +168,11 @@ StatementList ::= Statement:s
                   {: sl.add(s);
                      RESULT = sl; :};
 
-Statement ::= LCURL:lc StatementList:sl RCURL
+Statement ::= SEMICOLON:x
+              {: RESULT = new NoOp(xxleft); :}
+          | StatementSimple:s SEMICOLON
+              {: RESULT = s; :}
+          | LCURL:lc StatementList:sl RCURL
               {: RESULT = new Block(sl, lcxleft); :}
           | LCURL:lc RCURL
               {: RESULT = new Block(new StatementList(lcxright), lcxleft); :}
@@ -175,40 +180,57 @@ Statement ::= LCURL:lc StatementList:sl RCURL
               {: RESULT = new If(e, s1, s2, ixleft); :}
           | WHILE:w LPAREN Expression:e RPAREN Statement:s
               {: RESULT = new While(e, s, wxleft); :}
-          | PRINT:p LPAREN Expression:e RPAREN SEMICOLON
-              {: RESULT = new Print(e, pxleft); :}
-          | Assignable:a ASSIGN Expression:e SEMICOLON
-              {: RESULT = new AssignSimple(a, e, axleft); :}
-          | Assignable:a ASSIGN_PLUS Expression:e SEMICOLON
-              {: RESULT = new AssignPlus(a, e, axleft); :}
-          | Assignable:a ASSIGN_MINUS Expression:e SEMICOLON
-              {: RESULT = new AssignMinus(a, e, axleft); :}
-          | Assignable:a ASSIGN_TIMES Expression:e SEMICOLON
-              {: RESULT = new AssignTimes(a, e, axleft); :}
-          | Assignable:a ASSIGN_DIV Expression:e SEMICOLON
-              {: RESULT = new AssignDivide(a, e, axleft); :}
-          | Assignable:a ASSIGN_MOD Expression:e SEMICOLON
-              {: RESULT = new AssignMod(a, e, axleft); :}
-          | Assignable:a ASSIGN_AND Expression:e SEMICOLON
-              {: RESULT = new AssignAnd(a, e, axleft); :}
-          | Assignable:a ASSIGN_OR Expression:e SEMICOLON
-              {: RESULT = new AssignOr(a, e, axleft); :}
-          | Assignable:a ASSIGN_XOR Expression:e SEMICOLON
-              {: RESULT = new AssignXor(a, e, axleft); :}
-          | Assignable:a ASSIGN_LSHIFT Expression:e SEMICOLON
-              {: RESULT = new AssignLeftShift(a, e, axleft); :}
-          | Assignable:a ASSIGN_RSHIFT Expression:e SEMICOLON
-              {: RESULT = new AssignRightShift(a, e, axleft); :}
-          | Assignable:a ASSIGN_URSHIFT Expression:e SEMICOLON
-              {: RESULT = new AssignUnsignedRightShift(a, e, axleft); :}
-          | Assignable:a INCREMENT SEMICOLON
-              {: RESULT = new PostIncrement(a, axleft); :}
-          | Assignable:a DECREMENT SEMICOLON
-              {: RESULT = new PostDecrement(a, axleft); :}
-          | INCREMENT:i Assignable:a SEMICOLON
-              {: RESULT = new PreIncrement(a, ixleft); :}
-          | DECREMENT:d Assignable:a SEMICOLON
-              {: RESULT = new PreDecrement(a, dxleft); :};
+          | FOR:f LPAREN StatementSimple:s0 SEMICOLON Expression:e SEMICOLON StatementSimple:s1 RPAREN Statement:s2
+              {: RESULT = new For(s0, e, s1, s2, fxleft); :}
+          | FOR:f LPAREN:l SEMICOLON Expression:e SEMICOLON StatementSimple:s1 RPAREN Statement:s2
+              {: RESULT = new For(new NoOp(lxright), e, s1, s2, fxleft); :}
+          | FOR:f LPAREN StatementSimple:s0 SEMICOLON:x SEMICOLON StatementSimple:s1 RPAREN Statement:s2
+              {: RESULT = new For(s0, new NoOpExp(xxright), s1, s2, fxleft); :}
+          | FOR:f LPAREN StatementSimple:s0 SEMICOLON Expression:e SEMICOLON:x RPAREN Statement:s2
+              {: RESULT = new For(s0, e, new NoOp(xxright), s2, fxleft); :}
+          | FOR:f LPAREN:l SEMICOLON:x SEMICOLON StatementSimple:s1 RPAREN Statement:s2
+              {: RESULT = new For(new NoOp(lxright), new NoOpExp(xxright), s1, s2, fxleft); :}
+          | FOR:f LPAREN:l SEMICOLON Expression:e SEMICOLON:x RPAREN Statement:s2
+              {: RESULT = new For(new NoOp(lxright), e, new NoOp(xxright), s2, fxleft); :}
+          | FOR:f LPAREN StatementSimple:s0 SEMICOLON:x SEMICOLON:y RPAREN Statement:s2
+              {: RESULT = new For(s0, new NoOpExp(xxright), new NoOp(yxright), s2, fxleft); :}
+          | FOR:f LPAREN:l SEMICOLON:x SEMICOLON:y RPAREN Statement:s2
+              {: RESULT = new For(new NoOp(lxright), new NoOpExp(xxright), new NoOp(yxright), s2, fxleft); :};
+
+StatementSimple ::= PRINT:p LPAREN Expression:e RPAREN
+                  {: RESULT = new Print(e, pxleft); :}
+              | Assignable:a ASSIGN Expression:e
+                  {: RESULT = new AssignSimple(a, e, axleft); :}
+              | Assignable:a ASSIGN_PLUS Expression:e
+                  {: RESULT = new AssignPlus(a, e, axleft); :}
+              | Assignable:a ASSIGN_MINUS Expression:e
+                  {: RESULT = new AssignMinus(a, e, axleft); :}
+              | Assignable:a ASSIGN_TIMES Expression:e
+                  {: RESULT = new AssignTimes(a, e, axleft); :}
+              | Assignable:a ASSIGN_DIV Expression:e
+                  {: RESULT = new AssignDivide(a, e, axleft); :}
+              | Assignable:a ASSIGN_MOD Expression:e
+                  {: RESULT = new AssignMod(a, e, axleft); :}
+              | Assignable:a ASSIGN_AND Expression:e
+                  {: RESULT = new AssignAnd(a, e, axleft); :}
+              | Assignable:a ASSIGN_OR Expression:e
+                  {: RESULT = new AssignOr(a, e, axleft); :}
+              | Assignable:a ASSIGN_XOR Expression:e
+                  {: RESULT = new AssignXor(a, e, axleft); :}
+              | Assignable:a ASSIGN_LSHIFT Expression:e
+                  {: RESULT = new AssignLeftShift(a, e, axleft); :}
+              | Assignable:a ASSIGN_RSHIFT Expression:e
+                  {: RESULT = new AssignRightShift(a, e, axleft); :}
+              | Assignable:a ASSIGN_URSHIFT Expression:e
+                  {: RESULT = new AssignUnsignedRightShift(a, e, axleft); :}
+              | Assignable:a INCREMENT
+                  {: RESULT = new PostIncrement(a, axleft); :}
+              | Assignable:a DECREMENT
+                  {: RESULT = new PostDecrement(a, axleft); :}
+              | INCREMENT:i Assignable:a
+                  {: RESULT = new PreIncrement(a, ixleft); :}
+              | DECREMENT:d Assignable:a
+                  {: RESULT = new PreDecrement(a, dxleft); :};
 
 Assignable ::= Expression:e1 LSQUARE Expression:e2 RSQUARE
                {: RESULT = new ArrayLookup(e1, e2, e1xleft); :}

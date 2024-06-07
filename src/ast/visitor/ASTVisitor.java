@@ -186,6 +186,36 @@ public final class ASTVisitor implements Visitor {
     }
 
     @Override
+    public void visit(For n) {
+        indenter.print();
+        System.out.println("For");
+        indenter.push();
+        indenter.print();
+        System.out.println("initializer: ");
+        indenter.push();
+        n.s0.accept(this);
+        indenter.pop();
+        System.out.println();
+        indenter.print();
+        System.out.println("condition: ");
+        indenter.push();
+        indenter.print();
+        n.e.accept(this);
+        indenter.pop();
+        System.out.println();
+        indenter.print();
+        System.out.println("incrementer: ");
+        indenter.push();
+        n.s1.accept(this);
+        indenter.pop();
+        System.out.println();
+        indenter.pop();
+        if (!(n.s2 instanceof Block)) indenter.push();
+        n.s2.accept(this);
+        if (!(n.s2 instanceof Block)) indenter.pop();
+    }
+
+    @Override
     public void visit(Print n) {
         indenter.print();
         System.out.printf("Print (line %d)%n", n.line_number);
@@ -632,5 +662,16 @@ public final class ASTVisitor implements Visitor {
     @Override
     public void visit(Identifier n) {
         System.out.print(n.s);
+    }
+
+    @Override
+    public void visit(NoOp n) {
+        indenter.print();
+        System.out.print("NoOp");
+    }
+
+    @Override
+    public void visit(NoOpExp n) {
+        System.out.print("NoOpExp");
     }
 }

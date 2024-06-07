@@ -1,16 +1,20 @@
 package ast.visitor;
 
 import ast.*;
+import ast.visitor.util.BlockContext;
+import ast.visitor.util.BlockType;
 import ast.visitor.util.Indenter;
 import ast.visitor.util.PrecedentTracker;
 
 public final class PrettyPrintVisitor implements Visitor {
     private final Indenter indenter;
     private final PrecedentTracker precedentTracker;
+    private final BlockContext blockContext;
 
     public PrettyPrintVisitor() {
         this.indenter = Indenter.create();
         this.precedentTracker = PrecedentTracker.create();
+        this.blockContext = BlockContext.create();
     }
 
     // MainClass m;
@@ -212,157 +216,206 @@ public final class PrettyPrintVisitor implements Visitor {
             indenter.print();
             System.out.print("}");
         } else {
+            System.out.println();
             indenter.push();
             n.s.accept(this);
             indenter.pop();
         }
     }
 
+    @Override
+    public void visit(For n) {
+        blockContext.push(BlockType.FOR);
+        indenter.print();
+        System.out.print("for (");
+        n.s0.accept(this);
+        System.out.print(";");
+        if (!(n.e instanceof NoOpExp)) System.out.print(" ");
+        n.e.accept(this);
+        System.out.print(";");
+        if (!(n.s1 instanceof NoOp)) System.out.print(" ");
+        n.s1.accept(this);
+        System.out.print(")");
+        blockContext.pop();
+        if (n.s2 instanceof Block) {
+            System.out.println(" {");
+            n.s2.accept(this);
+            System.out.println();
+            indenter.print();
+            System.out.print("}");
+        } else {
+            System.out.println();
+            indenter.push();
+            n.s2.accept(this);
+            indenter.pop();
+        }
+    }
+
     // Exp e;
     public void visit(Print n) {
-        indenter.print();
+        var context = blockContext.peek();
+        if (context != BlockType.FOR) indenter.print();
         System.out.print("System.out.println(");
         n.e.accept(this);
-        System.out.print(");");
+        System.out.print(")");
+        if (context != BlockType.FOR) System.out.print(";");
     }
 
     // Identifier i;
     // Exp e;
     public void visit(AssignSimple n) {
-        indenter.print();
+        var context = blockContext.peek();
+        if (context != BlockType.FOR) indenter.print();
         n.a.accept(this);
         System.out.print(" = ");
         n.e.accept(this);
-        System.out.print(";");
+        if (context != BlockType.FOR) System.out.print(";");
     }
 
     @Override
     public void visit(AssignPlus n) {
-        indenter.print();
+        var context = blockContext.peek();
+        if (context != BlockType.FOR) indenter.print();
         n.a.accept(this);
         System.out.print(" += ");
         n.e.accept(this);
-        System.out.print(";");
+        if (context != BlockType.FOR) System.out.print(";");
     }
 
     @Override
     public void visit(AssignMinus n) {
-        indenter.print();
+        var context = blockContext.peek();
+        if (context != BlockType.FOR) indenter.print();
         n.a.accept(this);
         System.out.print(" -= ");
         n.e.accept(this);
-        System.out.print(";");
+        if (context != BlockType.FOR) System.out.print(";");
     }
 
     @Override
     public void visit(AssignTimes n) {
-        indenter.print();
+        var context = blockContext.peek();
+        if (context != BlockType.FOR) indenter.print();
         n.a.accept(this);
         System.out.print(" *= ");
         n.e.accept(this);
-        System.out.print(";");
+        if (context != BlockType.FOR) System.out.print(";");
     }
 
     @Override
     public void visit(AssignDivide n) {
-        indenter.print();
+        var context = blockContext.peek();
+        if (context != BlockType.FOR) indenter.print();
         n.a.accept(this);
         System.out.print(" /= ");
         n.e.accept(this);
-        System.out.print(";");
+        if (context != BlockType.FOR) System.out.print(";");
     }
 
     @Override
     public void visit(AssignMod n) {
-        indenter.print();
+        var context = blockContext.peek();
+        if (context != BlockType.FOR) indenter.print();
         n.a.accept(this);
         System.out.print(" %= ");
         n.e.accept(this);
-        System.out.print(";");
+        if (context != BlockType.FOR) System.out.print(";");
     }
 
     @Override
     public void visit(AssignAnd n) {
-        indenter.print();
+        var context = blockContext.peek();
+        if (context != BlockType.FOR) indenter.print();
         n.a.accept(this);
         System.out.print(" &= ");
         n.e.accept(this);
-        System.out.print(";");
+        if (context != BlockType.FOR) System.out.print(";");
     }
 
     @Override
     public void visit(AssignOr n) {
-        indenter.print();
+        var context = blockContext.peek();
+        if (context != BlockType.FOR) indenter.print();
         n.a.accept(this);
         System.out.print(" |= ");
         n.e.accept(this);
-        System.out.print(";");
+        if (context != BlockType.FOR) System.out.print(";");
     }
 
     @Override
     public void visit(AssignXor n) {
-        indenter.print();
+        var context = blockContext.peek();
+        if (context != BlockType.FOR) indenter.print();
         n.a.accept(this);
         System.out.print(" ^= ");
         n.e.accept(this);
-        System.out.print(";");
+        if (context != BlockType.FOR) System.out.print(";");
     }
 
     @Override
     public void visit(AssignLeftShift n) {
-        indenter.print();
+        var context = blockContext.peek();
+        if (context != BlockType.FOR) indenter.print();
         n.a.accept(this);
         System.out.print(" <<= ");
         n.e.accept(this);
-        System.out.print(";");
+        if (context != BlockType.FOR) System.out.print(";");
     }
 
     @Override
     public void visit(AssignRightShift n) {
-        indenter.print();
+        var context = blockContext.peek();
+        if (context != BlockType.FOR) indenter.print();
         n.a.accept(this);
         System.out.print(" >>= ");
         n.e.accept(this);
-        System.out.print(";");
+        if (context != BlockType.FOR) System.out.print(";");
     }
 
     @Override
     public void visit(AssignUnsignedRightShift n) {
-        indenter.print();
+        var context = blockContext.peek();
+        if (context != BlockType.FOR) indenter.print();
         n.a.accept(this);
         System.out.print(" >>>= ");
         n.e.accept(this);
-        System.out.print(";");
+        if (context != BlockType.FOR) System.out.print(";");
     }
 
     @Override
     public void visit(PostIncrement n) {
-        indenter.print();
+        var context = blockContext.peek();
+        if (context != BlockType.FOR) indenter.print();
         n.a.accept(this);
-        System.out.print("++;");
+        System.out.print("++");
+        if (context != BlockType.FOR) System.out.print(";");
     }
 
     @Override
     public void visit(PreIncrement n) {
-        indenter.print();
+        var context = blockContext.peek();
+        if (context != BlockType.FOR) indenter.print();
         System.out.print("++");
         n.a.accept(this);
-        System.out.print(";");
+        if (context != BlockType.FOR) System.out.print(";");
     }
 
     @Override
     public void visit(PostDecrement n) {
-        indenter.print();
+        var context = blockContext.peek();
+        if (context != BlockType.FOR) indenter.print();
         n.a.accept(this);
-        System.out.print("--;");
+        System.out.print("--");
+        if (context != BlockType.FOR) System.out.print(";");
     }
 
     @Override
     public void visit(PreDecrement n) {
-        indenter.print();
+        var context = blockContext.peek();
+        if (context != BlockType.FOR) indenter.print();
         System.out.print("--");
         n.a.accept(this);
-        System.out.print(";");
+        if (context != BlockType.FOR) System.out.print(";");
     }
 
     // Exp e1,e2;
@@ -718,4 +771,15 @@ public final class PrettyPrintVisitor implements Visitor {
     public void visit(Identifier n) {
         System.out.print(n.s);
     }
+
+    @Override
+    public void visit(NoOp n) {
+        if (blockContext.peek() != BlockType.FOR) {
+            indenter.print();
+            System.out.print(";");
+        }
+    }
+
+    @Override
+    public void visit(NoOpExp n) {}
 }
