@@ -41,9 +41,8 @@ public final class CodeDataVisitor implements Visitor {
 
         generator.genLabel(n.i.s + "$$");
         generator.genUnary(".quad", "0");  // no superclass
-        class_.methodEntries().forEachRemaining(m -> {
-            generator.genUnary(".quad", m.getQualifiedName());
-        });
+        class_.methodEntries().forEachRemaining(m ->
+                generator.genUnary(".quad", m.getQualifiedName()));
 
         symbolContext.enterClass(n.i.s);
         n.ml.forEach(m -> m.accept(this));
@@ -59,9 +58,8 @@ public final class CodeDataVisitor implements Visitor {
 
         generator.genLabel(n.i.s + "$$");
         generator.genUnary(".quad", n.j.s + "$$");  // superclass
-        class_.methodEntries().forEachRemaining(m -> {
-            generator.genUnary(".quad", m.getQualifiedName());
-        });
+        class_.methodEntries().forEachRemaining(m ->
+                generator.genUnary(".quad", m.getQualifiedName()));
 
         symbolContext.enterClass(n.i.s);
         n.ml.forEach(m -> m.accept(this));
