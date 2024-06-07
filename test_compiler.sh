@@ -8,18 +8,19 @@
 
 ##############################################################################################################
 # Remember to modify these constants!
-PATH_TO_JAVA_FILES="test/resources/Codegen/src" # relative path to the directory containing java test files
+PATH_TO_JAVA_FILES="test/resources/CodeGen/src" # relative path to the directory containing java test files
 ATTU="andys22@attu.cs.washington.edu"           # attu connection string
 ATTU_PATH="~/java-compiler"                     # path to directory on attu containing boot.c and test_attu.sh
 ##############################################################################################################
 
 echo "Compiling Java programs..."
 echo ""
-mkdir -p "../${PATH_TO_JAVA_FILES}/out"
+mkdir -p "${PATH_TO_JAVA_FILES}/out"
+echo "${PATH_TO_JAVA_FILES}/out"
 for file in ${PATH_TO_JAVA_FILES}/*.java; do
   filename=$(basename "$file")
   echo "${filename} -> ${filename%.*}.S"
-  java -cp "build/classes;lib/*" Java "$file" > "../${PATH_TO_JAVA_FILES}/out/${filename%.*}.S"
+  java -cp "build/classes;lib/*" Java "$file" > "${PATH_TO_JAVA_FILES}/out/${filename%.*}.S"
 done
 
 echo ""
@@ -45,6 +46,6 @@ cat report.txt
 
 # cleanup
 rm report.txt
-rm -r "../${PATH_TO_JAVA_FILES}/out"
+rm -r "${PATH_TO_JAVA_FILES}/out"
 
 exit 0
