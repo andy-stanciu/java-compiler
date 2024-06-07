@@ -147,15 +147,23 @@ public final class CodeGenVisitor implements Visitor {
         generator.genLabel(bodyLabel);
         n.s.accept(this);
         generator.genLabel(testLabel);
-
         generator.push(new FlowContext(bodyLabel, true));
         n.e.accept(this);  // bool expression
     }
 
     @Override
     public void visit(For n) {
-        // TODO: implement
-        throw new IllegalStateException();
+        String testLabel = generator.nextLabel("for_test");
+        String bodyLabel = generator.nextLabel("for");
+
+        n.s0.accept(this);  // initializer instructions
+        generator.genUnary("jmp", testLabel);
+        generator.genLabel(bodyLabel);
+        n.s2.accept(this);  // body instructions
+        n.s1.accept(this);  // incrementer instructions
+        generator.genLabel(testLabel);
+        generator.push(new FlowContext(bodyLabel, true));
+        n.e.accept(this);  // condition expression
     }
 
     @Override
@@ -793,16 +801,10 @@ public final class CodeGenVisitor implements Visitor {
     }
 
     @Override
-    public void visit(NoOp n) {
-        // TODO: implement
-        throw new IllegalStateException();
-    }
+    public void visit(NoOp n) {}
 
     @Override
-    public void visit(NoOpExp n) {
-        // TODO: implement
-        throw new IllegalStateException();
-    }
+    public void visit(NoOpExp n) {}
 
     /**
      * Visits the specified assignment statement. Leaves the assignable address
