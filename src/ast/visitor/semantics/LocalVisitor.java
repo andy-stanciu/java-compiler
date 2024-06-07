@@ -64,12 +64,12 @@ public final class LocalVisitor implements Visitor {
 
         symbolContext.enterMethod(n.i.s);
         n.sl.forEach(s -> s.accept(this));  // method statements
-        n.e.accept(this);                   // return expression
+        n.r.accept(this);                   // return expression
 
         // is the return expression assignable to the return type?
-        if (!n.e.type.isAssignableTo(n.type)) {
+        if (!n.r.getReturnableType().isAssignableTo(n.type)) {
             logger.logError("Method \"%s\" expected to return %s, but provided %s%n",
-                    n.i.s, n.type, n.e.type);
+                    n.i.s, n.type, n.r.getReturnableType());
         }
 
         symbolContext.exit();
@@ -77,6 +77,11 @@ public final class LocalVisitor implements Visitor {
 
     @Override
     public void visit(Formal n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(VoidType n) {
         throw new IllegalStateException();
     }
 

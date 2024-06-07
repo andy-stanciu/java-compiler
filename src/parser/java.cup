@@ -38,6 +38,8 @@ nonterminal MethodDecl MethodDeclaration;
 nonterminal FormalList FormalList;
 nonterminal Formal Formal;
 nonterminal Type Type;
+nonterminal DeclarableType DeclarableType;
+nonterminal Returnable Returnable;
 nonterminal StatementList StatementList;
 nonterminal Statement Statement;
 nonterminal StatementSimple StatementSimple;
@@ -112,7 +114,7 @@ VarDeclarationList ::= VarDeclaration:v
                        {: vl.add(v);
                           RESULT = vl; :};
 
-VarDeclaration ::= Type:t Identifier:id SEMICOLON
+VarDeclaration ::= DeclarableType:t Identifier:id SEMICOLON
                    {: RESULT = new VarDecl(t, id, txleft); :};
 
 MethodDeclarationList ::= MethodDeclaration:m
@@ -123,22 +125,27 @@ MethodDeclarationList ::= MethodDeclaration:m
                           {: ml.add(m);
                              RESULT = ml; :};
 
-MethodDeclaration ::= PUBLIC:p Type:t Identifier:mid LPAREN FormalList:fl RPAREN LCURL VarDeclarationList:vl StatementList:sl RETURN Expression:e SEMICOLON RCURL
+MethodDeclaration ::= PUBLIC:p Type:t Identifier:mid LPAREN FormalList:fl RPAREN LCURL VarDeclarationList:vl StatementList:sl Returnable:e RCURL
                       {: RESULT = new MethodDecl(t, mid, fl, vl, sl, e, pxleft); :}
-                  | PUBLIC:p Type:t Identifier:mid LPAREN:lp RPAREN LCURL VarDeclarationList:vl StatementList:sl RETURN Expression:e SEMICOLON RCURL
-                      {: RESULT = new MethodDecl(t, mid, new FormalList(lpxright), vl, sl, e, pxleft); :}
-                  | PUBLIC:p Type:t Identifier:mid LPAREN FormalList:fl RPAREN LCURL:lc StatementList:sl RETURN Expression:e SEMICOLON RCURL
-                      {: RESULT = new MethodDecl(t, mid, fl, new VarDeclList(lcxright), sl, e, pxleft); :}
-                  | PUBLIC:p Type:t Identifier:mid LPAREN FormalList:fl RPAREN LCURL VarDeclarationList:vl RETURN Expression:e SEMICOLON RCURL
-                      {: RESULT = new MethodDecl(t, mid, fl, vl, new StatementList(vlxright), e, pxleft); :}
-                  | PUBLIC:p Type:t Identifier:mid LPAREN FormalList:fl RPAREN LCURL:lc RETURN Expression:e SEMICOLON RCURL
-                      {: RESULT = new MethodDecl(t, mid, fl, new VarDeclList(lcxright), new StatementList(lcxright), e, pxleft); :}
-                  | PUBLIC:p Type:t Identifier:mid LPAREN:lp RPAREN LCURL VarDeclarationList:vl RETURN Expression:e SEMICOLON RCURL
-                      {: RESULT = new MethodDecl(t, mid, new FormalList(lpxright), vl, new StatementList(vlxright), e, pxleft); :}
-                  | PUBLIC:p Type:t Identifier:mid LPAREN:lp RPAREN LCURL:lc StatementList:sl RETURN Expression:e SEMICOLON RCURL
-                      {: RESULT = new MethodDecl(t, mid, new FormalList(lpxright), new VarDeclList(lcxright), sl, e, pxleft); :}
-                  | PUBLIC:p Type:t Identifier:mid LPAREN:lp RPAREN LCURL:lc RETURN Expression:e SEMICOLON RCURL
-                      {: RESULT = new MethodDecl(t, mid, new FormalList(lpxright), new VarDeclList(lcxright), new StatementList(lcxright), e, pxleft); :};
+                  | PUBLIC:p Type:t Identifier:mid LPAREN:lp RPAREN LCURL VarDeclarationList:vl StatementList:sl Returnable:r RCURL
+                      {: RESULT = new MethodDecl(t, mid, new FormalList(lpxright), vl, sl, r, pxleft); :}
+                  | PUBLIC:p Type:t Identifier:mid LPAREN FormalList:fl RPAREN LCURL:lc StatementList:sl Returnable:r RCURL
+                      {: RESULT = new MethodDecl(t, mid, fl, new VarDeclList(lcxright), sl, r, pxleft); :}
+                  | PUBLIC:p Type:t Identifier:mid LPAREN FormalList:fl RPAREN LCURL VarDeclarationList:vl Returnable:r RCURL
+                      {: RESULT = new MethodDecl(t, mid, fl, vl, new StatementList(vlxright), r, pxleft); :}
+                  | PUBLIC:p Type:t Identifier:mid LPAREN FormalList:fl RPAREN LCURL:lc Returnable:r RCURL
+                      {: RESULT = new MethodDecl(t, mid, fl, new VarDeclList(lcxright), new StatementList(lcxright), r, pxleft); :}
+                  | PUBLIC:p Type:t Identifier:mid LPAREN:lp RPAREN LCURL VarDeclarationList:vl Returnable:r RCURL
+                      {: RESULT = new MethodDecl(t, mid, new FormalList(lpxright), vl, new StatementList(vlxright), r, pxleft); :}
+                  | PUBLIC:p Type:t Identifier:mid LPAREN:lp RPAREN LCURL:lc StatementList:sl Returnable:r RCURL
+                      {: RESULT = new MethodDecl(t, mid, new FormalList(lpxright), new VarDeclList(lcxright), sl, r, pxleft); :}
+                  | PUBLIC:p Type:t Identifier:mid LPAREN:lp RPAREN LCURL:lc Returnable:r RCURL
+                      {: RESULT = new MethodDecl(t, mid, new FormalList(lpxright), new VarDeclList(lcxright), new StatementList(lcxright), r, pxleft); :};
+
+Returnable ::= RETURN Expression:e SEMICOLON
+                {: RESULT = e; :}
+           | RETURN:r SEMICOLON
+                {: RESULT = new NoOpExp(rxright); :};
 
 FormalList ::= Formal:f
                {: FormalList fl = new FormalList(fxleft);
@@ -148,17 +155,22 @@ FormalList ::= Formal:f
                {: fl.add(f);
                   RESULT = fl; :};
 
-Formal ::= Type:t Identifier:id
+Formal ::= DeclarableType:t Identifier:id
            {: RESULT = new Formal(t, id, txleft); :};
 
-Type ::= INT:i LSQUARE RSQUARE
-         {: RESULT = new IntArrayType(ixleft); :}
-     | BOOLEAN:b
-         {: RESULT = new BooleanType(bxleft); :}
-     | INT:i
-         {: RESULT = new IntegerType(ixleft); :}
-     | Identifier:id
-         {: RESULT = new IdentifierType(id.toString(), idxleft); :};
+Type ::= VOID:v
+            {: RESULT = new VoidType(vxleft); :}
+         | DeclarableType:t
+            {: RESULT = t; :};
+
+DeclarableType ::= INT:i LSQUARE RSQUARE
+                {: RESULT = new IntArrayType(ixleft); :}
+            | BOOLEAN:b
+                {: RESULT = new BooleanType(bxleft); :}
+            | INT:i
+                {: RESULT = new IntegerType(ixleft); :}
+            | Identifier:id
+                {: RESULT = new IdentifierType(id.toString(), idxleft); :};
 
 StatementList ::= Statement:s
                   {: StatementList sl = new StatementList(sxleft);

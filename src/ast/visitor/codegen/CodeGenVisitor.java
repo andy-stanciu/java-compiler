@@ -82,7 +82,7 @@ public final class CodeGenVisitor implements Visitor {
         }
 
         n.sl.forEach(s -> s.accept(this));
-        n.e.accept(this);
+        n.r.accept(this);
         symbolContext.exit();
 
         generator.genEpilogue();
@@ -90,6 +90,11 @@ public final class CodeGenVisitor implements Visitor {
 
     @Override
     public void visit(Formal n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(VoidType n) {
         throw new IllegalStateException();
     }
 

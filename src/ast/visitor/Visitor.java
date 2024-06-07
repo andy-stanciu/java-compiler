@@ -17,6 +17,8 @@ public interface Visitor {
 
     void visit(Formal n);
 
+    void visit(VoidType n);
+
     void visit(IntArrayType n);
 
     void visit(BooleanType n);

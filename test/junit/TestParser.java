@@ -104,4 +104,9 @@ public class TestParser {
     public void testTreeVisitor() {
         runParserSuccessTestCase("TreeVisitor");
     }
+
+    @Test
+    public void testVoid() {
+        runParserSuccessTestCase("Void");
+    }
 }

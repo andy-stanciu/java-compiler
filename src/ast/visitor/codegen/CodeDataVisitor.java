@@ -120,6 +120,11 @@ public final class CodeDataVisitor implements Visitor {
     }
 
     @Override
+    public void visit(VoidType n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
     public void visit(IntArrayType n) {
         throw new IllegalStateException();
     }

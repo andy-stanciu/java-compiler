@@ -4,7 +4,7 @@ import ast.visitor.Visitor;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 import semantics.Logger;
 
-public class IntArrayType extends Type {
+public class IntArrayType extends DeclarableType {
     public IntArrayType(Location pos) {
         super(pos);
     }

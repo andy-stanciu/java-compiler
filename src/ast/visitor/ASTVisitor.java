@@ -112,8 +112,8 @@ public final class ASTVisitor implements Visitor {
         }
         indenter.print();
         System.out.print("Return ");
-        n.e.accept(this);
-        System.out.printf(" (line %d)", n.e.line_number);
+        n.r.accept(this);
+        System.out.printf(" (line %d)", n.r.getLineNumber());
         indenter.pop();
     }
 
@@ -123,6 +123,11 @@ public final class ASTVisitor implements Visitor {
         n.t.accept(this);
         System.out.print(" ");
         n.i.accept(this);
+    }
+
+    @Override
+    public void visit(VoidType n) {
+        System.out.print("void");
     }
 
     @Override

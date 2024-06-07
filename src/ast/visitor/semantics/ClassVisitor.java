@@ -160,6 +160,11 @@ public final class ClassVisitor implements Visitor {
     }
 
     @Override
+    public void visit(VoidType n) {
+        n.type = TypeVoid.getInstance();
+    }
+
+    @Override
     public void visit(IntArrayType n) {
         n.type = TypeIntArray.getInstance();
     }
