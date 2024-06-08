@@ -7,8 +7,9 @@ import java_cup.runtime.*;
 /* Terminals (lexical tokens returned by the scanner): */
 
 /* reserved words */
-terminal BOOLEAN, CLASS, ELSE, EXTENDS, FALSE, FOR, IF, INSTANCEOF, INT, LENGTH, MAIN,
-         NEW, PUBLIC, RETURN, STATIC, STRING, PRINT, THIS, TRUE, VOID, WHILE;
+terminal BOOLEAN, BREAK, CASE, CLASS, DEFAULT, ELSE, EXTENDS, FALSE, FOR, IF, INSTANCEOF,
+         INT, LENGTH, MAIN, NEW, PUBLIC, RETURN, STATIC, STRING, SWITCH, PRINT, THIS, TRUE,
+         VOID, WHILE;
 
 /* operators */
 terminal PLUS, MINUS, TIMES, DIV, MOD, LSHIFT, RSHIFT, URSHIFT, LESS_THAN,
@@ -48,6 +49,10 @@ nonterminal Exp Expression;
 nonterminal Assignable Assignable;
 nonterminal Identifier Identifier;
 nonterminal Call Call;
+nonterminal Switch Switch;
+nonterminal CaseList CaseList;
+nonterminal Case Case;
+nonterminal Default Default;
 
 /* precedence declarations: */
 precedence right ASSIGN, ASSIGN_PLUS, ASSIGN_MINUS,   // =, +=, -=
@@ -193,9 +198,11 @@ Statement ::= SEMICOLON:x
           | LCURL:lc RCURL
               {: RESULT = new Block(new StatementList(lcxright), lcxleft); :}
           | IF:i LPAREN Expression:e RPAREN Statement:s
-                        {: RESULT = new If(e, s, ixleft); :}
+              {: RESULT = new If(e, s, ixleft); :}
           | IF:i LPAREN Expression:e RPAREN Statement:s1 ELSE Statement:s2
               {: RESULT = new IfElse(e, s1, s2, ixleft); :}
+          | Switch:s
+              {: RESULT = s; :}
           | WHILE:w LPAREN Expression:e RPAREN Statement:s
               {: RESULT = new While(e, s, wxleft); :}
           | FOR:f LPAREN StatementSimple:s0 SEMICOLON Expression:e SEMICOLON StatementSimple:s1 RPAREN Statement:s2
@@ -214,6 +221,41 @@ Statement ::= SEMICOLON:x
               {: RESULT = new For(s0, new NoOpExp(xxright), new NoOp(yxright), s2, fxleft); :}
           | FOR:f LPAREN:l SEMICOLON:x SEMICOLON:y RPAREN Statement:s2
               {: RESULT = new For(new NoOp(lxright), new NoOpExp(xxright), new NoOp(yxright), s2, fxleft); :};
+
+Switch ::= SWITCH:s LPAREN Expression:e RPAREN LCURL CaseList:cl RCURL
+            {: RESULT = new Switch(e, cl, new Default(new StatementList(clxright), clxright), sxleft); :}
+        | SWITCH:s LPAREN Expression:e RPAREN LCURL:lc RCURL
+            {: RESULT = new Switch(e, new CaseList(lcxright), new Default(new StatementList(lcxright), lcxright), sxleft); :}
+        | SWITCH:s LPAREN Expression:e RPAREN LCURL CaseList:cl Default:d RCURL
+            {: RESULT = new Switch(e, cl, d, sxleft); :}
+        | SWITCH:s LPAREN Expression:e RPAREN LCURL:lc Default:d RCURL
+            {: RESULT = new Switch(e, new CaseList(lcxright), d, sxleft); :};
+
+CaseList ::= Case:c
+            {: CaseList cl = new CaseList(cxleft);
+               cl.add(c);
+               RESULT = cl; :}
+           | CaseList:cl Case:c
+            {: cl.add(c);
+               RESULT = cl; :};
+
+Case ::= CASE:c INT_LITERAL:n COLON StatementList:sl BREAK SEMICOLON
+            {: RESULT = new Case(Integer.parseInt(n), sl, true, cxleft); :}
+        | CASE:c INT_LITERAL:n COLON StatementList:sl
+            {: RESULT = new Case(Integer.parseInt(n), sl, false, cxleft); :}
+        | CASE:c INT_LITERAL:n COLON:co BREAK SEMICOLON
+            {: RESULT = new Case(Integer.parseInt(n), new StatementList(coxright), true, cxleft); :}
+        | CASE:c INT_LITERAL:n COLON:co
+            {: RESULT = new Case(Integer.parseInt(n), new StatementList(coxright), false, cxleft); :};
+
+Default ::= DEFAULT:d COLON StatementList:sl BREAK SEMICOLON
+            {: RESULT = new Default(sl, dxleft); :}
+        | DEFAULT:d COLON StatementList:sl
+            {: RESULT = new Default(sl, dxleft); :}
+        | DEFAULT:d COLON:co BREAK SEMICOLON
+            {: RESULT = new Default(new StatementList(coxright), dxleft); :}
+        | DEFAULT:d COLON:co
+            {: RESULT = new Default(new StatementList(coxright), dxleft); :};
 
 StatementSimple ::= Call:c
                   {: RESULT = new Action(c, cxleft); :}

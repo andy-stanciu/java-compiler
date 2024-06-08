@@ -87,7 +87,7 @@ import parser.sym;
      if (cs.sym == sym.IDENTIFIER) {
        return "ID(" + (String)cs.value + ")";
      } else if (cs.sym == sym.INT_LITERAL) {
-         return "INT(" + (String)cs.value + ")";
+       return "INT(" + (String)cs.value + ")";
      } else if (cs.sym == sym.error) {
        return "<UNEXPECTED(" + (String)cs.value + ")>";
      } else {
@@ -108,7 +108,10 @@ white = {eol}|[ \t]
 
 /* reserved words (first so that they take precedence over identifiers) */
 "boolean" { return symbol(sym.BOOLEAN); }
+"break" { return symbol(sym.BREAK); }
+"case" { return symbol(sym.CASE); }
 "class" { return symbol(sym.CLASS); }
+"default" { return symbol(sym.DEFAULT); }
 "else" { return symbol(sym.ELSE); }
 "extends" { return symbol(sym.EXTENDS); }
 "false" { return symbol(sym.FALSE); }
@@ -123,6 +126,7 @@ white = {eol}|[ \t]
 "return" { return symbol(sym.RETURN); }
 "static" { return symbol(sym.STATIC); }
 "String" { return symbol(sym.STRING); }
+"switch" { return symbol(sym.SWITCH); }
 "System.out.println" { return symbol(sym.PRINT); }
 "this" { return symbol(sym.THIS); }
 "true" { return symbol(sym.TRUE); }

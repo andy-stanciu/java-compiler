@@ -158,6 +158,21 @@ public final class CodeDataVisitor implements Visitor {
     }
 
     @Override
+    public void visit(Switch n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(Case n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(Default n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
     public void visit(While n) {
         throw new IllegalStateException();
     }
@@ -354,6 +369,11 @@ public final class CodeDataVisitor implements Visitor {
 
     @Override
     public void visit(ArrayLength n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(Action n) {
         throw new IllegalStateException();
     }
 

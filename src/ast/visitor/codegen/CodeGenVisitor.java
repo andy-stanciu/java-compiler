@@ -8,6 +8,8 @@ import semantics.table.SymbolContext;
 import semantics.type.TypeBoolean;
 import semantics.type.TypeObject;
 
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.function.Consumer;
 
 public final class CodeGenVisitor implements Visitor {
@@ -147,6 +149,47 @@ public final class CodeGenVisitor implements Visitor {
         generator.genLabel(elseLabel);
         n.s2.accept(this);
         generator.genLabel(endifLabel);
+    }
+
+    @Override
+    public void visit(Switch n) {
+        n.e.accept(this);
+
+        String defaultLabel = generator.nextLabel("default");
+        String endSwitchLabel = generator.nextLabel("end_switch");
+
+        Queue<String> cases = new LinkedList<>();
+        n.cl.forEach(c -> {
+            String caseLabel = generator.nextLabel("case");
+            cases.offer(caseLabel);
+            generator.genBinary("cmpq", "$" + c.n, "%rax");
+            generator.genUnary("je", caseLabel);
+        });
+
+        generator.genUnary("jmp", defaultLabel);
+
+        n.cl.forEach(c -> {
+            String target = cases.poll();
+            generator.genLabel(target);
+            c.accept(this);
+            if (c.breaks) {
+                generator.genUnary("jmp", endSwitchLabel);
+            }
+        });
+
+        generator.genLabel(defaultLabel);
+        n.d.accept(this);
+        generator.genLabel(endSwitchLabel);
+    }
+
+    @Override
+    public void visit(Case n) {
+        n.sl.forEach(s -> s.accept(this));
+    }
+
+    @Override
+    public void visit(Default n) {
+        n.sl.forEach(s -> s.accept(this));
     }
 
     @Override
@@ -532,6 +575,11 @@ public final class CodeGenVisitor implements Visitor {
     public void visit(ArrayLength n) {
         n.e.accept(this);
         generator.genBinary("movq", "0(%rax)", "%rax");
+    }
+
+    @Override
+    public void visit(Action n) {
+        n.c.accept(this);
     }
 
     @Override

@@ -192,6 +192,55 @@ public final class ASTVisitor implements Visitor {
     }
 
     @Override
+    public void visit(Switch n) {
+        indenter.print();
+        System.out.print("Switch ");
+        n.e.accept(this);
+        System.out.printf(" (line %d)", n.line_number);
+        indenter.push();
+        n.cl.forEach(c -> {
+            System.out.println();
+            c.accept(this);
+        });
+        if (n.d.sl.size() > 0) {
+            System.out.println();
+            n.d.accept(this);
+        }
+        indenter.pop();
+    }
+
+    @Override
+    public void visit(Case n) {
+        indenter.print();
+        System.out.printf("Case %d: (line %d)", n.n, n.line_number);
+        indenter.push();
+        n.sl.forEach(s -> {
+            System.out.println();
+            indenter.print();
+            s.accept(this);
+        });
+        if (n.breaks) {
+            System.out.println();
+            indenter.print();
+            System.out.print("Break");
+        }
+        indenter.pop();
+    }
+
+    @Override
+    public void visit(Default n) {
+        indenter.print();
+        System.out.printf("Default: (line %d)", n.line_number);
+        indenter.push();
+        n.sl.forEach(s -> {
+            System.out.println();
+            indenter.print();
+            s.accept(this);
+        });
+        indenter.pop();
+    }
+
+    @Override
     public void visit(While n) {
         indenter.print();
         System.out.print("While ");
@@ -578,6 +627,11 @@ public final class ASTVisitor implements Visitor {
     public void visit(ArrayLength n) {
         System.out.print("ArrayLength ");
         n.e.accept(this);
+    }
+
+    @Override
+    public void visit(Action n) {
+        n.c.accept(this);
     }
 
     @Override

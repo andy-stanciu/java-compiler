@@ -225,6 +225,58 @@ public final class PrettyPrintVisitor implements Visitor {
         System.out.print("}");
     }
 
+    @Override
+    public void visit(Switch n) {
+        indenter.print();
+        System.out.print("switch (");
+        n.e.accept(this);
+        System.out.print(") {");
+        indenter.push();
+        n.cl.forEach(c -> {
+            System.out.println();
+            c.accept(this);
+        });
+        if (n.d.sl.size() > 0) {
+            System.out.println();
+            n.d.accept(this);
+        }
+        indenter.pop();
+        System.out.println();
+        indenter.print();
+        System.out.print("}");
+    }
+
+    @Override
+    public void visit(Case n) {
+        indenter.print();
+        System.out.print("case " + n.n + ":");
+        indenter.push();
+        n.sl.forEach(s -> {
+            System.out.println();
+            indenter.print();
+            s.accept(this);
+        });
+        if (n.breaks) {
+            System.out.println();
+            indenter.print();
+            System.out.print("break;");
+        }
+        indenter.pop();
+    }
+
+    @Override
+    public void visit(Default n) {
+        indenter.print();
+        System.out.print("default:");
+        indenter.push();
+        n.sl.forEach(s -> {
+            System.out.println();
+            indenter.print();
+            s.accept(this);
+        });
+        indenter.pop();
+    }
+
     // Exp e;
     // Statement s;
     public void visit(While n) {
@@ -670,6 +722,12 @@ public final class PrettyPrintVisitor implements Visitor {
         System.out.print(".length");
         precedentTracker.pop();
         precedentTracker.rightParen(n);
+    }
+
+    @Override
+    public void visit(Action n) {
+        n.c.accept(this);
+        System.out.print(";");
     }
 
     // Exp e;

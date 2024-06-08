@@ -4,12 +4,16 @@ import ast.visitor.Visitor;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 import semantics.Logger;
 
-public class Action extends StatementSimple {
-    public Call c;
+public class Switch extends Statement {
+    public Exp e;
+    public CaseList cl;
+    public Default d;
 
-    public Action(Call ac, Location pos) {
+    public Switch(Exp ae, CaseList acl, Default ad, Location pos) {
         super(pos);
-        c = ac;
+        e = ae;
+        cl = acl;
+        d = ad;
     }
 
     @Override

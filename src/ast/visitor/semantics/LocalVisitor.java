@@ -7,6 +7,9 @@ import semantics.table.SymbolContext;
 import semantics.type.*;
 import semantics.type.Type;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Final visitor pass of semantic analysis. Verifies that types match
  * for all expressions, variables are in scope, etc.
@@ -136,6 +139,33 @@ public final class LocalVisitor implements Visitor {
 
         n.s1.accept(this);  // if statement(s)
         n.s2.accept(this);  // else statement(s)
+    }
+
+    @Override
+    public void visit(Switch n) {
+        n.e.accept(this);
+        if (!n.e.type.equals(TypeInt.getInstance())) {
+            logger.logError("Switch expected int, but provided %s%n", n.e.type);
+        }
+
+        Set<Integer> cases = new HashSet<>();
+        n.cl.forEach(c -> {
+            c.accept(this);
+            if (cases.contains(c.n)) {
+                logger.logError("Duplicate case label %d%n", c.n);
+            }
+            cases.add(c.n);
+        });
+    }
+
+    @Override
+    public void visit(Case n) {
+        n.sl.forEach(s -> s.accept(this));
+    }
+
+    @Override
+    public void visit(Default n) {
+        n.sl.forEach(s -> s.accept(this));
     }
 
     @Override
@@ -374,6 +404,15 @@ public final class LocalVisitor implements Visitor {
         }
 
         n.type = TypeInt.getInstance();
+    }
+
+    @Override
+    public void visit(Action n) {
+        n.c.accept(this);
+        if (!n.c.type.equals(TypeVoid.getInstance()) &&
+                !n.c.type.isUndefined()) {
+            logger.logWarning("Result type %s of \"%s\" is ignored%n", n.c.type, n.c.i.s);
+        }
     }
 
     @Override

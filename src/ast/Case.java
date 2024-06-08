@@ -4,15 +4,18 @@ import ast.visitor.Visitor;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 import semantics.Logger;
 
-public class Action extends StatementSimple {
-    public Call c;
+public class Case extends ASTNode {
+    public int n;
+    public StatementList sl;
+    public boolean breaks;
 
-    public Action(Call ac, Location pos) {
+    public Case(int an, StatementList asl, boolean breaks, Location pos) {
         super(pos);
-        c = ac;
+        n = an;
+        sl = asl;
+        this.breaks = breaks;
     }
 
-    @Override
     public void accept(Visitor v) {
         Logger.getInstance().setLineNumber(line_number);
         v.visit(this);

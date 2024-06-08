@@ -33,6 +33,12 @@ public interface Visitor {
 
     void visit(IfElse n);
 
+    void visit(Switch n);
+
+    void visit(Case n);
+
+    void visit(Default n);
+
     void visit(While n);
 
     void visit(For n);
@@ -111,6 +117,8 @@ public interface Visitor {
     void visit(ArrayLookup n);
 
     void visit(ArrayLength n);
+
+    void visit(Action n);
 
     void visit(Call n);
 

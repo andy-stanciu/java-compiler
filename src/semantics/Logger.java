@@ -79,7 +79,7 @@ public final class Logger {
      * @param message The message to log.
      * @param args Format args.
      */
-    public void logWarning(String message, Object args) {
+    public void logWarning(String message, Object... args) {
         System.err.printf("WARNING @ " + sourceFile + ":" + lineNumber + ": " + message, args);
         warningCount++;
     }
