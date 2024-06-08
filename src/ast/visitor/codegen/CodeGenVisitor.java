@@ -30,7 +30,7 @@ public final class CodeGenVisitor implements Visitor {
     public void visit(MainClass n) {
         generator.genLabel("asm_main");
         generator.genPrologue();
-        n.s.accept(this);
+        n.sl.forEach(s -> s.accept(this));
         generator.genEpilogue();
     }
 

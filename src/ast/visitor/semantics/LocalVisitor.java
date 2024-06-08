@@ -30,7 +30,7 @@ public final class LocalVisitor implements Visitor {
     public void visit(MainClass n) {
         symbolContext.enterClass(n.i1.s);
         symbolContext.enterMethod("main");
-        n.s.accept(this);  // main method statement
+        n.sl.forEach(s -> s.accept(this));  // main method statement(s)
         symbolContext.exit();
         symbolContext.exit();
     }

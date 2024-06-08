@@ -6,14 +6,14 @@ import semantics.Logger;
 
 public class MainClass extends ASTNode {
     public Identifier i1, i2;
-    public Statement s;
+    public StatementList sl;
 
-    public MainClass(Identifier ai1, Identifier ai2, Statement as,
+    public MainClass(Identifier ai1, Identifier ai2, StatementList asl,
                      Location pos) {
         super(pos);
         i1 = ai1;
         i2 = ai2;
-        s = as;
+        sl = asl;
     }
 
     public void accept(Visitor v) {

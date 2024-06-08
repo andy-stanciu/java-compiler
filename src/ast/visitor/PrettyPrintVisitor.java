@@ -40,7 +40,7 @@ public final class PrettyPrintVisitor implements Visitor {
         n.i2.accept(this);
         System.out.println(") {");
         indenter.push();
-        n.s.accept(this);
+        n.sl.forEach(s -> s.accept(this));
         System.out.println();
         indenter.pop();
         indenter.print();

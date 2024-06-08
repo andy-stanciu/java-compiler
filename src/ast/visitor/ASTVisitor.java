@@ -30,7 +30,7 @@ public final class ASTVisitor implements Visitor {
         n.i1.accept(this);
         System.out.printf(" (line %d)%n", n.line_number);
         indenter.push();
-        n.s.accept(this);
+        n.sl.forEach(s -> s.accept(this));
         indenter.pop();
     }
 

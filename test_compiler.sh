@@ -47,12 +47,13 @@ elif [ $# -eq 1 ]; then
   echo ""
   echo "Sending Java programs to attu..."
   echo ""
-  scp "${PATH_TO_JAVA_FILES}/out/$1.S" "${ATTU}:${ATTU_PATH}/out"
+
+  scp "${PATH_TO_JAVA_FILES}/out/$1.S" "${ATTU}:${ATTU_PATH}/out/"
 
   echo ""
   echo "Sending Java source files to attu..."
   echo ""
-  scp "${PATH_TO_JAVA_FILES}/src/$1.java" "${ATTU}:${ATTU_PATH}/src"
+  scp "${PATH_TO_JAVA_FILES}/src/$1.java" "${ATTU}:${ATTU_PATH}/src/"
 else
   echo "Usage: ./test_compiler [source]"
   exit 1

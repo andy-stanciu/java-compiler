@@ -47,6 +47,7 @@ nonterminal ExpList ExpressionList;
 nonterminal Exp Expression;
 nonterminal Assignable Assignable;
 nonterminal Identifier Identifier;
+nonterminal Call Call;
 
 /* precedence declarations: */
 precedence right ASSIGN, ASSIGN_PLUS, ASSIGN_MINUS,   // =, +=, -=
@@ -78,8 +79,10 @@ Program ::= MainClass:m ClassDeclarationList:cl
         | MainClass:m
             {: RESULT = new Program(m, new ClassDeclList(mxright), mxleft); :};
 
-MainClass ::= CLASS:c Identifier:cid LCURL PUBLIC STATIC VOID MAIN LPAREN STRING LSQUARE RSQUARE Identifier:aid RPAREN LCURL Statement:s RCURL RCURL
-              {: RESULT = new MainClass(cid, aid, s, cxleft); :};
+MainClass ::= CLASS:c Identifier:cid LCURL PUBLIC STATIC VOID MAIN LPAREN STRING LSQUARE RSQUARE Identifier:aid RPAREN LCURL StatementList:sl RCURL RCURL
+              {: RESULT = new MainClass(cid, aid, sl, cxleft); :}
+          | CLASS:c Identifier:cid LCURL PUBLIC STATIC VOID MAIN LPAREN STRING LSQUARE RSQUARE Identifier:aid RPAREN LCURL:lc RCURL RCURL
+                          {: RESULT = new MainClass(cid, aid, new StatementList(lcxright), cxleft); :};
 
 ClassDeclarationList ::= ClassDeclaration:c
                          {: ClassDeclList cl = new ClassDeclList(cxleft);
@@ -209,7 +212,9 @@ Statement ::= SEMICOLON:x
           | FOR:f LPAREN:l SEMICOLON:x SEMICOLON:y RPAREN Statement:s2
               {: RESULT = new For(new NoOp(lxright), new NoOpExp(xxright), new NoOp(yxright), s2, fxleft); :};
 
-StatementSimple ::= PRINT:p LPAREN Expression:e RPAREN
+StatementSimple ::= Call:c
+                  {: RESULT = new Action(c, cxleft); :}
+              | PRINT:p LPAREN Expression:e RPAREN
                   {: RESULT = new Print(e, pxleft); :}
               | Assignable:a ASSIGN Expression:e
                   {: RESULT = new AssignSimple(a, e, axleft); :}
@@ -259,7 +264,9 @@ ExpressionList ::= Expression:e
                    {: el.add(e);
                       RESULT = el; :};
 
-Expression ::= Expression:e1 AND Expression:e2
+Expression ::= Call:c
+                          {: RESULT = c; :}
+           | Expression:e1 AND Expression:e2
                           {: RESULT = new And(e1, e2, e1xleft); :}
            | Expression:e1 OR Expression:e2
                           {: RESULT = new Or(e1, e2, e1xleft); :}
@@ -301,10 +308,6 @@ Expression ::= Expression:e1 AND Expression:e2
                           {: RESULT = new ArrayLookup(e1, e2, e1xleft); :}
            | Expression:e DOT LENGTH
                           {: RESULT = new ArrayLength(e, exleft); :}
-           | Expression:e DOT Identifier:id LPAREN:lp RPAREN
-                          {: RESULT = new Call(e, id, new ExpList(lpxright), exleft); :}
-           | Expression:e DOT Identifier:id LPAREN ExpressionList:el RPAREN
-                          {: RESULT = new Call(e, id, el, exleft); :}
            | Expression:e DOT Identifier:id
                           {: RESULT = new Field(e, id, exleft); :}
            | Expression:c QUESTION Expression:e1 COLON Expression:e2
@@ -331,6 +334,15 @@ Expression ::= Expression:e1 AND Expression:e2
                           {: RESULT = new BitwiseNot(e, nxleft); :}
            | LPAREN Expression:e RPAREN
                           {: RESULT = e; :};
+
+Call ::= Expression:e DOT Identifier:id LPAREN:lp RPAREN
+           {: RESULT = new Call(e, id, new ExpList(lpxright), exleft); :}
+    | Expression:e DOT Identifier:id LPAREN ExpressionList:el RPAREN
+           {: RESULT = new Call(e, id, el, exleft); :}
+    | Identifier:id LPAREN:lp RPAREN
+           {: RESULT = new Call(new This(idxleft), id, new ExpList(lpxright), idxleft); :}
+    | Identifier:id LPAREN ExpressionList:el RPAREN
+           {: RESULT = new Call(new This(idxleft), id, el, idxleft); :};
 
 Identifier ::= IDENTIFIER:id
                {: RESULT = new Identifier(id, idxleft); :};
