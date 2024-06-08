@@ -13,15 +13,28 @@ ATTU="andys22@attu.cs.washington.edu"           # attu connection string
 ATTU_PATH="~/java-compiler"                     # path to directory on attu containing boot.c and test_attu.sh
 ##############################################################################################################
 
-echo "Compiling Java programs..."
-echo ""
-mkdir -p "${PATH_TO_JAVA_FILES}/out"
-echo "${PATH_TO_JAVA_FILES}/out"
-for file in ${PATH_TO_JAVA_FILES}/*.java; do
-  filename=$(basename "$file")
-  echo "${filename} -> ${filename%.*}.S"
-  java -cp "build/classes;lib/*" Java "$file" > "${PATH_TO_JAVA_FILES}/out/${filename%.*}.S"
-done
+# overwrite
+rm -r "${PATH_TO_JAVA_FILES}/out"
+
+if [ $# -eq 0 ]; then
+  echo "Compiling Java programs..."
+  echo ""
+  mkdir -p "${PATH_TO_JAVA_FILES}/out"
+  for file in ${PATH_TO_JAVA_FILES}/*.java; do
+    filename=$(basename "$file")
+    echo "${filename} -> ${filename%.*}.S"
+    java -cp "build/classes;lib/*" Java "$file" > "${PATH_TO_JAVA_FILES}/out/${filename%.*}.S"
+  done
+elif [ $# -eq 1 ]; then
+  echo "Compiling $1.java..."
+  echo ""
+  mkdir -p "${PATH_TO_JAVA_FILES}/out"
+  echo "$1.java -> $1.S"
+  java -cp "build/classes;lib/*" Java "${PATH_TO_JAVA_FILES}/$1.java" > "${PATH_TO_JAVA_FILES}/out/$1.S"
+else
+  echo "Usage: ./test_compiler [source]"
+  exit 1
+fi
 
 echo ""
 echo "Sending Java programs to attu..."
@@ -46,6 +59,5 @@ cat report.txt
 
 # cleanup
 rm report.txt
-rm -r "${PATH_TO_JAVA_FILES}/out"
 
 exit 0
