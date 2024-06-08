@@ -4,14 +4,15 @@ import ast.visitor.Visitor;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 import semantics.Logger;
 
-public class If extends Statement {
+public class IfElse extends Statement {
     public Exp e;
-    public Statement s;
+    public Statement s1, s2;
 
-    public If(Exp ae, Statement as, Location pos) {
+    public IfElse(Exp ae, Statement as1, Statement as2, Location pos) {
         super(pos);
         e = ae;
-        s = as;
+        s1 = as1;
+        s2 = as2;
     }
 
     public void accept(Visitor v) {
@@ -19,3 +20,4 @@ public class If extends Statement {
         v.visit(this);
     }
 }
+

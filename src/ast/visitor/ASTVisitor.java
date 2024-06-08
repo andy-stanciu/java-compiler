@@ -168,6 +168,18 @@ public final class ASTVisitor implements Visitor {
         System.out.print("If ");
         n.e.accept(this);
         System.out.printf(" (line %d)%n", n.line_number);
+        if (!(n.s instanceof Block)) indenter.push();
+        n.s.accept(this);
+        System.out.println();
+        if (!(n.s instanceof Block)) indenter.pop();
+    }
+
+    @Override
+    public void visit(IfElse n) {
+        indenter.print();
+        System.out.print("If ");
+        n.e.accept(this);
+        System.out.printf(" (line %d)%n", n.line_number);
         if (!(n.s1 instanceof Block)) indenter.push();
         n.s1.accept(this);
         System.out.println();

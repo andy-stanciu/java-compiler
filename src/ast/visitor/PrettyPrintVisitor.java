@@ -188,9 +188,24 @@ public final class PrettyPrintVisitor implements Visitor {
         indenter.pop();
     }
 
+    @Override
+    public void visit(If n) {
+        indenter.print();
+        System.out.print("if (");
+        n.e.accept(this);
+        System.out.print(")");
+        System.out.println(" {");
+        if (!(n.s instanceof Block)) indenter.push();
+        n.s.accept(this);
+        if (!(n.s instanceof Block)) indenter.pop();
+        System.out.println();
+        indenter.print();
+        System.out.print("}");
+    }
+
     // Exp e;
     // Statement s1,s2;
-    public void visit(If n) {
+    public void visit(IfElse n) {
         indenter.print();
         System.out.print("if (");
         n.e.accept(this);

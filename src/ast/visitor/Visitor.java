@@ -31,6 +31,8 @@ public interface Visitor {
 
     void visit(If n);
 
+    void visit(IfElse n);
+
     void visit(While n);
 
     void visit(For n);

@@ -123,6 +123,17 @@ public final class LocalVisitor implements Visitor {
                     n.e.type);
         }
 
+        n.s.accept(this);  // if statement(s)
+    }
+
+    @Override
+    public void visit(IfElse n) {
+        n.e.accept(this);
+        if (!n.e.type.isAssignableTo(TypeBoolean.getInstance())) {
+            logger.logError("If statement condition expected boolean, but provided %s%n",
+                    n.e.type);
+        }
+
         n.s1.accept(this);  // if statement(s)
         n.s2.accept(this);  // else statement(s)
     }

@@ -72,6 +72,7 @@ precedence right NOT, BITWISE_NOT;                    // !, ~
 precedence left INCREMENT, DECREMENT;                 // ++, --
 precedence right NEW;                                 // new
 precedence left DOT, LSQUARE;                         // ., [
+precedence right ELSE;                                // else
 
 /* productions */
 Program ::= MainClass:m ClassDeclarationList:cl
@@ -191,8 +192,10 @@ Statement ::= SEMICOLON:x
               {: RESULT = new Block(sl, lcxleft); :}
           | LCURL:lc RCURL
               {: RESULT = new Block(new StatementList(lcxright), lcxleft); :}
+          | IF:i LPAREN Expression:e RPAREN Statement:s
+                        {: RESULT = new If(e, s, ixleft); :}
           | IF:i LPAREN Expression:e RPAREN Statement:s1 ELSE Statement:s2
-              {: RESULT = new If(e, s1, s2, ixleft); :}
+              {: RESULT = new IfElse(e, s1, s2, ixleft); :}
           | WHILE:w LPAREN Expression:e RPAREN Statement:s
               {: RESULT = new While(e, s, wxleft); :}
           | FOR:f LPAREN StatementSimple:s0 SEMICOLON Expression:e SEMICOLON StatementSimple:s1 RPAREN Statement:s2

@@ -153,6 +153,11 @@ public final class CodeDataVisitor implements Visitor {
     }
 
     @Override
+    public void visit(IfElse n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
     public void visit(While n) {
         throw new IllegalStateException();
     }

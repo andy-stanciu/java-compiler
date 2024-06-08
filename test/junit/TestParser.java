@@ -36,11 +36,6 @@ public class TestParser {
     }
 
     @Test
-    public void testMainBroken() {
-        runParserFailTestCase("MainBroken");
-    }
-
-    @Test
     public void testAssignBroken() {
         runParserFailTestCase("AssignBroken");
     }

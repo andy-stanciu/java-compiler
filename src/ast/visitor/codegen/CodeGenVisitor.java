@@ -125,6 +125,17 @@ public final class CodeGenVisitor implements Visitor {
 
     @Override
     public void visit(If n) {
+        String endifLabel = generator.nextLabel("end_if");
+
+        generator.push(new FlowContext(endifLabel, false));
+        n.e.accept(this);  // bool expression
+
+        n.s.accept(this);
+        generator.genLabel(endifLabel);
+    }
+
+    @Override
+    public void visit(IfElse n) {
         String elseLabel = generator.nextLabel("else");
         String endifLabel = generator.nextLabel("end_if");
 
