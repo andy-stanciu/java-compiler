@@ -26,7 +26,7 @@ class Driver {
             }
         }
 
-        for (; false; ) {
+        for (; i < 0; ) {
             System.out.println(999);
         }
 
