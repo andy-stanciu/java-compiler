@@ -1,0 +1,8 @@
+ERROR @ SwitchFail.java:11: Switch expected int, but provided boolean
+WARNING @ SwitchFail.java:16: Result type int of "a" is ignored
+WARNING @ SwitchFail.java:19: Result type int of "a" is ignored
+WARNING @ SwitchFail.java:22: Result type int of "a" is ignored
+WARNING @ SwitchFail.java:24: Result type int of "a" is ignored
+ERROR @ SwitchFail.java:24: Duplicate case label 2
+ERROR @ SwitchFail.java:26: Cannot resolve method "b" in "Switch"
+Static semantic analysis found 3 error(s), 4 warning(s)

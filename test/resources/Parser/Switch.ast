@@ -1,0 +1,37 @@
+Program
+  MainClass Main (line 1)
+
+  Class Switch (line 7)
+    MethodDecl test (line 8)
+      returns void
+      int x (line 9)
+      Switch x (line 10)
+        Case 0: (line 11)
+          (this.a())
+          (this.b())
+          Break
+        Case 1: (line 15)
+          (this.a())
+          Break
+        Case 2: (line 18)
+          (this.b())
+          Break
+        Case 3: (line 21)
+          Break
+        Case 4: (line 23)
+        Case 5: (line 24)
+          (this.b())
+        Case 6: (line 26)
+        Case 7: (line 27)
+          (this.a())
+          Break
+        Case 8: (line 30)
+          (this.a())
+          (this.b())
+      Return NoOpExp (line 35)
+    MethodDecl a (line 38)
+      returns void
+      Return NoOpExp (line 38)
+    MethodDecl b (line 39)
+      returns void
+      Return NoOpExp (line 39)
