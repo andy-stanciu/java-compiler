@@ -35,9 +35,9 @@ public interface Visitor {
 
     void visit(Switch n);
 
-    void visit(Case n);
+    void visit(CaseSimple n);
 
-    void visit(Default n);
+    void visit(CaseDefault n);
 
     void visit(While n);
 

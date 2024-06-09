@@ -163,12 +163,12 @@ public final class CodeDataVisitor implements Visitor {
     }
 
     @Override
-    public void visit(Case n) {
+    public void visit(CaseSimple n) {
         throw new IllegalStateException();
     }
 
     @Override
-    public void visit(Default n) {
+    public void visit(CaseDefault n) {
         throw new IllegalStateException();
     }
 

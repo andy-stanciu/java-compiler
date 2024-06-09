@@ -149,22 +149,32 @@ public final class LocalVisitor implements Visitor {
         }
 
         Set<Integer> cases = new HashSet<>();
-        n.cl.forEach(c -> {
+        boolean foundDefault = false;
+
+        for (var c : n.cl) {
             c.accept(this);
-            if (cases.contains(c.n)) {
-                logger.logError("Duplicate case label %d%n", c.n);
+
+            if (c instanceof CaseSimple case_) {
+                if (cases.contains(case_.n)) {
+                    logger.logError("Duplicate case label %d%n", case_.n);
+                }
+                cases.add(case_.n);
+            } else if (c instanceof CaseDefault) {
+                if (foundDefault) {
+                    logger.logError("Duplicate default label%n");
+                }
+                foundDefault = true;
             }
-            cases.add(c.n);
-        });
+        }
     }
 
     @Override
-    public void visit(Case n) {
+    public void visit(CaseSimple n) {
         n.sl.forEach(s -> s.accept(this));
     }
 
     @Override
-    public void visit(Default n) {
+    public void visit(CaseDefault n) {
         n.sl.forEach(s -> s.accept(this));
     }
 

@@ -4,17 +4,11 @@ import ast.visitor.Visitor;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 import semantics.Logger;
 
-public class Switch extends Statement {
-    public Exp e;
-    public CaseList cl;
-
-    public Switch(Exp ae, CaseList acl, Location pos) {
-        super(pos);
-        e = ae;
-        cl = acl;
+public class CaseDefault extends Case {
+    public CaseDefault(StatementList asl, boolean breaks, Location pos) {
+        super(asl, breaks, pos);
     }
 
-    @Override
     public void accept(Visitor v) {
         Logger.getInstance().setLineNumber(line_number);
         v.visit(this);

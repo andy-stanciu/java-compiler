@@ -202,15 +202,11 @@ public final class ASTVisitor implements Visitor {
             System.out.println();
             c.accept(this);
         });
-        if (n.d.sl.size() > 0) {
-            System.out.println();
-            n.d.accept(this);
-        }
         indenter.pop();
     }
 
     @Override
-    public void visit(Case n) {
+    public void visit(CaseSimple n) {
         indenter.print();
         System.out.printf("Case %d: (line %d)", n.n, n.line_number);
         indenter.push();
@@ -228,7 +224,7 @@ public final class ASTVisitor implements Visitor {
     }
 
     @Override
-    public void visit(Default n) {
+    public void visit(CaseDefault n) {
         indenter.print();
         System.out.printf("Default: (line %d)", n.line_number);
         indenter.push();
@@ -237,6 +233,11 @@ public final class ASTVisitor implements Visitor {
             indenter.print();
             s.accept(this);
         });
+        if (n.breaks) {
+            System.out.println();
+            indenter.print();
+            System.out.print("Break");
+        }
         indenter.pop();
     }
 

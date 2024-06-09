@@ -8,8 +8,8 @@ import semantics.table.SymbolContext;
 import semantics.type.TypeBoolean;
 import semantics.type.TypeObject;
 
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 public final class CodeGenVisitor implements Visitor {
@@ -155,40 +155,64 @@ public final class CodeGenVisitor implements Visitor {
     public void visit(Switch n) {
         n.e.accept(this);
 
-        String defaultLabel = generator.nextLabel("default");
         String endSwitchLabel = generator.nextLabel("end_switch");
 
-        Queue<String> cases = new LinkedList<>();
-        n.cl.forEach(c -> {
-            String caseLabel = generator.nextLabel("case");
-            cases.offer(caseLabel);
-            generator.genBinary("cmpq", "$" + c.n, "%rax");
-            generator.genUnary("je", caseLabel);
-        });
+        List<String> cases = new ArrayList<>();
+        CaseDefault d = null;
+        int defaultIdx = -1;
 
-        generator.genUnary("jmp", defaultLabel);
-
-        n.cl.forEach(c -> {
-            String target = cases.poll();
-            generator.genLabel(target);
-            c.accept(this);
-            if (c.breaks) {
-                generator.genUnary("jmp", endSwitchLabel);
+        for (int i = 0; i < n.cl.size(); i++) {
+            var c = n.cl.get(i);
+            if (c instanceof CaseSimple case_) {
+                String caseLabel = generator.nextLabel("case");
+                cases.add(caseLabel);
+                generator.genBinary("cmpq", "$" + case_.n, "%rax");
+                generator.genUnary("je", caseLabel);
+            } else if (c instanceof CaseDefault default_) {
+                String defaultLabel = generator.nextLabel("default");
+                cases.add(defaultLabel);
+                d = default_;
+                defaultIdx = i;
             }
-        });
+        }
 
-        generator.genLabel(defaultLabel);
-        n.d.accept(this);
+        if (d != null) {
+            generator.genUnary("jmp", cases.get(defaultIdx));
+        } else {
+            generator.genUnary("jmp", endSwitchLabel);
+        }
+
+        for (int i = 0; i < n.cl.size(); i++) {
+            var c = n.cl.get(i);
+            if (c instanceof CaseSimple) {
+                generator.genLabel(cases.get(i));
+                c.accept(this);
+                if (c.breaks) {
+                    generator.genUnary("jmp", endSwitchLabel);
+                } else if (i + 1 == defaultIdx && defaultIdx + 1 < cases.size()) {
+                    generator.genUnary("jmp", cases.get(defaultIdx));
+                }
+            }
+        }
+
+        if (d != null) {
+            generator.genLabel(cases.get(defaultIdx));
+            d.accept(this);
+            if (!d.breaks && defaultIdx + 1 < cases.size()) {
+                generator.genUnary("jmp", cases.get(defaultIdx + 1));
+            }
+        }
+
         generator.genLabel(endSwitchLabel);
     }
 
     @Override
-    public void visit(Case n) {
+    public void visit(CaseSimple n) {
         n.sl.forEach(s -> s.accept(this));
     }
 
     @Override
-    public void visit(Default n) {
+    public void visit(CaseDefault n) {
         n.sl.forEach(s -> s.accept(this));
     }
 

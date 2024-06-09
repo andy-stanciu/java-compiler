@@ -236,10 +236,6 @@ public final class PrettyPrintVisitor implements Visitor {
             System.out.println();
             c.accept(this);
         });
-        if (n.d.sl.size() > 0) {
-            System.out.println();
-            n.d.accept(this);
-        }
         indenter.pop();
         System.out.println();
         indenter.print();
@@ -247,7 +243,7 @@ public final class PrettyPrintVisitor implements Visitor {
     }
 
     @Override
-    public void visit(Case n) {
+    public void visit(CaseSimple n) {
         indenter.print();
         System.out.print("case " + n.n + ":");
         indenter.push();
@@ -265,7 +261,7 @@ public final class PrettyPrintVisitor implements Visitor {
     }
 
     @Override
-    public void visit(Default n) {
+    public void visit(CaseDefault n) {
         indenter.print();
         System.out.print("default:");
         indenter.push();
@@ -274,6 +270,11 @@ public final class PrettyPrintVisitor implements Visitor {
             indenter.print();
             s.accept(this);
         });
+        if (n.breaks) {
+            System.out.println();
+            indenter.print();
+            System.out.print("break;");
+        }
         indenter.pop();
     }
 

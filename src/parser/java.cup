@@ -52,7 +52,6 @@ nonterminal Call Call;
 nonterminal Switch Switch;
 nonterminal CaseList CaseList;
 nonterminal Case Case;
-nonterminal Default Default;
 
 /* precedence declarations: */
 precedence right ASSIGN, ASSIGN_PLUS, ASSIGN_MINUS,   // =, +=, -=
@@ -223,13 +222,9 @@ Statement ::= SEMICOLON:x
               {: RESULT = new For(new NoOp(lxright), new NoOpExp(xxright), new NoOp(yxright), s2, fxleft); :};
 
 Switch ::= SWITCH:s LPAREN Expression:e RPAREN LCURL CaseList:cl RCURL
-            {: RESULT = new Switch(e, cl, new Default(new StatementList(clxright), clxright), sxleft); :}
+            {: RESULT = new Switch(e, cl, sxleft); :}
         | SWITCH:s LPAREN Expression:e RPAREN LCURL:lc RCURL
-            {: RESULT = new Switch(e, new CaseList(lcxright), new Default(new StatementList(lcxright), lcxright), sxleft); :}
-        | SWITCH:s LPAREN Expression:e RPAREN LCURL CaseList:cl Default:d RCURL
-            {: RESULT = new Switch(e, cl, d, sxleft); :}
-        | SWITCH:s LPAREN Expression:e RPAREN LCURL:lc Default:d RCURL
-            {: RESULT = new Switch(e, new CaseList(lcxright), d, sxleft); :};
+            {: RESULT = new Switch(e, new CaseList(lcxright), sxleft); :};
 
 CaseList ::= Case:c
             {: CaseList cl = new CaseList(cxleft);
@@ -240,22 +235,21 @@ CaseList ::= Case:c
                RESULT = cl; :};
 
 Case ::= CASE:c INT_LITERAL:n COLON StatementList:sl BREAK SEMICOLON
-            {: RESULT = new Case(Integer.parseInt(n), sl, true, cxleft); :}
+            {: RESULT = new CaseSimple(Integer.parseInt(n), sl, true, cxleft); :}
         | CASE:c INT_LITERAL:n COLON StatementList:sl
-            {: RESULT = new Case(Integer.parseInt(n), sl, false, cxleft); :}
+            {: RESULT = new CaseSimple(Integer.parseInt(n), sl, false, cxleft); :}
         | CASE:c INT_LITERAL:n COLON:co BREAK SEMICOLON
-            {: RESULT = new Case(Integer.parseInt(n), new StatementList(coxright), true, cxleft); :}
+            {: RESULT = new CaseSimple(Integer.parseInt(n), new StatementList(coxright), true, cxleft); :}
         | CASE:c INT_LITERAL:n COLON:co
-            {: RESULT = new Case(Integer.parseInt(n), new StatementList(coxright), false, cxleft); :};
-
-Default ::= DEFAULT:d COLON StatementList:sl BREAK SEMICOLON
-            {: RESULT = new Default(sl, dxleft); :}
+            {: RESULT = new CaseSimple(Integer.parseInt(n), new StatementList(coxright), false, cxleft); :}
+        | DEFAULT:d COLON StatementList:sl BREAK SEMICOLON
+            {: RESULT = new CaseDefault(sl, true, dxleft); :}
         | DEFAULT:d COLON StatementList:sl
-            {: RESULT = new Default(sl, dxleft); :}
+            {: RESULT = new CaseDefault(sl, false, dxleft); :}
         | DEFAULT:d COLON:co BREAK SEMICOLON
-            {: RESULT = new Default(new StatementList(coxright), dxleft); :}
+            {: RESULT = new CaseDefault(new StatementList(coxright), true, dxleft); :}
         | DEFAULT:d COLON:co
-            {: RESULT = new Default(new StatementList(coxright), dxleft); :};
+            {: RESULT = new CaseDefault(new StatementList(coxright), false, dxleft); :};
 
 StatementSimple ::= Call:c
                   {: RESULT = new Action(c, cxleft); :}
