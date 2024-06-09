@@ -187,7 +187,7 @@ public final class CodeGenVisitor implements Visitor {
             if (c instanceof CaseSimple) {
                 generator.genLabel(cases.get(i));
                 c.accept(this);
-                if (c.breaks) {
+                if (c.breaks || i + 1 == n.cl.size()) {
                     generator.genUnary("jmp", endSwitchLabel);
                 } else if (i + 1 == defaultIdx && defaultIdx + 1 < cases.size()) {
                     generator.genUnary("jmp", cases.get(defaultIdx));
