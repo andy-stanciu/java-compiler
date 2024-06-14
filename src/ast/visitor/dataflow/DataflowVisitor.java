@@ -1,0 +1,487 @@
+package ast.visitor.dataflow;
+
+import ast.*;
+import ast.visitor.Visitor;
+import dataflow.DataflowGraph;
+
+public final class DataflowVisitor implements Visitor {
+    @Override
+    public void visit(Program n) {
+        n.m.accept(this);
+        n.cl.forEach(c -> c.accept(this));
+    }
+
+    @Override
+    public void visit(MainClass n) {
+        System.out.println();
+        System.out.println("main:");
+        System.out.println();
+        DataflowGraph.create(n.sl).compute();
+    }
+
+    @Override
+    public void visit(ClassDeclSimple n) {
+        n.ml.forEach(m -> m.accept(this));
+    }
+
+    @Override
+    public void visit(ClassDeclExtends n) {
+        n.ml.forEach(m -> m.accept(this));
+    }
+
+    @Override
+    public void visit(VarDecl n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(MethodDecl n) {
+        System.out.println();
+        System.out.println(n.i + ":");
+        System.out.println();
+        DataflowGraph.create(n.sl).compute();
+    }
+
+    @Override
+    public void visit(Formal n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(VoidType n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(IntArrayType n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(BooleanType n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(IntegerType n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(IdentifierType n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(Block n) {
+        System.out.print("block");
+    }
+
+    @Override
+    public void visit(If n) {
+        System.out.print("if not (");
+        n.e.accept(this);
+        System.out.print(") goto ");
+    }
+
+    @Override
+    public void visit(IfElse n) {
+        System.out.print("if not (");
+        n.e.accept(this);
+        System.out.print(") goto ");
+    }
+
+    @Override
+    public void visit(Switch n) {
+        System.out.print("switch (");
+        n.e.accept(this);
+        System.out.print(")...");
+    }
+
+    @Override
+    public void visit(CaseSimple n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(CaseDefault n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(While n) {
+        System.out.print("if not (");
+        n.e.accept(this);
+        System.out.print(") goto ");
+    }
+
+    @Override
+    public void visit(For n) {
+        n.s0.accept(this);
+    }
+
+    @Override
+    public void visit(Print n) {
+        System.out.print("print(");
+        n.e.accept(this);
+        System.out.print(")");
+    }
+
+    @Override
+    public void visit(AssignSimple n) {
+        n.a.accept(this);
+        System.out.print(" = ");
+        n.e.accept(this);
+    }
+
+    @Override
+    public void visit(AssignPlus n) {
+        n.a.accept(this);
+        System.out.print(" += ");
+        n.e.accept(this);
+    }
+
+    @Override
+    public void visit(AssignMinus n) {
+        n.a.accept(this);
+        System.out.print(" -= ");
+        n.e.accept(this);
+    }
+
+    @Override
+    public void visit(AssignTimes n) {
+        n.a.accept(this);
+        System.out.print(" *= ");
+        n.e.accept(this);
+    }
+
+    @Override
+    public void visit(AssignDivide n) {
+        n.a.accept(this);
+        System.out.print(" /= ");
+        n.e.accept(this);
+    }
+
+    @Override
+    public void visit(AssignMod n) {
+        n.a.accept(this);
+        System.out.print(" %= ");
+        n.e.accept(this);
+    }
+
+    @Override
+    public void visit(AssignAnd n) {
+        n.a.accept(this);
+        System.out.print(" &= ");
+        n.e.accept(this);
+    }
+
+    @Override
+    public void visit(AssignOr n) {
+        n.a.accept(this);
+        System.out.print(" |= ");
+        n.e.accept(this);
+    }
+
+    @Override
+    public void visit(AssignXor n) {
+        n.a.accept(this);
+        System.out.print(" ^= ");
+        n.e.accept(this);
+    }
+
+    @Override
+    public void visit(AssignLeftShift n) {
+        n.a.accept(this);
+        System.out.print(" <<= ");
+        n.e.accept(this);
+    }
+
+    @Override
+    public void visit(AssignRightShift n) {
+        n.a.accept(this);
+        System.out.print(" >>= ");
+        n.e.accept(this);
+    }
+
+    @Override
+    public void visit(AssignUnsignedRightShift n) {
+        n.a.accept(this);
+        System.out.print(" >>>= ");
+        n.e.accept(this);
+    }
+
+    @Override
+    public void visit(PostIncrement n) {
+        n.a.accept(this);
+        System.out.print("++");
+    }
+
+    @Override
+    public void visit(PreIncrement n) {
+        System.out.print("++");
+        n.a.accept(this);
+    }
+
+    @Override
+    public void visit(PostDecrement n) {
+        n.a.accept(this);
+        System.out.print("--");
+    }
+
+    @Override
+    public void visit(PreDecrement n) {
+        System.out.print("--");
+        n.a.accept(this);
+    }
+
+    @Override
+    public void visit(And n) {
+        n.e1.accept(this);
+        System.out.print(" && ");
+        n.e2.accept(this);
+    }
+
+    @Override
+    public void visit(Or n) {
+        n.e1.accept(this);
+        System.out.print(" || ");
+        n.e2.accept(this);
+    }
+
+    @Override
+    public void visit(Equal n) {
+        n.e1.accept(this);
+        System.out.print(" == ");
+        n.e2.accept(this);
+    }
+
+    @Override
+    public void visit(NotEqual n) {
+        n.e1.accept(this);
+        System.out.print(" != ");
+        n.e2.accept(this);
+    }
+
+    @Override
+    public void visit(LessThan n) {
+        n.e1.accept(this);
+        System.out.print(" < ");
+        n.e2.accept(this);
+    }
+
+    @Override
+    public void visit(LessThanOrEqual n) {
+        n.e1.accept(this);
+        System.out.print(" <= ");
+        n.e2.accept(this);
+    }
+
+    @Override
+    public void visit(GreaterThan n) {
+        n.e1.accept(this);
+        System.out.print(" > ");
+        n.e2.accept(this);
+    }
+
+    @Override
+    public void visit(GreaterThanOrEqual n) {
+        n.e1.accept(this);
+        System.out.print(" >= ");
+        n.e2.accept(this);
+    }
+
+    @Override
+    public void visit(BitwiseAnd n) {
+        n.e1.accept(this);
+        System.out.print(" & ");
+        n.e2.accept(this);
+    }
+
+    @Override
+    public void visit(BitwiseOr n) {
+        n.e1.accept(this);
+        System.out.print(" | ");
+        n.e2.accept(this);
+    }
+
+    @Override
+    public void visit(BitwiseXor n) {
+        n.e1.accept(this);
+        System.out.print(" ^ ");
+        n.e2.accept(this);
+    }
+
+    @Override
+    public void visit(Plus n) {
+        n.e1.accept(this);
+        System.out.print(" + ");
+        n.e2.accept(this);
+    }
+
+    @Override
+    public void visit(Minus n) {
+        n.e1.accept(this);
+        System.out.print(" - ");
+        n.e2.accept(this);
+    }
+
+    @Override
+    public void visit(Times n) {
+        n.e1.accept(this);
+        System.out.print(" * ");
+        n.e2.accept(this);
+    }
+
+    @Override
+    public void visit(Divide n) {
+        n.e1.accept(this);
+        System.out.print(" / ");
+        n.e2.accept(this);
+    }
+
+    @Override
+    public void visit(Mod n) {
+        n.e1.accept(this);
+        System.out.print(" % ");
+        n.e2.accept(this);
+    }
+
+    @Override
+    public void visit(LeftShift n) {
+        n.e1.accept(this);
+        System.out.print(" << ");
+        n.e2.accept(this);
+    }
+
+    @Override
+    public void visit(RightShift n) {
+        n.e1.accept(this);
+        System.out.print(" >> ");
+        n.e2.accept(this);
+    }
+
+    @Override
+    public void visit(UnsignedRightShift n) {
+        n.e1.accept(this);
+        System.out.print(" >>> ");
+        n.e2.accept(this);
+    }
+
+    @Override
+    public void visit(ArrayLookup n) {
+        n.e1.accept(this);
+        System.out.print("[");
+        n.e2.accept(this);
+        System.out.print("]");
+    }
+
+    @Override
+    public void visit(ArrayLength n) {
+        n.e.accept(this);
+        System.out.print(".length");
+    }
+
+    @Override
+    public void visit(Action n) {
+        n.c.accept(this);
+    }
+
+    @Override
+    public void visit(Call n) {
+        n.e.accept(this);
+        System.out.print("." + n.i + "(");
+        for (int i = 0; i < n.el.size(); i++) {
+            if (i != 0) {
+                System.out.print(", ");
+            }
+            n.el.get(i).accept(this);
+        }
+        System.out.print(")");
+    }
+
+    @Override
+    public void visit(Field n) {
+        n.e.accept(this);
+        System.out.print("." + n.i);
+    }
+
+    @Override
+    public void visit(Ternary n) {
+        n.c.accept(this);
+        System.out.print(" ? ");
+        n.e1.accept(this);
+        System.out.print(" : ");
+        n.e2.accept(this);
+    }
+
+    @Override
+    public void visit(InstanceOf n) {
+        n.e.accept(this);
+        System.out.print(" instanceof " + n.i);
+    }
+
+    @Override
+    public void visit(IntegerLiteral n) {
+        System.out.print(n.i);
+    }
+
+    @Override
+    public void visit(True n) {
+        System.out.print("true");
+    }
+
+    @Override
+    public void visit(False n) {
+        System.out.print("false");
+    }
+
+    @Override
+    public void visit(IdentifierExp n) {
+        System.out.print(n.s);
+    }
+
+    @Override
+    public void visit(This n) {
+        System.out.print("this");
+    }
+
+    @Override
+    public void visit(NewArray n) {
+        System.out.print("new int[");
+        n.e.accept(this);
+        System.out.print("]");
+    }
+
+    @Override
+    public void visit(NewObject n) {
+        System.out.print("new " + n.i + "()");
+    }
+
+    @Override
+    public void visit(Not n) {
+        System.out.print("!");
+        n.e.accept(this);
+    }
+
+    @Override
+    public void visit(BitwiseNot n) {
+        System.out.print("~");
+        n.e.accept(this);
+    }
+
+    @Override
+    public void visit(Identifier n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void visit(NoOp n) {
+        System.out.print("no-op");
+    }
+
+    @Override
+    public void visit(NoOpExp n) {
+        System.out.print("no-op-exp");
+    }
+}
