@@ -108,12 +108,10 @@ public final class ASTVisitor implements Visitor {
         }
         for (int i = 0; i < n.sl.size(); i++) {
             n.sl.get(i).accept(this);
-            System.out.println();
+            if (i + 1 < n.sl.size()) {
+                System.out.println();
+            }
         }
-        indenter.print();
-        System.out.print("Return ");
-        n.r.accept(this);
-        System.out.printf(" (line %d)", n.r.getLineNumber());
         indenter.pop();
     }
 
@@ -160,6 +158,14 @@ public final class ASTVisitor implements Visitor {
             }
         }
         indenter.pop();
+    }
+
+    @Override
+    public void visit(Return n) {
+        indenter.print();
+        System.out.print("Return ");
+        n.e.accept(this);
+        System.out.printf(" (line %d)", n.line_number);
     }
 
     @Override

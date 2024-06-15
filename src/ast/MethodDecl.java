@@ -10,19 +10,17 @@ public class MethodDecl extends ASTNode {
     public FormalList fl;
     public VarDeclList vl;
     public StatementList sl;
-    public Returnable r;
     public boolean conflict;
     public semantics.type.Type type;
 
     public MethodDecl(Type at, Identifier ai, FormalList afl, VarDeclList avl,
-                      StatementList asl, Returnable ar, Location pos) {
+                      StatementList asl, Location pos) {
         super(pos);
         t = at;
         i = ai;
         fl = afl;
         vl = avl;
         sl = asl;
-        r = ar;
     }
 
     public void accept(Visitor v) {

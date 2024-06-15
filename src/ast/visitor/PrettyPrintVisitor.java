@@ -134,13 +134,6 @@ public final class PrettyPrintVisitor implements Visitor {
             n.sl.get(i).accept(this);
         }
         System.out.println();
-        indenter.print();
-        System.out.print("return");
-        if (!(n.r instanceof NoOpExp)) {
-            System.out.print(" ");
-        }
-        n.r.accept(this);
-        System.out.println(";");
         indenter.pop();
         indenter.print();
         System.out.print("}");
@@ -186,6 +179,17 @@ public final class PrettyPrintVisitor implements Visitor {
             }
         }
         indenter.pop();
+    }
+
+    @Override
+    public void visit(Return n) {
+        indenter.print();
+        System.out.print("return");
+        if (!(n.e instanceof NoOpExp)) {
+            System.out.print(" ");
+        }
+        n.e.accept(this);
+        System.out.print(";");
     }
 
     @Override

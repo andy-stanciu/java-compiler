@@ -29,6 +29,8 @@ public interface Visitor {
 
     void visit(Block n);
 
+    void visit(Return n);
+
     void visit(If n);
 
     void visit(IfElse n);

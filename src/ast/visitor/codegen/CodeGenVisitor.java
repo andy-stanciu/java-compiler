@@ -84,7 +84,6 @@ public final class CodeGenVisitor implements Visitor {
         }
 
         n.sl.forEach(s -> s.accept(this));
-        n.r.accept(this);
         symbolContext.exit();
 
         generator.genEpilogue();
@@ -123,6 +122,11 @@ public final class CodeGenVisitor implements Visitor {
     @Override
     public void visit(Block n) {
         n.sl.forEach(s -> s.accept(this));
+    }
+
+    @Override
+    public void visit(Return n) {
+        n.e.accept(this);
     }
 
     @Override

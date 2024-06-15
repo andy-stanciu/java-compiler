@@ -20,6 +20,7 @@ public final class SymbolContext {
     private final SymbolTable global;
     private SymbolTable table;
     private ClassInfo currentClass;
+    private MethodInfo currentMethod;
 
     private SymbolContext() {
         this.logger = Logger.getInstance();
@@ -61,6 +62,7 @@ public final class SymbolContext {
 
         if (info instanceof MethodInfo methodInfo) {
             table = methodInfo.getTable();
+            currentMethod = methodInfo;
         } else {
             throw new IllegalArgumentException();
         }
@@ -75,7 +77,12 @@ public final class SymbolContext {
             throw new IllegalStateException("Already in global table");
         }
 
-        if (table.isClass()) currentClass = null;
+        if (table.isClass()) {
+            currentClass = null;
+        } else if (table.isLocal()) {
+            currentMethod = null;
+        }
+
         table = table.getParent();
     }
 
@@ -89,6 +96,18 @@ public final class SymbolContext {
         }
 
         return currentClass;
+    }
+
+    /**
+     * @return The {@link MethodInfo} that is currently in scope.
+     * @throws IllegalStateException If no method is currently in scope.
+     */
+    public MethodInfo getCurrentMethod() {
+        if (currentMethod == null) {
+            throw new IllegalStateException();
+        }
+
+        return currentMethod;
     }
 
     /**

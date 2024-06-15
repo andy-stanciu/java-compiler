@@ -78,6 +78,11 @@ public final class DataflowVisitor implements Visitor {
     }
 
     @Override
+    public void visit(Return n) {
+        // TODO
+    }
+
+    @Override
     public void visit(If n) {
         System.out.print("if not (");
         n.e.accept(this);

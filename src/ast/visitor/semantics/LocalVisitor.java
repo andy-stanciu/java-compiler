@@ -67,18 +67,6 @@ public final class LocalVisitor implements Visitor {
 
         symbolContext.enterMethod(n.i.s);
         n.sl.forEach(s -> s.accept(this));  // method statements
-        n.r.accept(this);                   // return expression
-
-        // is the return expression assignable to the return type?
-        if (!n.r.getReturnableType().isAssignableTo(n.type)) {
-            logger.logError("Method \"%s\" expected to return %s, but provided %s%n",
-                    n.i.s, n.type, n.r.getReturnableType());
-        }
-
-        // if returning void, then the return expression MUST be a no-op
-        if (n.type.equals(TypeVoid.getInstance()) && !(n.r instanceof NoOpExp)) {
-            logger.logError("Cannot return a value from a method with void result type%n");
-        }
 
         symbolContext.exit();
     }
@@ -116,6 +104,24 @@ public final class LocalVisitor implements Visitor {
     @Override
     public void visit(Block n) {
         n.sl.forEach(s -> s.accept(this));  // block statements
+    }
+
+    @Override
+    public void visit(Return n) {
+        var m = symbolContext.getCurrentMethod();
+        n.e.accept(this);
+
+        // is the return expression assignable to the return type?
+        if (!n.e.type.isAssignableTo(m.returnType)) {
+            logger.logError("Method \"%s\" expected to return %s, but provided %s%n",
+                    m.name, m.returnType, n.e.type);
+        }
+
+        // if returning void, then the return expression MUST be a no-op
+        // (as opposed to another void-returning method, for example)
+        if (m.returnType.equals(TypeVoid.getInstance()) && !(n.e instanceof NoOpExp)) {
+            logger.logError("Cannot return a value from a method with void result type%n");
+        }
     }
 
     @Override
