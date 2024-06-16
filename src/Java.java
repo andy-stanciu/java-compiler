@@ -151,8 +151,18 @@ public class Java {
                 status = 1;
                 System.err.printf("Static semantic analysis found %d error(s), %d warning(s)%n",
                         logger.getErrorCount(), logger.getWarningCount());
-            } else {
-                program.accept(new DataflowVisitor());
+                return status;
+            }
+
+            logger.restart();
+            var dataflowVisitor = new DataflowVisitor(symbolContext);
+            program.accept(dataflowVisitor);
+            dataflowVisitor.dump();
+
+            if (logger.hasError()) {
+                status = 1;
+                System.err.printf("Dataflow analysis found %d error(s), %d warning(s)%n",
+                        logger.getErrorCount(), logger.getWarningCount());
             }
         } catch (Exception e) {
             System.err.println("Unexpected internal compiler error: " + e);
@@ -182,14 +192,26 @@ public class Java {
             program.accept(new ClassVisitor(symbolContext));
             program.accept(new LocalVisitor(symbolContext));
 
-            if (!logger.hasError()) {  // generate code only if no error
-                program.accept(new CodeDataVisitor(symbolContext));
-                program.accept(new CodeGenVisitor(symbolContext));
-            } else {
+            if (logger.hasError()) {
                 status = 1;
                 System.err.printf("Static semantic analysis found %d error(s), %d warning(s)%n",
                         logger.getErrorCount(), logger.getWarningCount());
+                return status;
             }
+
+            logger.restart();
+            program.accept(new DataflowVisitor(symbolContext));
+
+            if (logger.hasError()) {
+                status = 1;
+                System.err.printf("Dataflow analysis found %d error(s), %d warning(s)%n",
+                        logger.getErrorCount(), logger.getWarningCount());
+                return status;
+            }
+
+            // generate code only if no errors
+            program.accept(new CodeDataVisitor(symbolContext));
+            program.accept(new CodeGenVisitor(symbolContext));
         } catch (Exception e) {
             System.err.println("Unexpected internal compiler error: " + e);
             e.printStackTrace();

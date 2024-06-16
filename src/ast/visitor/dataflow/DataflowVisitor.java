@@ -3,8 +3,31 @@ package ast.visitor.dataflow;
 import ast.*;
 import ast.visitor.Visitor;
 import dataflow.DataflowGraph;
+import semantics.table.SymbolContext;
+
+import java.util.Map;
+import java.util.TreeMap;
 
 public final class DataflowVisitor implements Visitor {
+    private final SymbolContext symbolContext;
+    private final Map<String, DataflowGraph> graphs;
+
+    public DataflowVisitor(SymbolContext symbolContext) {
+        this.symbolContext = symbolContext;
+        this.graphs = new TreeMap<>();
+    }
+
+    /**
+     * Prints all dataflow graphs to standard out.
+     */
+    public void dump() {
+        graphs.forEach((m, g) -> {
+            System.out.println(m + ":");
+            g.print();
+            System.out.println();
+        });
+    }
+
     @Override
     public void visit(Program n) {
         n.m.accept(this);
@@ -13,23 +36,31 @@ public final class DataflowVisitor implements Visitor {
 
     @Override
     public void visit(MainClass n) {
-        System.out.println();
-        System.out.println("main:");
-        System.out.println();
+        symbolContext.enterClass(n.i1.s);
+        symbolContext.enterMethod("main");
+        var m = symbolContext.getCurrentMethod();
 
-        DataflowGraph.create(n.sl)
+        n.dataflow = DataflowGraph.create(symbolContext, m, n.sl)
                 .build(true)
-                .print();
+                .validateReturnStatements();
+
+        graphs.put(m.getQualifiedName(), n.dataflow);
+        symbolContext.exit();
+        symbolContext.exit();
     }
 
     @Override
     public void visit(ClassDeclSimple n) {
+        symbolContext.enterClass(n.i.s);
         n.ml.forEach(m -> m.accept(this));
+        symbolContext.exit();
     }
 
     @Override
     public void visit(ClassDeclExtends n) {
+        symbolContext.enterClass(n.i.s);
         n.ml.forEach(m -> m.accept(this));
+        symbolContext.exit();
     }
 
     @Override
@@ -39,13 +70,15 @@ public final class DataflowVisitor implements Visitor {
 
     @Override
     public void visit(MethodDecl n) {
-        System.out.println();
-        System.out.println(n.i + ":");
-        System.out.println();
+        symbolContext.enterMethod(n.i.s);
+        var m = symbolContext.getCurrentMethod();
 
-        DataflowGraph.create(n.sl)
+        n.dataflow = DataflowGraph.create(symbolContext, m, n.sl)
                 .build(true)
-                .print();
+                .validateReturnStatements();
+
+        graphs.put(m.getQualifiedName(), n.dataflow);
+        symbolContext.exit();
     }
 
     @Override
@@ -489,11 +522,11 @@ public final class DataflowVisitor implements Visitor {
 
     @Override
     public void visit(NoOp n) {
-        System.out.print("no-op");
+        System.out.print("(no-op)");
     }
 
     @Override
     public void visit(NoOpExp n) {
-        System.out.print("no-op-exp");
+        System.out.print("void");
     }
 }

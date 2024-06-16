@@ -29,6 +29,13 @@ public final class Logger {
     }
 
     /**
+     * Re-initializes the logger on the same source file.
+     */
+    public void restart() {
+        start(sourceFile);
+    }
+
+    /**
      * Sets the logger's current line number.
      * @param lineNumber The line number.
      */

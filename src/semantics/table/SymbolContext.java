@@ -2,6 +2,7 @@ package semantics.table;
 
 import semantics.Logger;
 import semantics.info.*;
+import semantics.type.TypeVoid;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -135,8 +136,9 @@ public final class SymbolContext {
         var class_ = new ClassInfo(table, name, main);
         if (main) {
             // define main method, special case
-            class_.getTable().addEntry(METHOD_PREFIX + "main",
-                    new MethodInfo(class_.getTable(), "main"));
+            var mainMethod = new MethodInfo(class_.getTable(), "main");
+            mainMethod.returnType = TypeVoid.getInstance();
+            class_.getTable().addEntry(METHOD_PREFIX + "main", mainMethod);
         }
 
         return addEntry(name, class_) ? class_ : null;

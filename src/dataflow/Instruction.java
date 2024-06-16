@@ -52,6 +52,8 @@ public class Instruction {
             type = InstructionType.FOR;
         } else if (statement instanceof Switch) {
             type = InstructionType.SWITCH;
+        } else if (statement instanceof Return) {
+            type = InstructionType.RETURN;
         }
 
         return new Instruction(statement, type, next);

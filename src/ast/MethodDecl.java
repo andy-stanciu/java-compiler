@@ -1,6 +1,7 @@
 package ast;
 
 import ast.visitor.Visitor;
+import dataflow.DataflowGraph;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 import semantics.Logger;
 
@@ -12,6 +13,7 @@ public class MethodDecl extends ASTNode {
     public StatementList sl;
     public boolean conflict;
     public semantics.type.Type type;
+    public DataflowGraph dataflow;
 
     public MethodDecl(Type at, Identifier ai, FormalList afl, VarDeclList avl,
                       StatementList asl, Location pos) {

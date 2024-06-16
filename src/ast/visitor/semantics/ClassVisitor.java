@@ -37,7 +37,12 @@ public final class ClassVisitor implements Visitor {
 
     @Override
     public void visit(MainClass n) {
-        throw new IllegalStateException();
+        symbolContext.enterClass(n.i1.s);
+        symbolContext.enterMethod("main");
+        var m = symbolContext.getCurrentMethod();
+        m.lineNumber = n.line_number;
+        symbolContext.exit();
+        symbolContext.exit();
     }
 
     @Override
@@ -126,6 +131,7 @@ public final class ClassVisitor implements Visitor {
 
         n.t.accept(this);  // return type
         methodInfo.returnType = n.type = n.t.type;
+        methodInfo.lineNumber = n.line_number;
 
         symbolContext.enterMethod(n.i.s);
 

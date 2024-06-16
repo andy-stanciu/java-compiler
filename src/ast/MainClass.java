@@ -1,12 +1,14 @@
 package ast;
 
 import ast.visitor.Visitor;
+import dataflow.DataflowGraph;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 import semantics.Logger;
 
 public class MainClass extends ASTNode {
     public Identifier i1, i2;
     public StatementList sl;
+    public DataflowGraph dataflow;
 
     public MainClass(Identifier ai1, Identifier ai2, StatementList asl,
                      Location pos) {

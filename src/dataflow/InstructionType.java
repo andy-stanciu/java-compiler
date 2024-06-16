@@ -10,5 +10,6 @@ public enum InstructionType {
     SWITCH,
     JUMP,
     END,
-    START
+    START,
+    RETURN
 }

@@ -3,24 +3,40 @@ package dataflow;
 import ast.*;
 import ast.visitor.dataflow.DataflowVisitor;
 import java_cup.runtime.ComplexSymbolFactory.Location;
+import semantics.Logger;
+import semantics.info.MethodInfo;
+import semantics.table.SymbolContext;
+import semantics.type.TypeVoid;
 
 import java.util.Deque;
 import java.util.LinkedList;
 
 public final class DataflowGraph {
+    private final SymbolContext symbolContext;
+    private final Logger logger;
+    private final MethodInfo method;
     private final StatementList statements;
     private Deque<Instruction> graph;
 
     /**
      * Initializes a new {@link DataflowGraph}.
+     * @param symbolContext The current symbol context.
+     * @param method The method containing the statements.
      * @param statements The statements to track.
      * @return A new {@link DataflowGraph}.
      */
-    public static DataflowGraph create(StatementList statements) {
-        return new DataflowGraph(statements);
+    public static DataflowGraph create(SymbolContext symbolContext,
+                                       MethodInfo method,
+                                       StatementList statements) {
+        return new DataflowGraph(symbolContext, method, statements);
     }
 
-    private DataflowGraph(StatementList statements) {
+    private DataflowGraph(SymbolContext symbolContext,
+                          MethodInfo method,
+                          StatementList statements) {
+        this.symbolContext = symbolContext;
+        this.logger = Logger.getInstance();
+        this.method = method;
         this.statements = statements;
     }
 
@@ -34,6 +50,41 @@ public final class DataflowGraph {
         if (reduce) reduceInstructionGraph(graph);
         assignInstructionNumbers(graph);
         return this;
+    }
+
+    /**
+     * Validates return statements in this dataflow graph.
+     * Currently, only allows a singular (optional) return statement
+     * that must be the final instruction in the graph.
+     * @return This {@link DataflowGraph}.
+     */
+    public DataflowGraph validateReturnStatements() {
+        if (graph == null) {
+            throw new IllegalStateException();
+        }
+        validateReturnStatements(graph);
+        return this;
+    }
+
+    private void validateReturnStatements(Deque<Instruction> graph) {
+        boolean returns = false;
+
+        for (var i : graph) {
+            if (i.getType() == InstructionType.RETURN) {
+                returns = true;
+                if (i.getNext() != Instruction.END) {
+                    logger.setLineNumber(i.getStatement().line_number);
+                    logger.logError("Illegal return statement%n");
+                }
+            }
+        }
+
+        if (!returns && !method.returnType.equals(TypeVoid.getInstance())) {
+            // we did not return from a non-void method
+            logger.setLineNumber(method.lineNumber);
+            logger.logError("Missing return statement for method \"%s\" returning %s%n",
+                    method.name, method.returnType);
+        }
     }
 
     /**
@@ -68,6 +119,8 @@ public final class DataflowGraph {
         var first = graph.peekFirst();
         if (first != null) {  // start instruction
             graph.offerFirst(Instruction.createStart(first));
+        } else {
+            graph.offerFirst(Instruction.createStart(Instruction.END));
         }
 
         return graph;
@@ -170,7 +223,7 @@ public final class DataflowGraph {
     }
 
     private void printInstructionGraph(Deque<Instruction> graph) {
-        var v = new DataflowVisitor();
+        var v = new DataflowVisitor(symbolContext);
 
         graph.forEach(i -> {
             System.out.print(i.getNumber() + ": ");
