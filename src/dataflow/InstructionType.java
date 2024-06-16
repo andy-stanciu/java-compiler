@@ -9,5 +9,6 @@ public enum InstructionType {
     FOR,
     SWITCH,
     JUMP,
-    END
+    END,
+    START
 }

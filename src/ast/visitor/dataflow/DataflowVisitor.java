@@ -16,7 +16,10 @@ public final class DataflowVisitor implements Visitor {
         System.out.println();
         System.out.println("main:");
         System.out.println();
-        DataflowGraph.create(n.sl).compute();
+
+        DataflowGraph.create(n.sl)
+                .build(true)
+                .print();
     }
 
     @Override
@@ -39,7 +42,10 @@ public final class DataflowVisitor implements Visitor {
         System.out.println();
         System.out.println(n.i + ":");
         System.out.println();
-        DataflowGraph.create(n.sl).compute();
+
+        DataflowGraph.create(n.sl)
+                .build(true)
+                .print();
     }
 
     @Override
@@ -79,7 +85,8 @@ public final class DataflowVisitor implements Visitor {
 
     @Override
     public void visit(Return n) {
-        // TODO
+        System.out.print("return ");
+        n.e.accept(this);
     }
 
     @Override
