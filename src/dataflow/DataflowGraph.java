@@ -46,9 +46,9 @@ public final class DataflowGraph {
      * @return This {@link DataflowGraph}.
      */
     public DataflowGraph build(boolean reduce) {
-        graph = constructInstructionGraph(statements);
-        if (reduce) reduceInstructionGraph(graph);
-        assignInstructionNumbers(graph);
+        constructInstructionGraph(statements);
+        if (reduce) reduceInstructionGraph();
+        assignInstructionNumbers();
         return this;
     }
 
@@ -62,11 +62,23 @@ public final class DataflowGraph {
         if (graph == null) {
             throw new IllegalStateException();
         }
-        validateReturnStatements(graph);
+        validateReturn();
         return this;
     }
 
-    private void validateReturnStatements(Deque<Instruction> graph) {
+    /**
+     * Prints this dataflow graph.
+     * @return This {@link DataflowGraph}.
+     */
+    public DataflowGraph print() {
+        if (graph == null) {
+            throw new IllegalStateException();
+        }
+        printInstructionGraph();
+        return this;
+    }
+
+    private void validateReturn() {
         boolean returns = false;
 
         for (var i : graph) {
@@ -87,19 +99,7 @@ public final class DataflowGraph {
         }
     }
 
-    /**
-     * Prints this dataflow graph.
-     * @return This {@link DataflowGraph}.
-     */
-    public DataflowGraph print() {
-        if (graph == null) {
-            throw new IllegalStateException();
-        }
-        printInstructionGraph(graph);
-        return this;
-    }
-
-    private void reduceInstructionGraph(Deque<Instruction> graph) {
+    private void reduceInstructionGraph() {
         var itr = graph.iterator();
         while (itr.hasNext()) {
             var i = itr.next();
@@ -113,7 +113,7 @@ public final class DataflowGraph {
         }
     }
 
-    private Deque<Instruction> constructInstructionGraph(StatementList statements) {
+    private void constructInstructionGraph(StatementList statements) {
         var graph = constructInstructionGraphRec(statements);
 
         var first = graph.peekFirst();
@@ -123,7 +123,7 @@ public final class DataflowGraph {
             graph.offerFirst(Instruction.createStart(Instruction.END));
         }
 
-        return graph;
+        this.graph = graph;
     }
 
     private Deque<Instruction> constructInstructionGraphRec(StatementList statements) {
@@ -222,7 +222,7 @@ public final class DataflowGraph {
         return done;
     }
 
-    private void printInstructionGraph(Deque<Instruction> graph) {
+    private void printInstructionGraph() {
         var v = new DataflowVisitor(symbolContext);
 
         graph.forEach(i -> {
@@ -242,7 +242,7 @@ public final class DataflowGraph {
         });
     }
 
-    private void assignInstructionNumbers(Deque<Instruction> graph) {
+    private void assignInstructionNumbers() {
         int n = 0;
         for (var i : graph) {
             i.setNumber(n++);
