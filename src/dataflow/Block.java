@@ -4,30 +4,37 @@ import java.util.*;
 import java.util.function.Consumer;
 
 public final class Block implements Iterable<Instruction> {
+    private final BlockType type;
     private final List<Instruction> instructions;
     private final Set<Block> next;
     private int number;
 
-    public static final Block END = new Block();
+    public static Block createStart(Instruction start) {
+        var block = new Block(start, BlockType.START);
+        start.setBlock(block);
+        return block;
+    }
+
+    public static final Block END = new Block(BlockType.END);
 
     public static Block fromLeader(Instruction leader) {
-        var block = new Block(leader);
+        var block = new Block(leader, BlockType.BASIC);
         leader.setBlock(block);
         return block;
     }
 
-    private Block(Instruction leader) {
-        this();
+    private Block(BlockType type) {
+        this.instructions = new ArrayList<>();
+        this.next = new HashSet<>();
+        this.type = type;
+    }
+
+    private Block(Instruction leader, BlockType type) {
+        this(type);
         this.instructions.add(leader);
     }
 
-    private Block() {
-        this.instructions = new ArrayList<>();
-        this.next = new HashSet<>();
-    }
-
     public void addInstruction(Instruction instruction) {
-        instruction.setbIndex(instructions.size());
         instructions.add(instruction);
         instruction.setBlock(this);
     }
@@ -41,6 +48,10 @@ public final class Block implements Iterable<Instruction> {
 
     public Set<Block> getNext() {
         return next;
+    }
+
+    public BlockType getType() {
+        return type;
     }
 
     public int getNumber() {
@@ -73,5 +84,9 @@ public final class Block implements Iterable<Instruction> {
 
     public int instructionCount() {
         return instructions.size();
+    }
+
+    public Instruction getInstruction(int i) {
+        return instructions.get(i);
     }
 }

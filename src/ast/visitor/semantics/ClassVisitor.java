@@ -41,6 +41,7 @@ public final class ClassVisitor implements Visitor {
         symbolContext.enterMethod("main");
         var m = symbolContext.getCurrentMethod();
         m.lineNumber = n.line_number;
+        m.endLineNumber = n.endPos.getLine();
         symbolContext.exit();
         symbolContext.exit();
     }
@@ -132,6 +133,7 @@ public final class ClassVisitor implements Visitor {
         n.t.accept(this);  // return type
         methodInfo.returnType = n.type = n.t.type;
         methodInfo.lineNumber = n.line_number;
+        methodInfo.endLineNumber = n.endPos.getLine();
 
         symbolContext.enterMethod(n.i.s);
 

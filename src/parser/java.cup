@@ -84,10 +84,10 @@ Program ::= MainClass:m ClassDeclarationList:cl
         | MainClass:m
             {: RESULT = new Program(m, new ClassDeclList(mxright), mxleft); :};
 
-MainClass ::= CLASS:c Identifier:cid LCURL PUBLIC STATIC VOID MAIN LPAREN STRING LSQUARE RSQUARE Identifier:aid RPAREN LCURL StatementList:sl RCURL RCURL
-              {: RESULT = new MainClass(cid, aid, sl, cxleft); :}
-          | CLASS:c Identifier:cid LCURL PUBLIC STATIC VOID MAIN LPAREN STRING LSQUARE RSQUARE Identifier:aid RPAREN LCURL:lc RCURL RCURL
-                          {: RESULT = new MainClass(cid, aid, new StatementList(lcxright), cxleft); :};
+MainClass ::= CLASS:c Identifier:cid LCURL PUBLIC STATIC VOID MAIN LPAREN STRING LSQUARE RSQUARE Identifier:aid RPAREN LCURL StatementList:sl RCURL:e RCURL
+              {: RESULT = new MainClass(cid, aid, sl, cxleft, exright); :}
+          | CLASS:c Identifier:cid LCURL PUBLIC STATIC VOID MAIN LPAREN STRING LSQUARE RSQUARE Identifier:aid RPAREN LCURL:lc RCURL:e RCURL
+                          {: RESULT = new MainClass(cid, aid, new StatementList(lcxright), cxleft, exright); :};
 
 ClassDeclarationList ::= ClassDeclaration:c
                          {: ClassDeclList cl = new ClassDeclList(cxleft);
@@ -133,22 +133,22 @@ MethodDeclarationList ::= MethodDeclaration:m
                           {: ml.add(m);
                              RESULT = ml; :};
 
-MethodDeclaration ::= PUBLIC:p Type:t Identifier:mid LPAREN FormalList:fl RPAREN LCURL VarDeclarationList:vl StatementList:sl RCURL
-                      {: RESULT = new MethodDecl(t, mid, fl, vl, sl, pxleft); :}
-                  | PUBLIC:p Type:t Identifier:mid LPAREN:lp RPAREN LCURL VarDeclarationList:vl StatementList:sl RCURL
-                      {: RESULT = new MethodDecl(t, mid, new FormalList(lpxright), vl, sl, pxleft); :}
-                  | PUBLIC:p Type:t Identifier:mid LPAREN FormalList:fl RPAREN LCURL:lc StatementList:sl RCURL
-                      {: RESULT = new MethodDecl(t, mid, fl, new VarDeclList(lcxright), sl, pxleft); :}
-                  | PUBLIC:p Type:t Identifier:mid LPAREN FormalList:fl RPAREN LCURL VarDeclarationList:vl RCURL
-                      {: RESULT = new MethodDecl(t, mid, fl, vl, new StatementList(vlxright), pxleft); :}
-                  | PUBLIC:p Type:t Identifier:mid LPAREN FormalList:fl RPAREN LCURL:lc RCURL
-                      {: RESULT = new MethodDecl(t, mid, fl, new VarDeclList(lcxright), new StatementList(lcxright), pxleft); :}
-                  | PUBLIC:p Type:t Identifier:mid LPAREN:lp RPAREN LCURL VarDeclarationList:vl RCURL
-                      {: RESULT = new MethodDecl(t, mid, new FormalList(lpxright), vl, new StatementList(vlxright), pxleft); :}
-                  | PUBLIC:p Type:t Identifier:mid LPAREN:lp RPAREN LCURL:lc StatementList:sl RCURL
-                      {: RESULT = new MethodDecl(t, mid, new FormalList(lpxright), new VarDeclList(lcxright), sl, pxleft); :}
-                  | PUBLIC:p Type:t Identifier:mid LPAREN:lp RPAREN LCURL:lc RCURL
-                      {: RESULT = new MethodDecl(t, mid, new FormalList(lpxright), new VarDeclList(lcxright), new StatementList(lcxright), pxleft); :};
+MethodDeclaration ::= PUBLIC:p Type:t Identifier:mid LPAREN FormalList:fl RPAREN LCURL VarDeclarationList:vl StatementList:sl RCURL:e
+                      {: RESULT = new MethodDecl(t, mid, fl, vl, sl, pxleft, exright); :}
+                  | PUBLIC:p Type:t Identifier:mid LPAREN:lp RPAREN LCURL VarDeclarationList:vl StatementList:sl RCURL:e
+                      {: RESULT = new MethodDecl(t, mid, new FormalList(lpxright), vl, sl, pxleft, exright); :}
+                  | PUBLIC:p Type:t Identifier:mid LPAREN FormalList:fl RPAREN LCURL:lc StatementList:sl RCURL:e
+                      {: RESULT = new MethodDecl(t, mid, fl, new VarDeclList(lcxright), sl, pxleft, exright); :}
+                  | PUBLIC:p Type:t Identifier:mid LPAREN FormalList:fl RPAREN LCURL VarDeclarationList:vl RCURL:e
+                      {: RESULT = new MethodDecl(t, mid, fl, vl, new StatementList(vlxright), pxleft, exright); :}
+                  | PUBLIC:p Type:t Identifier:mid LPAREN FormalList:fl RPAREN LCURL:lc RCURL:e
+                      {: RESULT = new MethodDecl(t, mid, fl, new VarDeclList(lcxright), new StatementList(lcxright), pxleft, exright); :}
+                  | PUBLIC:p Type:t Identifier:mid LPAREN:lp RPAREN LCURL VarDeclarationList:vl RCURL:e
+                      {: RESULT = new MethodDecl(t, mid, new FormalList(lpxright), vl, new StatementList(vlxright), pxleft, exright); :}
+                  | PUBLIC:p Type:t Identifier:mid LPAREN:lp RPAREN LCURL:lc StatementList:sl RCURL:e
+                      {: RESULT = new MethodDecl(t, mid, new FormalList(lpxright), new VarDeclList(lcxright), sl, pxleft, exright); :}
+                  | PUBLIC:p Type:t Identifier:mid LPAREN:lp RPAREN LCURL:lc RCURL:e
+                      {: RESULT = new MethodDecl(t, mid, new FormalList(lpxright), new VarDeclList(lcxright), new StatementList(lcxright), pxleft, exright); :};
 
 FormalList ::= Formal:f
                {: FormalList fl = new FormalList(fxleft);

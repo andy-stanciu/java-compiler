@@ -14,13 +14,18 @@ public final class Instruction {
     private final Set<Instruction> targeting;
     private int number;
     private Block block;
-    private int bIndex;
+    public boolean unreachable;
+    public int lineNumber;
 
-    public static final Instruction END =
-            new Instruction(InstructionType.END, -1);
+    public static Instruction createEnd(int lineNumber) {
+        var end = new Instruction(InstructionType.END, -1);
+        end.lineNumber = lineNumber;
+        return end;
+    }
 
-    public static Instruction createStart(Instruction to) {
+    public static Instruction createStart(int lineNumber, Instruction to) {
         var start = new Instruction(InstructionType.START, 0);
+        start.lineNumber = lineNumber;
         start.next = to;
         to.prev.add(start);
         return start;
@@ -28,6 +33,7 @@ public final class Instruction {
 
     public static Instruction createJump(Instruction to) {
         var jump = new Instruction(null, InstructionType.JUMP, null);
+        jump.lineNumber = to.lineNumber;
         jump.setTarget(to);
         return jump;
     }
@@ -71,6 +77,7 @@ public final class Instruction {
         this.target = target;
         this.prev = new HashSet<>();
         this.targeting = new HashSet<>();
+        this.lineNumber = statement != null ? statement.line_number : -1;
 
         if (next != null) next.prev.add(this);
         if (target != null) target.targeting.add(this);
@@ -152,10 +159,6 @@ public final class Instruction {
         this.block = block;
     }
 
-    public void setbIndex(int bIndex) {
-        this.bIndex = bIndex;
-    }
-
     public boolean isJump() {
         return type == InstructionType.JUMP;
     }
@@ -174,7 +177,7 @@ public final class Instruction {
 
     public boolean isLeader() {
         // the end is a "leader"
-        if (this == Instruction.END) {
+        if (type == InstructionType.END) {
             return true;
         }
 
@@ -193,11 +196,8 @@ public final class Instruction {
         return !targeting.isEmpty();
     }
 
-    public boolean isFinalInstruction() {
-        if (!hasBlock()) {
-            throw new IllegalStateException();
-        }
-
-        return bIndex == block.instructionCount() - 1;
+    public boolean reachesEnd() {
+        return next != null && next.type == InstructionType.END ||
+                target != null && target.type == InstructionType.END;
     }
 }

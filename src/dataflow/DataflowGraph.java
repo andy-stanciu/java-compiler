@@ -87,13 +87,20 @@ public final class DataflowGraph {
     }
 
     private void constructBlockGraph() {
-        var start = instructionGraph.peekFirst();
-        assert(start != null);
+        var istart = instructionGraph.peekFirst();
+        assert(istart != null);
 
         blockGraph = new LinkedList<>();
-        var first = start.getNext();
-        if (first != Instruction.END) {
-            constructBlockGraphRec(Block.fromLeader(first));
+        var start = Block.createStart(istart);
+        blockGraph.offerLast(start);
+
+        var ifirst = istart.getNext();
+        if (ifirst.getType() != InstructionType.END) {
+            var first = Block.fromLeader(ifirst);
+            start.addNext(first);
+            constructBlockGraphRec(first);
+        } else {
+            start.addNext(Block.END);
         }
     }
 
@@ -123,7 +130,7 @@ public final class DataflowGraph {
             return;
         }
 
-        if (i == Instruction.END) {
+        if (i.getType() == InstructionType.END) {
             prev.addNext(Block.END);
             return;
         }
@@ -140,13 +147,15 @@ public final class DataflowGraph {
 
     private void printBlockGraph() {
         blockGraph.forEach(b -> {
-            System.out.print("Block " + b.getNumber());
+            System.out.print(b.getType() == BlockType.START ? "<start>" :
+                    ("Block " + b.getNumber()));
             if (b.hasNext()) {
                 System.out.print(" -> ");
                 int i = 0;
                 for (var n : b.getNext()) {
                     if (i++ != 0) System.out.print(", ");
-                    System.out.print(n == Block.END ? "<end>" : n.getNumber());
+                    System.out.print(n.getType() == BlockType.END ? "<end>" :
+                            n.getNumber());
                 }
             }
             System.out.println();
@@ -160,25 +169,42 @@ public final class DataflowGraph {
     private void validateReturn() {
         boolean isVoid = method.returnType.equals(TypeVoid.getInstance());
 
-        for (var i : instructionGraph) {
-            if (i.getType() == InstructionType.RETURN) {
-                if (!i.isFinalInstruction()) {
-                    logger.setLineNumber(i.getStatement().line_number);
-                    logger.logError("Illegal return statement%n");
-                }
-            } else {
-                // if anything that is not a return statement is followed by the
-                // end (next or target), then we are missing a return statement
-                if (!isVoid && (i.getNext() == Instruction.END ||
-                        i.getTarget() == Instruction.END)) {
-                    if (i.getType() == InstructionType.START) {
-                        logger.setLineNumber(method.lineNumber);
-                    } else {
-                        logger.setLineNumber(i.getStatement().line_number);
-                    }
+        for (var b : blockGraph) {
+            int c = 0;
 
-                    logger.logError("Missing return statement%n");
+            for (var i : b) {
+                if (i.getType() == InstructionType.RETURN) {
+                    // is this the last instruction in the block? if not,
+                    // the rest of the instructions in the block are
+                    // unreachable!
+                    if (c < b.instructionCount() - 1) {
+                        var next = b.getInstruction(c + 1);
+                        // if the next instruction was already marked as
+                        // unreachable, no need to re-report it
+                        if (!next.unreachable) {
+                            next.unreachable = true;
+                            logger.setLineNumber(next.lineNumber);
+                            logger.logError("Unreachable statement%n");
+                        }
+                        // we're done with this block now. we want to ignore
+                        // any further issues that may come up, so we break
+                        break;
+                    }
+                } else {
+                    // if anything that is not a return statement is followed
+                    // by the end, then we are missing a return statement
+                    if (!isVoid && i.reachesEnd()) {
+                        if (i.getNext() != null &&
+                                i.getNext().getType() == InstructionType.END) {
+                            logger.setLineNumber(i.getNext().lineNumber);
+                        } else if (i.getTarget() != null &&
+                                i.getTarget().getType() == InstructionType.END) {
+                            logger.setLineNumber(i.getTarget().lineNumber);
+                        }
+                        logger.logError("Missing return statement%n");
+                    }
                 }
+                c++;
             }
         }
     }
@@ -198,19 +224,21 @@ public final class DataflowGraph {
     }
 
     private void constructInstructionGraph(StatementList statements) {
-        var instructions = constructInstructionGraphRec(statements);
+        var end = Instruction.createEnd(method.endLineNumber);
+        var instructions = constructInstructionGraphRec(statements, end);
 
         var first = instructions.peekFirst();
         if (first != null) {  // start instruction
-            instructions.offerFirst(Instruction.createStart(first));
+            instructions.offerFirst(Instruction.createStart(method.lineNumber, first));
         } else {
-            instructions.offerFirst(Instruction.createStart(Instruction.END));
+            instructions.offerFirst(Instruction.createStart(method.lineNumber, end));
         }
 
         instructionGraph = instructions;
     }
 
-    private Deque<Instruction> constructInstructionGraphRec(StatementList statements) {
+    private Deque<Instruction> constructInstructionGraphRec(StatementList statements,
+                                                            Instruction end) {
         Deque<Instruction> remaining = new LinkedList<>();
         Deque<Instruction> done = new LinkedList<>();
 
@@ -220,7 +248,7 @@ public final class DataflowGraph {
 
         while (!remaining.isEmpty()) {
             var i = remaining.pollFirst();
-            var nexti = remaining.isEmpty() ? Instruction.END : remaining.peekFirst();
+            var nexti = remaining.isEmpty() ? end : remaining.peekFirst();
 
             done.offerLast(i);
 
@@ -230,11 +258,13 @@ public final class DataflowGraph {
 
             var s = i.getStatement();
             if (s instanceof ast.Block b) {
-                var block = constructInstructionGraphRec(b.sl);
+                var block = constructInstructionGraphRec(b.sl, end);
                 if (!block.isEmpty()) {
                     i.setNext(block.peekFirst());
                     block.forEach(blocki -> {
-                        if (blocki.getNext() == Instruction.END && !blocki.isJump()) {
+                        if (blocki.getNext() != null &&
+                                blocki.getNext().getType() == InstructionType.END &&
+                                !blocki.isJump()) {
                             if (nexti.getType() == InstructionType.ELSE) {
                                 assert(nexti.getNext() != null);
                                 blocki.setNext(nexti.getNext().getNext());
@@ -242,7 +272,8 @@ public final class DataflowGraph {
                                 blocki.setNext(nexti);
                             }
                         }
-                        if (blocki.getTarget() == Instruction.END) {
+                        if (blocki.getTarget() != null &&
+                                blocki.getTarget().getType() == InstructionType.END) {
                             if (nexti.getType() == InstructionType.ELSE) {
                                 assert(nexti.getNext() != null);
                                 blocki.setTarget(nexti.getNext().getNext());
@@ -307,21 +338,7 @@ public final class DataflowGraph {
     }
 
     private void printInstructionGraph() {
-        instructionGraph.forEach(i -> {
-            System.out.print(i.getNumber() + ": ");
-            switch (i.getType()) {
-                case JUMP -> System.out.print("jump ");
-                case ELSE -> System.out.print("else");
-                case START -> System.out.print("<start>");
-                default -> i.getStatement().accept(dataflowVisitor);
-            }
-
-            String next = i.getNext() == Instruction.END ? "<end>" :
-                    i.getNext() == null ? "" : String.valueOf(i.getNext().getNumber());
-            String target = i.getTarget() == Instruction.END ? "<end>" :
-                    i.getTarget() == null ? "" : String.valueOf(i.getTarget().getNumber());
-            System.out.println(target + (next.isEmpty() ? next : " -> " + next));
-        });
+        instructionGraph.forEach(this::printInstruction);
     }
 
     private void printInstruction(Instruction i) {
@@ -333,10 +350,12 @@ public final class DataflowGraph {
             default -> i.getStatement().accept(dataflowVisitor);
         }
 
-        String next = i.getNext() == Instruction.END ? "<end>" :
-                i.getNext() == null ? "" : String.valueOf(i.getNext().getNumber());
-        String target = i.getTarget() == Instruction.END ? "<end>" :
-                i.getTarget() == null ? "" : String.valueOf(i.getTarget().getNumber());
+        String next = i.getNext() == null ? "" :
+                i.getNext().getType() == InstructionType.END ? "<end>" :
+                        String.valueOf(i.getNext().getNumber());
+        String target = i.getTarget() == null ? "" :
+                i.getTarget().getType() == InstructionType.END ? "<end>" :
+                        String.valueOf(i.getTarget().getNumber());
         System.out.println(target + (next.isEmpty() ? next : " -> " + next));
     }
 

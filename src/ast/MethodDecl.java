@@ -14,15 +14,17 @@ public class MethodDecl extends ASTNode {
     public boolean conflict;
     public semantics.type.Type type;
     public DataflowGraph dataflow;
+    public Location endPos;
 
     public MethodDecl(Type at, Identifier ai, FormalList afl, VarDeclList avl,
-                      StatementList asl, Location pos) {
+                      StatementList asl, Location pos, Location endPos) {
         super(pos);
         t = at;
         i = ai;
         fl = afl;
         vl = avl;
         sl = asl;
+        this.endPos = endPos;
     }
 
     public void accept(Visitor v) {

@@ -15,6 +15,7 @@ public final class MethodInfo extends Info {
     public int frameSize;  // frame size of method
     public MethodInfo overridden;  // pointer to overridden method, or null if not overriding
     public int lineNumber;
+    public int endLineNumber;
     private final List<Type> argumentTypes;
     private final SymbolTable table;
 
