@@ -20,204 +20,143 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 public class Java {
+    private static final int EXIT_SUCCESS = 0;
+    private static final int EXIT_FAILURE = 1;
+    private static Logger logger;
+    private static ComplexSymbolFactory symbolFactory;
+    private static scanner scanner;
+    private static Program ast;
+    private static SymbolContext symbolContext;
+    private static DataflowVisitor dataflowVisitor;  // TODO: move data structures to separate class
+
     public static void main(String[] args) {
         var tasks = parseTasks(args);
         if (tasks == null) {
-            System.err.println("Usage: Java [-S | -P | -A | -T | -D] <file1.java, file2.java, ...>");
-            System.exit(1);
+            System.err.println("Usage: Java [-S | -P | -A | -T | -I | -B] <file1.java, file2.java, ...>");
+            System.exit(EXIT_FAILURE);
         }
 
-        int status = 0;
+        int status = EXIT_SUCCESS;
         while (!tasks.isEmpty()) {
             var task = tasks.poll();
-            switch (task.type) {
-                case SCAN -> status |= scan(task);
-                case PRETTY_PRINT -> status |= parse(task, new PrettyPrintVisitor());
-                case AST -> status |= parse(task, new ASTVisitor());
-                case TABLE -> status |= validate(task);
-                case DATAFLOW -> status |= dataflow(task);
-                case COMPILE -> status |= compile(task);
+            try {
+                switch (task.type) {
+                    case SCAN -> status |= scanTask(task);
+                    case PRETTY_PRINT -> status |= parseTask(task, new PrettyPrintVisitor());
+                    case AST -> status |= parseTask(task, new ASTVisitor());
+                    case TABLE -> status |= doStaticAnalysisTask(task);
+                    case INSTRUCTIONS -> status |= doInstructionsTask(task);
+                    case BLOCKS -> status |= doBlocksTask(task);
+                    case COMPILE -> status |= compile(task);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.err.printf("Unexpected internal compiler error: %s%n", e);
+                status = EXIT_FAILURE;
             }
         }
 
         System.exit(status);
     }
 
-    private static int scan(Task task) {
-        int status = 0;
-        try {
-            var sf = new ComplexSymbolFactory();
-            var in = new BufferedReader(new InputStreamReader(new FileInputStream(task.input)));
+    private static int scanTask(Task task) throws Exception {
+        int status = scan(task);
 
-            var s = new scanner(in, sf);
-            var t = s.next_token();
-
-            while (t.sym != sym.EOF) {
-                // print each token that we scan
-                System.out.print(s.symbolToString(t) + " ");
-
-                if (t.sym == sym.error) {
-                    status = 1;
-                }
-
-                t = s.next_token();
-            }
-        } catch (Exception e) {
-            System.err.println("Unexpected internal compiler error: " + e);
-            e.printStackTrace();
-            status = 1;
+        var t = scanner.next_token();
+        while (t.sym != sym.EOF) {
+            System.out.print(scanner.symbolToString(t) + " ");
+            t = scanner.next_token();
         }
 
         return status;
     }
 
-    private static int parse(Task task, Visitor visitor) {
-        int status = 0;
-        try {
-            var sf = new ComplexSymbolFactory();
-            var in = new BufferedReader(new InputStreamReader(new FileInputStream(task.input)));
+    private static int scan(Task task) throws IOException {
+        int status = EXIT_SUCCESS;
 
-            var s = new scanner(in, sf);
-            var p = new parser(s, sf);
-            var root = p.parse();
+        symbolFactory = new ComplexSymbolFactory();
+        var in = new BufferedReader(new InputStreamReader(new FileInputStream(task.input)));
+        scanner = new scanner(in, symbolFactory);
 
-            var program = (Program) root.value;
-            program.accept(visitor);
-        } catch (Exception e) {
-            System.err.println("Unexpected internal compiler error: " + e);
-            e.printStackTrace();
-            status = 1;
+        return status;
+    }
+
+    private static int parseTask(Task task, Visitor visitor) throws Exception {
+        int status = parse(task);
+        ast.accept(visitor);
+        return status;
+    }
+
+    private static int parse(Task task) throws Exception {
+        int status = scan(task);
+        if (status == EXIT_FAILURE) return status;
+
+        var p = new parser(scanner, symbolFactory);
+        ast = (Program) p.parse().value;
+
+        return status;
+    }
+
+    private static int doStaticAnalysisTask(Task task) throws Exception {
+        int status = doStaticAnalysis(task);
+        symbolContext.dump();
+        return status;
+    }
+
+    private static int doStaticAnalysis(Task task) throws Exception {
+        int status = parse(task);
+        if (status == EXIT_FAILURE) return status;
+
+        logger = Logger.getInstance();
+        logger.start(task.input.getName());
+        symbolContext = SymbolContext.create();
+
+        ast.accept(new GlobalVisitor(symbolContext));
+        ast.accept(new ClassVisitor(symbolContext));
+        ast.accept(new LocalVisitor(symbolContext));
+
+        if (logger.hasError()) {
+            status = EXIT_FAILURE;
+            System.err.printf("Static semantic analysis found %d error(s), %d warning(s)%n",
+                    logger.getErrorCount(), logger.getWarningCount());
         }
 
         return status;
     }
 
-    private static int validate(Task task) {
-        int status = 0;
-        try {
-            var sf = new ComplexSymbolFactory();
-            var in = new BufferedReader(new InputStreamReader(new FileInputStream(task.input)));
+    private static int doDataflowAnalysis(Task task) throws Exception {
+        int status = doStaticAnalysis(task);
+        if (status == EXIT_FAILURE) return status;
 
-            var logger = Logger.getInstance();
-            logger.start(task.input.getName());
+        logger.restart();
+        dataflowVisitor = new DataflowVisitor(symbolContext);
+        ast.accept(dataflowVisitor);
 
-            var s = new scanner(in, sf);
-            var p = new parser(s, sf);
-            var root = p.parse();
-
-            var program = (Program) root.value;
-            var symbolContext = SymbolContext.create();
-            program.accept(new GlobalVisitor(symbolContext));
-            program.accept(new ClassVisitor(symbolContext));
-            program.accept(new LocalVisitor(symbolContext));
-
-            // dump symbol tables
-            symbolContext.dump();
-
-            if (logger.hasError()) {
-                status = 1;
-                System.err.printf("Static semantic analysis found %d error(s), %d warning(s)%n",
-                        logger.getErrorCount(), logger.getWarningCount());
-            }
-        } catch (Exception e) {
-            System.err.println("Unexpected internal compiler error: " + e);
-            e.printStackTrace();
-            status = 1;
+        if (logger.hasError()) {
+            status = EXIT_FAILURE;
+            System.err.printf("Dataflow analysis found %d error(s), %d warning(s)%n",
+                    logger.getErrorCount(), logger.getWarningCount());
         }
 
         return status;
     }
 
-    private static int dataflow(Task task) {
-        int status = 0;
-        try {
-            var sf = new ComplexSymbolFactory();
-            var in = new BufferedReader(new InputStreamReader(new FileInputStream(task.input)));
-
-            var logger = Logger.getInstance();
-            logger.start(task.input.getName());
-
-            var s = new scanner(in, sf);
-            var p = new parser(s, sf);
-            var root = p.parse();
-
-            var program = (Program) root.value;
-            var symbolContext = SymbolContext.create();
-            program.accept(new GlobalVisitor(symbolContext));
-            program.accept(new ClassVisitor(symbolContext));
-            program.accept(new LocalVisitor(symbolContext));
-
-            if (logger.hasError()) {
-                status = 1;
-                System.err.printf("Static semantic analysis found %d error(s), %d warning(s)%n",
-                        logger.getErrorCount(), logger.getWarningCount());
-                return status;
-            }
-
-            logger.restart();
-            var dataflowVisitor = new DataflowVisitor(symbolContext);
-            program.accept(dataflowVisitor);
-            dataflowVisitor.dump();
-
-            if (logger.hasError()) {
-                status = 1;
-                System.err.printf("Dataflow analysis found %d error(s), %d warning(s)%n",
-                        logger.getErrorCount(), logger.getWarningCount());
-            }
-        } catch (Exception e) {
-            System.err.println("Unexpected internal compiler error: " + e);
-            e.printStackTrace();
-            status = 1;
-        }
-
+    private static int doInstructionsTask(Task task) throws Exception {
+        int status = doDataflowAnalysis(task);
+        dataflowVisitor.dumpInstructions();
         return status;
     }
 
-    private static int compile(Task task) {
-        int status = 0;
-        try {
-            var sf = new ComplexSymbolFactory();
-            var in = new BufferedReader(new InputStreamReader(new FileInputStream(task.input)));
+    private static int doBlocksTask(Task task) throws Exception {
+        int status = doDataflowAnalysis(task);
+        dataflowVisitor.dumpBlocks();
+        return status;
+    }
 
-            var logger = Logger.getInstance();
-            logger.start(task.input.getName());
-
-            var s = new scanner(in, sf);
-            var p = new parser(s, sf);
-            var root = p.parse();
-
-            var program = (Program) root.value;
-            var symbolContext = SymbolContext.create();
-            program.accept(new GlobalVisitor(symbolContext));
-            program.accept(new ClassVisitor(symbolContext));
-            program.accept(new LocalVisitor(symbolContext));
-
-            if (logger.hasError()) {
-                status = 1;
-                System.err.printf("Static semantic analysis found %d error(s), %d warning(s)%n",
-                        logger.getErrorCount(), logger.getWarningCount());
-                return status;
-            }
-
-            logger.restart();
-            program.accept(new DataflowVisitor(symbolContext));
-
-            if (logger.hasError()) {
-                status = 1;
-                System.err.printf("Dataflow analysis found %d error(s), %d warning(s)%n",
-                        logger.getErrorCount(), logger.getWarningCount());
-                return status;
-            }
-
-            // generate code only if no errors
-            program.accept(new CodeDataVisitor(symbolContext));
-            program.accept(new CodeGenVisitor(symbolContext));
-        } catch (Exception e) {
-            System.err.println("Unexpected internal compiler error: " + e);
-            e.printStackTrace();
-            status = 1;
-        }
-
+    private static int compile(Task task) throws Exception {
+        int status = doDataflowAnalysis(task);
+        ast.accept(new CodeDataVisitor(symbolContext));
+        ast.accept(new CodeGenVisitor(symbolContext));
         return status;
     }
 
@@ -240,7 +179,8 @@ public class Java {
                     case "-p", "--pretty-print" -> type = TaskType.PRETTY_PRINT;
                     case "-a", "--ast" -> type = TaskType.AST;
                     case "-t", "--table" -> type = TaskType.TABLE;
-                    case "-d", "--dataflow" -> type = TaskType.DATAFLOW;
+                    case "-i", "--instructions" -> type = TaskType.INSTRUCTIONS;
+                    case "-b", "--blocks" -> type = TaskType.BLOCKS;
                     default -> {
                         System.err.printf("Unrecognized operand: %s%n", operator);
                         return null;
@@ -303,7 +243,8 @@ public class Java {
         PRETTY_PRINT,  // scan, parse, and pretty-print
         AST,           // scan, parse, and print ast
         TABLE,         // scan, parse, static semantic analysis, and print symbol tables
-        DATAFLOW,      // scan, parse, static semantic analysis, and dataflow analysis
+        INSTRUCTIONS,  // scan, parse, static semantic analysis, dataflow analysis, and print instruction graph
+        BLOCKS,        // scan, parse, static semantic analysis, dataflow analysis, and print block graph
         COMPILE        // scan, parse, static semantic analysis, code generation
     }
 }

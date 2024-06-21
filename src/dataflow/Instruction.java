@@ -5,7 +5,7 @@ import ast.*;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Instruction {
+public final class Instruction {
     private final Statement statement;
     private final InstructionType type;
     private Instruction next;
@@ -13,6 +13,8 @@ public class Instruction {
     private Instruction target;
     private final Set<Instruction> targeting;
     private int number;
+    private Block block;
+    private int bIndex;
 
     public static final Instruction END =
             new Instruction(InstructionType.END, -1);
@@ -25,7 +27,9 @@ public class Instruction {
     }
 
     public static Instruction createJump(Instruction to) {
-        return new Instruction(null, InstructionType.JUMP, to);
+        var jump = new Instruction(null, InstructionType.JUMP, null);
+        jump.setTarget(to);
+        return jump;
     }
 
     public static Instruction createElse(Instruction elseBlock) {
@@ -40,7 +44,7 @@ public class Instruction {
                                             Instruction next) {
         InstructionType type = InstructionType.BASIC;
 
-        if (statement instanceof Block) {
+        if (statement instanceof ast.Block) {
             type = InstructionType.BLOCK;
         } else if (statement instanceof If) {
             type = InstructionType.IF;
@@ -102,6 +106,10 @@ public class Instruction {
         return number;
     }
 
+    public Block getBlock() {
+        return block;
+    }
+
     public void setNext(Instruction next) {
         if (this.next != null) this.next.prev.remove(this);
         this.next = next;
@@ -140,7 +148,56 @@ public class Instruction {
         this.number = number;
     }
 
+    public void setBlock(Block block) {
+        this.block = block;
+    }
+
+    public void setbIndex(int bIndex) {
+        this.bIndex = bIndex;
+    }
+
     public boolean isJump() {
         return type == InstructionType.JUMP;
+    }
+
+    public boolean hasNext() {
+        return next != null;
+    }
+
+    public boolean hasTarget() {
+        return target != null;
+    }
+
+    public boolean hasBlock() {
+        return block != null;
+    }
+
+    public boolean isLeader() {
+        // the end is a "leader"
+        if (this == Instruction.END) {
+            return true;
+        }
+
+        // are there any instructions directly before this instruction
+        // that are branches, jumps, or gotos? if so, this is a leader
+        for (var p : prev) {
+            switch (p.getType()) {
+                case IF, WHILE, JUMP -> {
+                    // for loops are turned into "if's"
+                    return true;
+                }
+            }
+        }
+
+        // if this instruction is targeted by anything, it is a leader
+        return !targeting.isEmpty();
+    }
+
+    public boolean isFinalInstruction() {
+        if (!hasBlock()) {
+            throw new IllegalStateException();
+        }
+
+        return bIndex == block.instructionCount() - 1;
     }
 }

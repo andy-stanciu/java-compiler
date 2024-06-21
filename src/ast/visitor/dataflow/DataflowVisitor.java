@@ -18,12 +18,23 @@ public final class DataflowVisitor implements Visitor {
     }
 
     /**
-     * Prints all dataflow graphs to standard out.
+     * Prints all instruction graphs to stdout.
      */
-    public void dump() {
+    public void dumpInstructions() {
         graphs.forEach((m, g) -> {
             System.out.println(m + ":");
-            g.print();
+            g.printInstructions();
+            System.out.println();
+        });
+    }
+
+    /**
+     * Prints all block graphs to stdout.
+     */
+    public void dumpBlocks() {
+        graphs.forEach((m, g) -> {
+            System.out.println(m + ":");
+            g.printBlocks();
             System.out.println();
         });
     }
@@ -41,7 +52,7 @@ public final class DataflowVisitor implements Visitor {
         var m = symbolContext.getCurrentMethod();
 
         n.dataflow = DataflowGraph.create(symbolContext, m, n.sl)
-                .build(true)
+                .build()
                 .validateReturnStatements();
 
         graphs.put(m.getQualifiedName(), n.dataflow);
@@ -74,7 +85,7 @@ public final class DataflowVisitor implements Visitor {
         var m = symbolContext.getCurrentMethod();
 
         n.dataflow = DataflowGraph.create(symbolContext, m, n.sl)
-                .build(true)
+                .build()
                 .validateReturnStatements();
 
         graphs.put(m.getQualifiedName(), n.dataflow);
