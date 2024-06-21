@@ -32,7 +32,16 @@ public final class CodeGenVisitor implements Visitor {
     public void visit(MainClass n) {
         generator.genLabel("asm_main");
         generator.genPrologue();
+
+        symbolContext.enterClass(n.i1.s);
+        symbolContext.enterMethod("main");
         n.sl.forEach(s -> s.accept(this));
+
+        var main = symbolContext.getCurrentMethod();
+        generator.genLabel("ret$" + main.getQualifiedName());
+        symbolContext.exit();
+        symbolContext.exit();
+
         generator.genEpilogue();
     }
 
@@ -86,6 +95,7 @@ public final class CodeGenVisitor implements Visitor {
         n.sl.forEach(s -> s.accept(this));
         symbolContext.exit();
 
+        generator.genLabel("ret$" + method.getQualifiedName());
         generator.genEpilogue();
     }
 
@@ -126,7 +136,13 @@ public final class CodeGenVisitor implements Visitor {
 
     @Override
     public void visit(Return n) {
+        var m = symbolContext.getCurrentMethod();
+        if (m == null) {
+            throw new IllegalStateException();
+        }
+
         n.e.accept(this);
+        generator.genUnary("jmp", "ret$" + m.getQualifiedName());
     }
 
     @Override

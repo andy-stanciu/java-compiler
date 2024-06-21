@@ -156,9 +156,12 @@ public class Java {
 
     private static int compile(Task task) throws Exception {
         int status = doDataflowAnalysis(task);
+        if (status == EXIT_FAILURE) return status;
+
         ast.accept(new CodeDataVisitor(symbolContext));
         ast.accept(new CodeGenVisitor(symbolContext));
-        return status;
+
+        return EXIT_SUCCESS;
     }
 
     private static Queue<Task> parseTasks(String[] args) {
