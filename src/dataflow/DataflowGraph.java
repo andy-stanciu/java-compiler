@@ -171,14 +171,17 @@ public final class DataflowGraph {
 
         for (var b : blockGraph) {
             int c = 0;
-
             for (var i : b) {
                 if (i.getType() == InstructionType.RETURN) {
                     // is this the last instruction in the block? if not,
                     // the rest of the instructions in the block are
-                    // unreachable!
+                    // unreachable (unless we have a jump)
                     if (c < b.instructionCount() - 1) {
                         var next = b.getInstruction(c + 1);
+                        // if the next instruction is a jump, then we're good
+                        if (next.isJump()) {
+                            continue;
+                        }
                         // if the next instruction was already marked as
                         // unreachable, no need to re-report it
                         if (!next.unreachable) {
