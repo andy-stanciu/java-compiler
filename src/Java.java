@@ -65,6 +65,9 @@ public class Java {
         var t = scanner.next_token();
         while (t.sym != sym.EOF) {
             System.out.print(scanner.symbolToString(t) + " ");
+            if (t.sym == sym.error) {
+                status = EXIT_FAILURE;
+            }
             t = scanner.next_token();
         }
 
@@ -72,13 +75,11 @@ public class Java {
     }
 
     private static int scan(Task task) throws IOException {
-        int status = EXIT_SUCCESS;
-
         symbolFactory = new ComplexSymbolFactory();
         var in = new BufferedReader(new InputStreamReader(new FileInputStream(task.input)));
         scanner = new scanner(in, symbolFactory);
 
-        return status;
+        return EXIT_SUCCESS;
     }
 
     private static int parseTask(Task task, Visitor visitor) throws Exception {
