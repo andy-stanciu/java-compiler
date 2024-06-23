@@ -329,6 +329,10 @@ Expression ::= Call:c
                           {: RESULT = new BitwiseOr(e1, e2, e1xleft); :}
            | Expression:e1 BITWISE_XOR Expression:e2
                           {: RESULT = new BitwiseXor(e1, e2, e1xleft); :}
+           | PLUS Expression:e
+                          {: RESULT = new UnaryPlus(e, exleft); :}
+           | MINUS Expression:e
+                          {: RESULT = new UnaryMinus(e, exleft); :}
            | Expression:e1 PLUS Expression:e2
                           {: RESULT = new Plus(e1, e2, e1xleft); :}
            | Expression:e1 MINUS Expression:e2

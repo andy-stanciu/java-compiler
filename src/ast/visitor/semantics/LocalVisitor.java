@@ -355,6 +355,26 @@ public final class LocalVisitor implements Visitor {
     }
 
     @Override
+    public void visit(UnaryMinus n) {
+        n.e.accept(this);
+        if (!n.e.type.equals(TypeInt.getInstance())) {
+            logger.logError("Operator - cannot be applied to %s%n", n.e.type);
+        }
+
+        n.type = TypeInt.getInstance();
+    }
+
+    @Override
+    public void visit(UnaryPlus n) {
+        n.e.accept(this);
+        if (!n.e.type.equals(TypeInt.getInstance())) {
+            logger.logError("Operator + cannot be applied to %s%n", n.e.type);
+        }
+
+        n.type = TypeInt.getInstance();
+    }
+
+    @Override
     public void visit(Plus n) {
         visitBinaryExp(n, "+", TypeInt.getInstance(), TypeInt.getInstance());
     }

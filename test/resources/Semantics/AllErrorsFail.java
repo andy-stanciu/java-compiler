@@ -55,6 +55,16 @@ class A {
         return 0;
     }
 
+    public int unary() {
+        int x;
+        int y;
+        x = -1;
+        y = -true;
+        x = +4;
+        y = +false;
+        return 0;
+    }
+
     public int binaryOps() {
         Foo f;
         int x;

@@ -619,6 +619,26 @@ public final class PrettyPrintVisitor implements Visitor {
         precedentTracker.rightParen(n);
     }
 
+    @Override
+    public void visit(UnaryMinus n) {
+        precedentTracker.leftParen(n);
+        precedentTracker.push(n);
+        System.out.print("-");
+        n.e.accept(this);
+        precedentTracker.pop();
+        precedentTracker.rightParen(n);
+    }
+
+    @Override
+    public void visit(UnaryPlus n) {
+        precedentTracker.leftParen(n);
+        precedentTracker.push(n);
+        System.out.print("+");
+        n.e.accept(this);
+        precedentTracker.pop();
+        precedentTracker.rightParen(n);
+    }
+
     // Exp e1,e2;
     public void visit(Plus n) {
         precedentTracker.leftParen(n);

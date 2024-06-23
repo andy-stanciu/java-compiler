@@ -504,6 +504,17 @@ public final class CodeGenVisitor implements Visitor {
     }
 
     @Override
+    public void visit(UnaryMinus n) {
+        n.e.accept(this);
+        generator.genUnary("negq", "%rax");
+    }
+
+    @Override
+    public void visit(UnaryPlus n) {
+        n.e.accept(this);
+    }
+
+    @Override
     public void visit(Plus n) {
         n.e1.accept(this);
         generator.genPush("%rax");

@@ -100,6 +100,10 @@ public interface Visitor {
 
     void visit(BitwiseXor n);
 
+    void visit(UnaryMinus n);
+
+    void visit(UnaryPlus n);
+
     void visit(Plus n);
 
     void visit(Minus n);

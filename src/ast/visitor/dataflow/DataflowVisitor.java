@@ -369,6 +369,18 @@ public final class DataflowVisitor implements Visitor {
     }
 
     @Override
+    public void visit(UnaryMinus n) {
+        System.out.print("-");
+        n.e.accept(this);
+    }
+
+    @Override
+    public void visit(UnaryPlus n) {
+        System.out.print("-");
+        n.e.accept(this);
+    }
+
+    @Override
     public void visit(Plus n) {
         n.e1.accept(this);
         System.out.print(" + ");

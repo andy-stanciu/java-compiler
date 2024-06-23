@@ -35,6 +35,8 @@ public final class PrecedentTracker {
         precedenceTable.put(Mod.class, 110);                // %
         precedenceTable.put(Not.class, 120);                // !
         precedenceTable.put(BitwiseNot.class, 120);         // ~
+        precedenceTable.put(UnaryPlus.class, 120);          // +
+        precedenceTable.put(UnaryMinus.class, 120);         // -
         precedenceTable.put(NewArray.class, 200);           // new
         precedenceTable.put(NewObject.class, 200);          // new
         precedenceTable.put(ArrayLength.class, 500);        // .

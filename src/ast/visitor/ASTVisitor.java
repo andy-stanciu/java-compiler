@@ -550,6 +550,22 @@ public final class ASTVisitor implements Visitor {
     }
 
     @Override
+    public void visit(UnaryMinus n) {
+        System.out.print("(");
+        System.out.print("-");
+        n.e.accept(this);
+        System.out.print(")");
+    }
+
+    @Override
+    public void visit(UnaryPlus n) {
+        System.out.print("(");
+        System.out.print("+");
+        n.e.accept(this);
+        System.out.print(")");
+    }
+
+    @Override
     public void visit(Plus n) {
         System.out.print("(");
         n.e1.accept(this);
