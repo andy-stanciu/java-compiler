@@ -44,9 +44,11 @@ nonterminal Return Return;
 nonterminal StatementList StatementList;
 nonterminal Statement Statement;
 nonterminal StatementSimple StatementSimple;
-nonterminal ExpList ExpressionList;
-nonterminal Exp Expression;
 nonterminal Assignable Assignable;
+nonterminal Expression Expression;
+nonterminal ExpressionList ExpressionList;
+nonterminal Assign Assign;
+nonterminal Increment Increment;
 nonterminal Identifier Identifier;
 nonterminal Call Call;
 nonterminal Switch Switch;
@@ -257,38 +259,46 @@ StatementSimple ::= Call:c
                   {: RESULT = new Action(c, cxleft); :}
               | PRINT:p LPAREN Expression:e RPAREN
                   {: RESULT = new Print(e, pxleft); :}
-              | Assignable:a ASSIGN Expression:e
-                  {: RESULT = new AssignSimple(a, e, axleft); :}
-              | Assignable:a ASSIGN_PLUS Expression:e
-                  {: RESULT = new AssignPlus(a, e, axleft); :}
-              | Assignable:a ASSIGN_MINUS Expression:e
-                  {: RESULT = new AssignMinus(a, e, axleft); :}
-              | Assignable:a ASSIGN_TIMES Expression:e
-                  {: RESULT = new AssignTimes(a, e, axleft); :}
-              | Assignable:a ASSIGN_DIV Expression:e
-                  {: RESULT = new AssignDivide(a, e, axleft); :}
-              | Assignable:a ASSIGN_MOD Expression:e
-                  {: RESULT = new AssignMod(a, e, axleft); :}
-              | Assignable:a ASSIGN_AND Expression:e
-                  {: RESULT = new AssignAnd(a, e, axleft); :}
-              | Assignable:a ASSIGN_OR Expression:e
-                  {: RESULT = new AssignOr(a, e, axleft); :}
-              | Assignable:a ASSIGN_XOR Expression:e
-                  {: RESULT = new AssignXor(a, e, axleft); :}
-              | Assignable:a ASSIGN_LSHIFT Expression:e
-                  {: RESULT = new AssignLeftShift(a, e, axleft); :}
-              | Assignable:a ASSIGN_RSHIFT Expression:e
-                  {: RESULT = new AssignRightShift(a, e, axleft); :}
-              | Assignable:a ASSIGN_URSHIFT Expression:e
-                  {: RESULT = new AssignUnsignedRightShift(a, e, axleft); :}
-              | Assignable:a INCREMENT
-                  {: RESULT = new PostIncrement(a, axleft); :}
-              | Assignable:a DECREMENT
-                  {: RESULT = new PostDecrement(a, axleft); :}
-              | INCREMENT:i Assignable:a
-                  {: RESULT = new PreIncrement(a, ixleft); :}
-              | DECREMENT:d Assignable:a
-                  {: RESULT = new PreDecrement(a, dxleft); :};
+              | Assign:a
+                  {: RESULT = a; :}
+              | Increment:i
+                  {: RESULT = i; :};
+
+Assign ::= Assignable:a ASSIGN Expression:e
+             {: RESULT = new AssignSimple(a, e, axleft); :}
+         | Assignable:a ASSIGN_PLUS Expression:e
+             {: RESULT = new AssignPlus(a, e, axleft); :}
+         | Assignable:a ASSIGN_MINUS Expression:e
+             {: RESULT = new AssignMinus(a, e, axleft); :}
+         | Assignable:a ASSIGN_TIMES Expression:e
+             {: RESULT = new AssignTimes(a, e, axleft); :}
+         | Assignable:a ASSIGN_DIV Expression:e
+             {: RESULT = new AssignDivide(a, e, axleft); :}
+         | Assignable:a ASSIGN_MOD Expression:e
+             {: RESULT = new AssignMod(a, e, axleft); :}
+         | Assignable:a ASSIGN_AND Expression:e
+             {: RESULT = new AssignAnd(a, e, axleft); :}
+         | Assignable:a ASSIGN_OR Expression:e
+             {: RESULT = new AssignOr(a, e, axleft); :}
+         | Assignable:a ASSIGN_XOR Expression:e
+             {: RESULT = new AssignXor(a, e, axleft); :}
+         | Assignable:a ASSIGN_LSHIFT Expression:e
+             {: RESULT = new AssignLeftShift(a, e, axleft); :}
+         | Assignable:a ASSIGN_RSHIFT Expression:e
+             {: RESULT = new AssignRightShift(a, e, axleft); :}
+         | Assignable:a ASSIGN_URSHIFT Expression:e
+             {: RESULT = new AssignUnsignedRightShift(a, e, axleft); :};
+
+Increment ::= Assignable:a INCREMENT
+            {: RESULT = new PostIncrement(a, axleft); :}
+        | Assignable:a DECREMENT
+            {: RESULT = new PostDecrement(a, axleft); :}
+        | INCREMENT:i Assignable:a
+            {: RESULT = new PreIncrement(a, ixleft); :}
+        | DECREMENT:d Assignable:a
+            {: RESULT = new PreDecrement(a, dxleft); :}
+        | Assignable:a
+                                    {: RESULT = a; :};
 
 Assignable ::= Expression:e1 LSQUARE Expression:e2 RSQUARE
                {: RESULT = new ArrayLookup(e1, e2, e1xleft); :}
@@ -298,7 +308,7 @@ Assignable ::= Expression:e1 LSQUARE Expression:e2 RSQUARE
                {: RESULT = new IdentifierExp(id.toString(), idxleft); :};
 
 ExpressionList ::= Expression:e
-                   {: ExpList el = new ExpList(exleft);
+                   {: ExpressionList el = new ExpressionList(exleft);
                       el.add(e);
                       RESULT = el; :}
                | ExpressionList:el COMMA Expression:e
@@ -307,6 +317,10 @@ ExpressionList ::= Expression:e
 
 Expression ::= Call:c
                           {: RESULT = c; :}
+           | Assign:a
+                          {: RESULT = a; :}
+           | Increment:i
+                          {: RESULT = i; :}
            | Expression:e1 AND Expression:e2
                           {: RESULT = new And(e1, e2, e1xleft); :}
            | Expression:e1 OR Expression:e2
@@ -349,12 +363,8 @@ Expression ::= Call:c
                           {: RESULT = new RightShift(e1, e2, e1xleft); :}
            | Expression:e1 URSHIFT Expression:e2
                           {: RESULT = new UnsignedRightShift(e1, e2, e1xleft); :}
-           | Expression:e1 LSQUARE Expression:e2 RSQUARE
-                          {: RESULT = new ArrayLookup(e1, e2, e1xleft); :}
            | Expression:e DOT LENGTH
                           {: RESULT = new ArrayLength(e, exleft); :}
-           | Expression:e DOT Identifier:id
-                          {: RESULT = new Field(e, id, exleft); :}
            | Expression:c QUESTION Expression:e1 COLON Expression:e2
                           {: RESULT = new Ternary(c, e1, e2, cxleft); :}
            | Expression:e INSTANCEOF Identifier:id
@@ -365,8 +375,6 @@ Expression ::= Call:c
                           {: RESULT = new True(txleft); :}
            | FALSE:f
                           {: RESULT = new False(fxleft); :}
-           | Identifier:id
-                          {: RESULT = new IdentifierExp(id.toString(), idxleft); :}
            | THIS:t
                           {: RESULT = new This(txleft); :}
            | NEW:n INT LSQUARE Expression:e RSQUARE
@@ -381,11 +389,11 @@ Expression ::= Call:c
                           {: RESULT = e; :};
 
 Call ::= Expression:e DOT Identifier:id LPAREN:lp RPAREN
-           {: RESULT = new Call(e, id, new ExpList(lpxright), exleft); :}
+           {: RESULT = new Call(e, id, new ExpressionList(lpxright), exleft); :}
     | Expression:e DOT Identifier:id LPAREN ExpressionList:el RPAREN
            {: RESULT = new Call(e, id, el, exleft); :}
     | Identifier:id LPAREN:lp RPAREN
-           {: RESULT = new Call(new This(idxleft), id, new ExpList(lpxright), idxleft); :}
+           {: RESULT = new Call(new This(idxleft), id, new ExpressionList(lpxright), idxleft); :}
     | Identifier:id LPAREN ExpressionList:el RPAREN
            {: RESULT = new Call(new This(idxleft), id, el, idxleft); :};
 

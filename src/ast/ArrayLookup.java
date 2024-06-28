@@ -3,7 +3,6 @@ package ast;
 import ast.visitor.Visitor;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 import semantics.Logger;
-import semantics.type.Type;
 
 public class ArrayLookup extends Exp implements Assignable {
     public Exp e1, e2;
@@ -15,9 +14,8 @@ public class ArrayLookup extends Exp implements Assignable {
     }
 
     @Override
-    public Type getAssignableType() {
-        // for now, can only assign int to array lookups
-        return type;
+    public Exp getExp() {
+        return e1;
     }
 
     public void accept(Visitor v) {

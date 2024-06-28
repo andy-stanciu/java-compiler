@@ -3,7 +3,6 @@ package ast;
 import ast.visitor.Visitor;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 import semantics.Logger;
-import semantics.type.Type;
 
 public class IdentifierExp extends Exp implements Assignable {
     public String s;
@@ -14,8 +13,8 @@ public class IdentifierExp extends Exp implements Assignable {
     }
 
     @Override
-    public Type getAssignableType() {
-        return type;
+    public Exp getExp() {
+        return this;
     }
 
     public void accept(Visitor v) {

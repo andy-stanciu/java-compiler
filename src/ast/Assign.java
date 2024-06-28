@@ -2,7 +2,7 @@ package ast;
 
 import java_cup.runtime.ComplexSymbolFactory.Location;
 
-public abstract class Assign extends StatementSimple {
+public abstract class Assign extends StatementSimple implements Expression {
     public Assignable a;
     public Exp e;
 
@@ -10,5 +10,10 @@ public abstract class Assign extends StatementSimple {
         super(pos);
         a = ai;
         e = ae;
+    }
+
+    @Override
+    public Exp getExp() {
+        return a.getExp();
     }
 }

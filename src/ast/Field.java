@@ -3,7 +3,6 @@ package ast;
 import ast.visitor.Visitor;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 import semantics.Logger;
-import semantics.type.Type;
 
 public class Field extends Exp implements Assignable {
     public Exp e;
@@ -16,8 +15,8 @@ public class Field extends Exp implements Assignable {
     }
 
     @Override
-    public Type getAssignableType() {
-        return type;
+    public Exp getExp() {
+        return e;
     }
 
     @Override
