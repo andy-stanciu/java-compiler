@@ -14,6 +14,6 @@ public abstract class Assign extends StatementSimple implements Expression {
 
     @Override
     public Exp eval() {
-        return a.eval();
+        return e.eval();
     }
 }

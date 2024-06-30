@@ -1,0 +1,17 @@
+Program
+  MainClass Main (line 1)
+(new Test().run())
+  Class Test (line 7)
+    MethodDecl run (line 8)
+      returns void
+      int x (line 9)
+      int y (line 10)
+      If LessThan (      PostIncrement x (line 11), 1) (line 11)
+        Print (line 12)
+          1
+
+      If GreaterThanOrEqual (4,       Assign y <- 2 (line 15)) (line 15)
+        Print (line 16)
+          3
+
+      Assign x <-       Assign y <-       Assign x <-       Assign y <-       Assign x <- 1 (line 19) (line 19) (line 19) (line 19) (line 19)
