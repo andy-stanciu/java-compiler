@@ -3,7 +3,7 @@ package ast;
 import ast.visitor.Visitor;
 
 public interface Expression {
-    Exp getExp();
+    Exp eval();
 
     void accept(Visitor visitor);
 }

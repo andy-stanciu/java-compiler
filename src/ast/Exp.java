@@ -14,7 +14,7 @@ public abstract class Exp extends ASTNode implements Expression {
     public abstract void accept(Visitor v);
 
     @Override
-    public Exp getExp() {
+    public Exp eval() {
         return this;
     }
 }

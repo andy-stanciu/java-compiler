@@ -11,7 +11,7 @@ public abstract class Increment extends StatementSimple implements Expression {
     }
 
     @Override
-    public Exp getExp() {
-        return a.getExp();
+    public Exp eval() {
+        return a.eval();
     }
 }

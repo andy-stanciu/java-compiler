@@ -12,11 +12,6 @@ public class IdentifierExp extends Exp implements Assignable {
         s = as;
     }
 
-    @Override
-    public Exp getExp() {
-        return this;
-    }
-
     public void accept(Visitor v) {
         Logger.getInstance().setLineNumber(line_number);
         v.visit(this);

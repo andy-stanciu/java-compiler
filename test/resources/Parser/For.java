@@ -20,7 +20,7 @@ class For {
             System.out.println(5);
         }
 
-        for (i += 2; i >= 10; --i) {
+        for (i += 2; i >= 10; i--) {
             System.out.println(5);
             System.out.println(2);
         }
@@ -55,7 +55,7 @@ class For {
 
         for (;;) System.out.println(0);
         for (;x < 5;) System.out.println(0);
-        for (i /= 7;x > 3;--a) System.out.println(0);
+        for (i /= 7;x > 3;a--) System.out.println(0);
         while (true) System.out.println(0);
         return 0;
     }

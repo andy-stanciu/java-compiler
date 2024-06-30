@@ -5,9 +5,9 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
 import semantics.Logger;
 
 public class BitwiseNot extends Exp {
-    public Exp e;
+    public Expression e;
 
-    public BitwiseNot(Exp ae, Location pos) {
+    public BitwiseNot(Expression ae, Location pos) {
         super(pos);
         e = ae;
     }

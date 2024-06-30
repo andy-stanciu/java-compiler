@@ -5,7 +5,7 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
 import semantics.Logger;
 
 public class AssignMinus extends Assign {
-    public AssignMinus(Assignable ai, Exp ae, Location pos) {
+    public AssignMinus(Assignable ai, Expression ae, Location pos) {
         super(ai, ae, pos);
     }
 

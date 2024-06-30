@@ -5,7 +5,7 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
 import semantics.Logger;
 
 public class AssignTimes extends Assign {
-    public AssignTimes(Assignable ai, Exp ae, Location pos) {
+    public AssignTimes(Assignable ai, Expression ae, Location pos) {
         super(ai, ae, pos);
     }
 

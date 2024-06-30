@@ -23,7 +23,7 @@ class For {
             System.out.println(5);
         }
 
-        for (i = 10; i >= 0; --i) {
+        for (i = 10; i >= 0; i--) {
             System.out.println(2);
         }
 

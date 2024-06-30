@@ -5,7 +5,7 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
 import semantics.Logger;
 
 public class AssignUnsignedRightShift extends Assign {
-    public AssignUnsignedRightShift(Assignable ai, Exp ae, Location pos) {
+    public AssignUnsignedRightShift(Assignable ai, Expression ae, Location pos) {
         super(ai, ae, pos);
     }
 

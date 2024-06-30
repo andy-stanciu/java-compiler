@@ -292,13 +292,12 @@ Assign ::= Assignable:a ASSIGN Expression:e
 Increment ::= Assignable:a INCREMENT
             {: RESULT = new PostIncrement(a, axleft); :}
         | Assignable:a DECREMENT
-            {: RESULT = new PostDecrement(a, axleft); :}
-        | INCREMENT:i Assignable:a
-            {: RESULT = new PreIncrement(a, ixleft); :}
-        | DECREMENT:d Assignable:a
-            {: RESULT = new PreDecrement(a, dxleft); :}
-        | Assignable:a
-                                    {: RESULT = a; :};
+            {: RESULT = new PostDecrement(a, axleft); :};
+// for now, i can't get pre increment/decrement working with the grammar
+//        | INCREMENT:i Assignable:a
+//            {: RESULT = new PreIncrement(a, ixleft); :}
+//        | DECREMENT:d Assignable:a
+//            {: RESULT = new PreDecrement(a, dxleft); :};
 
 Assignable ::= Expression:e1 LSQUARE Expression:e2 RSQUARE
                {: RESULT = new ArrayLookup(e1, e2, e1xleft); :}
@@ -321,6 +320,8 @@ Expression ::= Call:c
                           {: RESULT = a; :}
            | Increment:i
                           {: RESULT = i; :}
+           | Assignable:a
+                          {: RESULT = a; :}
            | Expression:e1 AND Expression:e2
                           {: RESULT = new And(e1, e2, e1xleft); :}
            | Expression:e1 OR Expression:e2

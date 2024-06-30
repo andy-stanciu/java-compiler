@@ -5,9 +5,9 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
 import semantics.Logger;
 
 public class NewArray extends Exp {
-    public Exp e;
+    public Expression e;
 
-    public NewArray(Exp ae, Location pos) {
+    public NewArray(Expression ae, Location pos) {
         super(pos);
         e = ae;
     }

@@ -6,7 +6,7 @@ import semantics.Logger;
 
 public class LeftShift extends BinaryExp {
 
-    public LeftShift(Exp ae1, Exp ae2, Location pos) {
+    public LeftShift(Expression ae1, Expression ae2, Location pos) {
         super(ae1, ae2, pos);
     }
 

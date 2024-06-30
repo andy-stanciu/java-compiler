@@ -5,9 +5,9 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
 import semantics.Logger;
 
 public class UnaryMinus extends Exp {
-    public Exp e;
+    public Expression e;
 
-    public UnaryMinus(Exp ae, Location pos) {
+    public UnaryMinus(Expression ae, Location pos) {
         super(pos);
         e = ae;
     }

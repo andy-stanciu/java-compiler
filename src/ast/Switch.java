@@ -5,10 +5,10 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
 import semantics.Logger;
 
 public class Switch extends Statement {
-    public Exp e;
+    public Expression e;
     public CaseList cl;
 
-    public Switch(Exp ae, CaseList acl, Location pos) {
+    public Switch(Expression ae, CaseList acl, Location pos) {
         super(pos);
         e = ae;
         cl = acl;

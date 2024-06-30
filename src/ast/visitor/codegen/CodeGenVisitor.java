@@ -643,7 +643,7 @@ public final class CodeGenVisitor implements Visitor {
         n.e.accept(this);
         generator.genPush("%rax");  // push obj ptr onto stack
 
-        var class_ = ((TypeObject) n.e.type).base;
+        var class_ = ((TypeObject) n.e.eval().type).base;
         var method = symbolContext.lookupMethod(n.i.s, class_);
         if (method == null) {
             throw new IllegalStateException();
@@ -686,7 +686,7 @@ public final class CodeGenVisitor implements Visitor {
         boolean assignable = generator.isAssignable();
         n.e.accept(this);
 
-        var class_ = ((TypeObject) n.e.type).base;
+        var class_ = ((TypeObject) n.e.eval().type).base;
         var v = symbolContext.lookupInstanceVariable(n.i.s, class_);
         if (v == null || !v.isInstanceVariable()) {
             throw new IllegalStateException();

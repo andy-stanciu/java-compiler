@@ -5,7 +5,7 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
 import semantics.Logger;
 
 public class GreaterThanOrEqual extends BinaryExp {
-    public GreaterThanOrEqual(Exp ae1, Exp ae2, Location pos) {
+    public GreaterThanOrEqual(Expression ae1, Expression ae2, Location pos) {
         super(ae1, ae2, pos);
     }
 

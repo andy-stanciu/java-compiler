@@ -5,9 +5,9 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
 import semantics.Logger;
 
 public class Print extends StatementSimple {
-    public Exp e;
+    public Expression e;
 
-    public Print(Exp ae, Location pos) {
+    public Print(Expression ae, Location pos) {
         super(pos);
         e = ae;
     }

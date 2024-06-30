@@ -6,10 +6,10 @@ import semantics.Logger;
 
 public class For extends Statement {
     public StatementSimple s0, s1;
-    public Exp e;
+    public Expression e;
     public Statement s2;
 
-    public For(StatementSimple as0, Exp ae,
+    public For(StatementSimple as0, Expression ae,
                StatementSimple as1, Statement as2, Location pos) {
         super(pos);
         s0 = as0;

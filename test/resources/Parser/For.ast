@@ -34,7 +34,7 @@ Program
         condition: 
           GreaterThanOrEqual (i, 10)
         incrementer: 
-          PreDecrement i (line 23)
+          PostDecrement i (line 23)
         Print (line 24)
           5
         Print (line 25)
@@ -132,7 +132,7 @@ Program
         condition: 
           GreaterThan (x, 3)
         incrementer: 
-          PreDecrement a (line 58)
+          PostDecrement a (line 58)
         Print (line 58)
           0
       While true (line 59)
