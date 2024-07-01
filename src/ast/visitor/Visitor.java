@@ -13,6 +13,8 @@ public interface Visitor {
 
     void visit(VarDecl n);
 
+    void visit(VarInit n);
+
     void visit(MethodDecl n);
 
     void visit(Formal n);

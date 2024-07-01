@@ -152,7 +152,7 @@ public final class SymbolTable {
     public Info lookup(String symbol, boolean report) {
         if (report && !symbols.containsKey(symbol) && !undefined.contains(symbol)) {
             logger.logError("Undefined symbol \"%s\"%n", symbol);
-            undefined.add(symbol); // marked as undefined
+            undefined.add(symbol); // mark as undefined
         }
 
         return symbols.get(symbol);

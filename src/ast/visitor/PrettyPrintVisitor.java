@@ -40,7 +40,12 @@ public final class PrettyPrintVisitor implements Visitor {
         n.i2.accept(this);
         System.out.println(") {");
         indenter.push();
-        n.sl.forEach(s -> s.accept(this));
+        for (int i = 0; i < n.sl.size(); i++) {
+            n.sl.get(i).accept(this);
+            if (i + 1 < n.sl.size()) {
+                System.out.println();
+            }
+        }
         System.out.println();
         indenter.pop();
         indenter.print();
@@ -57,9 +62,9 @@ public final class PrettyPrintVisitor implements Visitor {
         n.i.accept(this);
         System.out.print(" {");
         indenter.push();
-        for (int i = 0; i < n.vl.size(); i++) {
+        for (int i = 0; i < n.dl.size(); i++) {
             System.out.println();
-            n.vl.get(i).accept(this);
+            n.dl.get(i).accept(this);
         }
         for (int i = 0; i < n.ml.size(); i++) {
             System.out.println();
@@ -81,9 +86,9 @@ public final class PrettyPrintVisitor implements Visitor {
         n.j.accept(this);
         System.out.print(" {");
         indenter.push();
-        for (int i = 0; i < n.vl.size(); i++) {
+        for (int i = 0; i < n.dl.size(); i++) {
             System.out.println();
-            n.vl.get(i).accept(this);
+            n.dl.get(i).accept(this);
         }
         for (int i = 0; i < n.ml.size(); i++) {
             System.out.println();
@@ -97,11 +102,24 @@ public final class PrettyPrintVisitor implements Visitor {
     // Type t;
     // Identifier i;
     public void visit(VarDecl n) {
-        indenter.print();
+        var context = blockContext.peek();
+        if (context != BlockType.FOR) indenter.print();
         n.t.accept(this);
         System.out.print(" ");
         n.i.accept(this);
-        System.out.print(";");
+        if (context != BlockType.FOR) System.out.print(";");
+    }
+
+    @Override
+    public void visit(VarInit n) {
+        var context = blockContext.peek();
+        if (context != BlockType.FOR) indenter.print();
+        n.t.accept(this);
+        System.out.print(" ");
+        n.i.accept(this);
+        System.out.print(" = ");
+        n.e.accept(this);
+        if (context != BlockType.FOR) System.out.print(";");
     }
 
     // Type t;
@@ -125,10 +143,6 @@ public final class PrettyPrintVisitor implements Visitor {
         }
         System.out.print(") {");
         indenter.push();
-        for (int i = 0; i < n.vl.size(); i++) {
-            System.out.println();
-            n.vl.get(i).accept(this);
-        }
         for (int i = 0; i < n.sl.size(); i++) {
             System.out.println();
             n.sl.get(i).accept(this);

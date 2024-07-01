@@ -35,13 +35,20 @@ public final class CodeGenVisitor implements Visitor {
 
         symbolContext.enterClass(n.i1.s);
         symbolContext.enterMethod("main");
-        n.sl.forEach(s -> s.accept(this));
 
         var main = symbolContext.getCurrentMethod();
-        generator.genLabel("ret$" + main.getQualifiedName());
+
+        // allocate main method stack frame
+        if (main.frameSize > 0) {
+            generator.genBinary("subq", "$" + main.frameSize, "%rsp");
+        }
+
+        n.sl.forEach(s -> s.accept(this));
+
         symbolContext.exit();
         symbolContext.exit();
 
+        generator.genLabel("ret$" + main.getQualifiedName());
         generator.genEpilogue();
     }
 
@@ -61,7 +68,22 @@ public final class CodeGenVisitor implements Visitor {
 
     @Override
     public void visit(VarDecl n) {
-        throw new IllegalStateException();
+        // variable is already declared in stack frame, nothing to do
+    }
+
+    @Override
+    public void visit(VarInit n) {
+        // variable declared in stack frame, but we need to assign to it
+        var v = symbolContext.lookupVariable(n.i.s);
+        if (v == null || v.isInstanceVariable()) {
+            throw new IllegalStateException();
+        }
+
+        generator.genBinary("leaq", v.getOffset() + "(%rbp)", "%rax");  // load var from frame
+        generator.genPush("%rax");                                              // push lvalue onto stack
+        n.e.accept(this);
+        generator.genPop("%rdx");                                               // pop lvalue into rdx
+        generator.genBinary("movq", "%rax", "0(%rdx)");                 // move result into lvalue
     }
 
     @Override
@@ -874,6 +896,22 @@ public final class CodeGenVisitor implements Visitor {
         generator.genCall("mjcalloc");                                         // allocate space on heap
         generator.genBinary("leaq", class_.name + "$$(%rip)", "%rdx");  // lea of vtable
         generator.genBinary("movq", "%rdx", "0(%rax)");                 // store vtable at start of obj
+        generator.genBinary("movq", "%rax", "%rdx");                    // move obj to rdx
+
+        // TODO: this is not gonna work. need to jump to ctor, which means we might as well implement constructors.
+        // TODO: before constructor logic can be invoked, we apply all initializers to instance variables.
+        symbolContext.swap(class_.name);
+        class_.getInstanceVariables().forEach(v -> {
+            if (v.hasInitializer()) {
+                generator.genPush("%rdx");                                              // push obj onto stack
+                v.initializer.accept(this);
+                generator.genPop("%rdx");                                               // pop obj into rdx
+                generator.genBinary("movq", "%rax", v.getOffset() + "(%rdx)");  // move result into obj
+            }
+        });
+        symbolContext.restore();
+
+        generator.genBinary("movq", "%rdx", "%rax");                    // move obj back to rax
     }
 
     @Override

@@ -32,8 +32,8 @@ nonterminal Program Program;
 nonterminal MainClass MainClass;
 nonterminal ClassDeclList ClassDeclarationList;
 nonterminal ClassDecl ClassDeclaration;
-nonterminal VarDeclList VarDeclarationList;
-nonterminal VarDecl VarDeclaration;
+nonterminal DeclarationList DeclarationList;
+nonterminal Declaration Declaration;
 nonterminal MethodDeclList MethodDeclarationList;
 nonterminal MethodDecl MethodDeclaration;
 nonterminal FormalList FormalList;
@@ -97,33 +97,35 @@ ClassDeclarationList ::= ClassDeclaration:c
                          {: cl.add(c);
                             RESULT = cl; :};
 
-ClassDeclaration ::= CLASS:c Identifier:cid LCURL VarDeclarationList:vl MethodDeclarationList:ml RCURL
-                     {: RESULT = new ClassDeclSimple(cid, vl, ml, cxleft); :}
+ClassDeclaration ::= CLASS:c Identifier:cid LCURL DeclarationList:dl MethodDeclarationList:ml RCURL
+                     {: RESULT = new ClassDeclSimple(cid, dl, ml, cxleft); :}
                  | CLASS:c Identifier:cid LCURL:lc MethodDeclarationList:ml RCURL
-                     {: RESULT = new ClassDeclSimple(cid, new VarDeclList(lcxright), ml, cxleft); :}
-                 | CLASS:c Identifier:cid LCURL:lc VarDeclarationList:vl RCURL
-                     {: RESULT = new ClassDeclSimple(cid, vl, new MethodDeclList(lcxright), cxleft); :}
+                     {: RESULT = new ClassDeclSimple(cid, new DeclarationList(lcxright), ml, cxleft); :}
+                 | CLASS:c Identifier:cid LCURL:lc DeclarationList:dl RCURL
+                     {: RESULT = new ClassDeclSimple(cid, dl, new MethodDeclList(lcxright), cxleft); :}
                  | CLASS:c Identifier:cid LCURL:lc RCURL
-                     {: RESULT = new ClassDeclSimple(cid, new VarDeclList(lcxright), new MethodDeclList(lcxright), cxleft); :}
-                 | CLASS:c Identifier:cid EXTENDS Identifier:eid LCURL VarDeclarationList:vl MethodDeclarationList:ml RCURL
-                     {: RESULT = new ClassDeclExtends(cid, eid, vl, ml, cxleft); :}
+                     {: RESULT = new ClassDeclSimple(cid, new DeclarationList(lcxright), new MethodDeclList(lcxright), cxleft); :}
+                 | CLASS:c Identifier:cid EXTENDS Identifier:eid LCURL DeclarationList:dl MethodDeclarationList:ml RCURL
+                     {: RESULT = new ClassDeclExtends(cid, eid, dl, ml, cxleft); :}
                  | CLASS:c Identifier:cid EXTENDS Identifier:eid LCURL:lc MethodDeclarationList:ml RCURL
-                     {: RESULT = new ClassDeclExtends(cid, eid, new VarDeclList(lcxright), ml, cxleft); :}
-                 | CLASS:c Identifier:cid EXTENDS Identifier:eid LCURL:lc VarDeclarationList:vl RCURL
-                     {: RESULT = new ClassDeclExtends(cid, eid, vl, new MethodDeclList(lcxright), cxleft); :}
+                     {: RESULT = new ClassDeclExtends(cid, eid, new DeclarationList(lcxright), ml, cxleft); :}
+                 | CLASS:c Identifier:cid EXTENDS Identifier:eid LCURL:lc DeclarationList:dl RCURL
+                     {: RESULT = new ClassDeclExtends(cid, eid, dl, new MethodDeclList(lcxright), cxleft); :}
                  | CLASS:c Identifier:cid EXTENDS Identifier:eid LCURL:lc RCURL
-                     {: RESULT = new ClassDeclExtends(cid, eid, new VarDeclList(lcxright), new MethodDeclList(lcxright), cxleft); :};
+                     {: RESULT = new ClassDeclExtends(cid, eid, new DeclarationList(lcxright), new MethodDeclList(lcxright), cxleft); :};
 
-VarDeclarationList ::= VarDeclaration:v
-                       {: VarDeclList vl = new VarDeclList(vxleft);
-                          vl.add(v);
-                          RESULT = vl; :}
-                   | VarDeclarationList:vl VarDeclaration:v
-                       {: vl.add(v);
-                          RESULT = vl; :};
+DeclarationList ::= Declaration:d SEMICOLON
+                       {: DeclarationList dl = new DeclarationList(dxleft);
+                          dl.add(d);
+                          RESULT = dl; :}
+                   | DeclarationList:dl Declaration:d SEMICOLON
+                       {: dl.add(d);
+                          RESULT = dl; :};
 
-VarDeclaration ::= DeclarableType:t Identifier:id SEMICOLON
-                   {: RESULT = new VarDecl(t, id, txleft); :};
+Declaration ::= DeclarableType:t Identifier:id
+               {: RESULT = new VarDecl(t, id, txleft); :}
+           | DeclarableType:t Identifier:id ASSIGN Expression:e
+               {: RESULT = new VarInit(t, id, e, txleft); :};
 
 MethodDeclarationList ::= MethodDeclaration:m
                           {: MethodDeclList ml = new MethodDeclList(mxleft);
@@ -133,22 +135,14 @@ MethodDeclarationList ::= MethodDeclaration:m
                           {: ml.add(m);
                              RESULT = ml; :};
 
-MethodDeclaration ::= PUBLIC:p Type:t Identifier:mid LPAREN FormalList:fl RPAREN LCURL VarDeclarationList:vl StatementList:sl RCURL:e
-                      {: RESULT = new MethodDecl(t, mid, fl, vl, sl, pxleft, exright); :}
-                  | PUBLIC:p Type:t Identifier:mid LPAREN:lp RPAREN LCURL VarDeclarationList:vl StatementList:sl RCURL:e
-                      {: RESULT = new MethodDecl(t, mid, new FormalList(lpxright), vl, sl, pxleft, exright); :}
-                  | PUBLIC:p Type:t Identifier:mid LPAREN FormalList:fl RPAREN LCURL:lc StatementList:sl RCURL:e
-                      {: RESULT = new MethodDecl(t, mid, fl, new VarDeclList(lcxright), sl, pxleft, exright); :}
-                  | PUBLIC:p Type:t Identifier:mid LPAREN FormalList:fl RPAREN LCURL VarDeclarationList:vl RCURL:e
-                      {: RESULT = new MethodDecl(t, mid, fl, vl, new StatementList(vlxright), pxleft, exright); :}
+MethodDeclaration ::= PUBLIC:p Type:t Identifier:mid LPAREN FormalList:fl RPAREN LCURL StatementList:sl RCURL:e
+                      {: RESULT = new MethodDecl(t, mid, fl, sl, pxleft, exright); :}
+                  | PUBLIC:p Type:t Identifier:mid LPAREN:lp RPAREN LCURL StatementList:sl RCURL:e
+                      {: RESULT = new MethodDecl(t, mid, new FormalList(lpxright), sl, pxleft, exright); :}
                   | PUBLIC:p Type:t Identifier:mid LPAREN FormalList:fl RPAREN LCURL:lc RCURL:e
-                      {: RESULT = new MethodDecl(t, mid, fl, new VarDeclList(lcxright), new StatementList(lcxright), pxleft, exright); :}
-                  | PUBLIC:p Type:t Identifier:mid LPAREN:lp RPAREN LCURL VarDeclarationList:vl RCURL:e
-                      {: RESULT = new MethodDecl(t, mid, new FormalList(lpxright), vl, new StatementList(vlxright), pxleft, exright); :}
-                  | PUBLIC:p Type:t Identifier:mid LPAREN:lp RPAREN LCURL:lc StatementList:sl RCURL:e
-                      {: RESULT = new MethodDecl(t, mid, new FormalList(lpxright), new VarDeclList(lcxright), sl, pxleft, exright); :}
-                  | PUBLIC:p Type:t Identifier:mid LPAREN:lp RPAREN LCURL:lc RCURL:e
-                      {: RESULT = new MethodDecl(t, mid, new FormalList(lpxright), new VarDeclList(lcxright), new StatementList(lcxright), pxleft, exright); :};
+                      {: RESULT = new MethodDecl(t, mid, fl, new StatementList(lcxright), pxleft, exright); :}
+                  | PUBLIC:p Type:t Identifier:mid LPAREN:lp RPAREN LCURL RCURL:e
+                      {: RESULT = new MethodDecl(t, mid, new FormalList(lpxright), new StatementList(lpxright), pxleft, exright); :};
 
 FormalList ::= Formal:f
                {: FormalList fl = new FormalList(fxleft);
@@ -255,6 +249,8 @@ Case ::= CASE:c INT_LITERAL:n COLON StatementList:sl BREAK SEMICOLON
 
 StatementSimple ::= Call:c
                   {: RESULT = new Action(c, cxleft); :}
+              | Declaration:d
+                  {: RESULT = d; :}
               | PRINT:p LPAREN Expression:e RPAREN
                   {: RESULT = new Print(e, pxleft); :}
               | Assignable:a ASSIGN Expression:e

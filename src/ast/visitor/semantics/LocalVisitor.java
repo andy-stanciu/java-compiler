@@ -43,6 +43,7 @@ public final class LocalVisitor implements Visitor {
         if (n.conflict) return;
 
         symbolContext.enterClass(n.i.s);
+        n.dl.forEach(d -> d.accept(this));
         n.ml.forEach(m -> m.accept(this));
         symbolContext.exit();
     }
@@ -52,13 +53,21 @@ public final class LocalVisitor implements Visitor {
         if (n.conflict) return;
 
         symbolContext.enterClass(n.i.s);
+        n.dl.forEach(d -> d.accept(this));
         n.ml.forEach(m -> m.accept(this));
         symbolContext.exit();
     }
 
     @Override
-    public void visit(VarDecl n) {
-        throw new IllegalStateException();
+    public void visit(VarDecl n) {}
+
+    @Override
+    public void visit(VarInit n) {
+        n.e.accept(this);  // initialization expression
+        if (!n.e.type.isAssignableTo(n.type)) {
+            logger.logError("Cannot assign %s to %s%n",
+                    n.e.type, n.type);
+        }
     }
 
     @Override

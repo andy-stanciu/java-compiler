@@ -22,6 +22,8 @@ public final class CodeDataVisitor implements Visitor {
         symbolContext.buildVirtualTables();
         symbolContext.assignVariableOffsets();
 
+        n.m.accept(this);
+
         generator.genDataSection();
         n.cl.forEach(c -> c.accept(this));
         generator.newLine();
@@ -29,7 +31,33 @@ public final class CodeDataVisitor implements Visitor {
 
     @Override
     public void visit(MainClass n) {
-        throw new IllegalStateException();
+        symbolContext.enterClass(n.i1.s);
+        symbolContext.enterMethod("main");
+
+        var main = symbolContext.getCurrentMethod();
+        if (main == null) {
+            throw new IllegalStateException();
+        }
+
+        // calculate main method stack frame size:
+        // size of stack frame = local variable count
+        int frameSize = main.localVariableCount();
+        if (frameSize % 2 == 1) frameSize++;  // alignment
+        main.frameSize = frameSize * Generator.WORD_SIZE;
+
+        int offset = 1;
+        // assign offsets to local variables
+        for (int i = 0; i < main.localVariableCount(); i++) {
+            var v = symbolContext.lookupVariable(main.getLocalVariable(i).name);
+            if (v == null) {
+                throw new IllegalStateException();
+            }
+
+            v.vIndex = -offset++;
+        }
+
+        symbolContext.exit();
+        symbolContext.exit();
     }
 
     @Override
@@ -72,6 +100,11 @@ public final class CodeDataVisitor implements Visitor {
     }
 
     @Override
+    public void visit(VarInit n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
     public void visit(MethodDecl n) {
         var method = symbolContext.lookupMethod(n.i.s);
         if (method == null) {
@@ -80,7 +113,7 @@ public final class CodeDataVisitor implements Visitor {
 
         // calculate method stack frame size:
         // size of stack frame = arg count + local variable count + obj ptr
-        int frameSize = n.fl.size() + n.vl.size() + 1;
+        int frameSize = method.argumentCount() + method.localVariableCount() + 1;
         if (frameSize % 2 == 1) frameSize++;  // alignment
         method.frameSize = frameSize * Generator.WORD_SIZE;
 
@@ -94,19 +127,17 @@ public final class CodeDataVisitor implements Visitor {
                 throw new IllegalStateException();
             }
 
-            p.vIndex = -offset;
-            offset++;
+            p.vIndex = -offset++;
         }
 
         // assign offsets to local variables
-        for (int i = 0; i < n.vl.size(); i++) {
-            var v = symbolContext.lookupVariable(n.vl.get(i).i.s);
+        for (int i = 0; i < method.localVariableCount(); i++) {
+            var v = symbolContext.lookupVariable(method.getLocalVariable(i).name);
             if (v == null) {
                 throw new IllegalStateException();
             }
 
-            v.vIndex = -offset;
-            offset++;
+            v.vIndex = -offset++;
         }
 
         symbolContext.exit();

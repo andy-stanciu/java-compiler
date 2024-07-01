@@ -76,7 +76,18 @@ public final class DataflowVisitor implements Visitor {
 
     @Override
     public void visit(VarDecl n) {
-        throw new IllegalStateException();
+        n.t.accept(this);
+        System.out.print(" ");
+        n.i.accept(this);
+    }
+
+    @Override
+    public void visit(VarInit n) {
+        n.t.accept(this);
+        System.out.print(" ");
+        n.i.accept(this);
+        System.out.print(" = ");
+        n.e.accept(this);
     }
 
     @Override

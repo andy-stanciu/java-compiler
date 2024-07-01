@@ -13,12 +13,39 @@ public final class ClassInfo extends Info {
     private final Set<ClassInfo> children;
     private MethodInfo[] vtable;
     private int variableCount;
+    private final List<VariableInfo> instanceVariables;
 
     public ClassInfo(SymbolTable parent, String name, boolean main) {
         super(name);
         this.table = new SymbolTable(parent, TableType.CLASS, name);
         this.children = new HashSet<>();
         this.main = main;
+        this.instanceVariables = new ArrayList<>();
+    }
+
+    /**
+     * Adds the specified instance variable to this class.
+     * @param v The instance variable to add.
+     */
+    public void addInstanceVariable(VariableInfo v) {
+        instanceVariables.add(v);
+    }
+
+    /**
+     * @return This class' instance variables, in order of declaration.
+     *         Includes any superclass instance variables.
+     */
+    public Iterable<VariableInfo> getInstanceVariables() {
+        Deque<VariableInfo> ret = new LinkedList<>();
+        var curr = this;
+        while (curr != null) {
+            for (int i = curr.instanceVariables.size() - 1; i >= 0; i--) {
+                ret.offerFirst(curr.instanceVariables.get(i));
+            }
+            curr = curr.parent;
+        }
+
+        return ret;
     }
 
     /**
@@ -38,13 +65,12 @@ public final class ClassInfo extends Info {
 
         // assign variable offsets
         int vIndex = variableCount - table.getVariableCount() + 1;
-        for (var i : table.getEntriesSorted()) {
+        for (var i : table.getEntries()) {
             if (i instanceof VariableInfo v) {
                 if (v.vIndex == 0) {  // non-inherited instance variable
                     v.vIndex = vIndex;
                     vIndex++;
                 }
-
             }
         }
 

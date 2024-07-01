@@ -104,4 +104,7 @@ public class TestParser {
     public void testVoid() {
         runParserSuccessTestCase("Void");
     }
+
+    @Test
+    public void testVariables() { runParserSuccessTestCase("Variables"); }
 }

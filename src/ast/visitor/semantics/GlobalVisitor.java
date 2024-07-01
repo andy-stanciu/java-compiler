@@ -44,6 +44,11 @@ public final class GlobalVisitor implements Visitor {
     }
 
     @Override
+    public void visit(VarInit n) {
+        throw new IllegalStateException();
+    }
+
+    @Override
     public void visit(MethodDecl n) {
         throw new IllegalStateException();
     }

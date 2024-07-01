@@ -4,16 +4,9 @@ import ast.visitor.Visitor;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 import semantics.Logger;
 
-public class VarDecl extends ASTNode {
-    public Type t;
-    public Identifier i;
-    public boolean conflict;
-    public semantics.type.Type type;
-
+public class VarDecl extends Declaration {
     public VarDecl(Type at, Identifier ai, Location pos) {
-        super(pos);
-        t = at;
-        i = ai;
+        super(at, ai, pos);
     }
 
     public void accept(Visitor v) {
