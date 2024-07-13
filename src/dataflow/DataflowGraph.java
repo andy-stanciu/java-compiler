@@ -2,14 +2,17 @@ package dataflow;
 
 import ast.*;
 import ast.visitor.dataflow.DataflowVisitor;
+import ast.visitor.dataflow.LiveVariableVisitor;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 import semantics.Logger;
 import semantics.info.MethodInfo;
+import semantics.info.VariableInfo;
 import semantics.table.SymbolContext;
 import semantics.type.TypeVoid;
 
 import java.util.Deque;
 import java.util.LinkedList;
+import java.util.function.Consumer;
 
 public final class DataflowGraph {
     private final DataflowVisitor dataflowVisitor;
@@ -56,6 +59,8 @@ public final class DataflowGraph {
 
     /**
      * Validates return statements in this dataflow graph.
+     * This includes checking for unreachable code and
+     * ensuring that every branch returns at some point.
      * @return This {@link DataflowGraph}.
      */
     public DataflowGraph validateReturnStatements() {
@@ -63,6 +68,21 @@ public final class DataflowGraph {
             throw new IllegalStateException();
         }
         validateReturn();
+        return this;
+    }
+
+    /**
+     * Validates variable declarations in this dataflow graph.
+     * This includes checking for uninitialized variables and
+     * duplicate definitions.
+     * @return This {@link DataflowGraph}.
+     */
+    public DataflowGraph validateVariableDeclarations() {
+        if (instructionGraph == null) {
+            throw new IllegalStateException();
+        }
+
+        validateDeclarations();
         return this;
     }
 
@@ -163,6 +183,55 @@ public final class DataflowGraph {
                 System.out.print("\t");
                 printInstruction(i);
             });
+        });
+    }
+
+    private void validateDeclarations() {
+        var liveVariableVisitor = new LiveVariableVisitor();
+
+        // compute use and def sets for each block
+        visitBlocks(b -> {
+            b.forEach(i -> {
+                var s = i.getStatement();
+                if (s != null) {
+                    s.accept(liveVariableVisitor);
+                    s.used.forEach(v -> {
+                        if (!b.variables().defSet().contains(v)) {
+                            b.variables().useSet().add(v);
+                        }
+                    });
+                    b.variables().defSet().addAll(s.defined);
+                }
+            });
+        });
+
+        // compute in and out sets for each block
+        visitBlocks(b -> {
+
+        });
+    }
+
+    /**
+     * Visits this dataflow graph's blocks in topological order.
+     * @param action The action to apply to each block.
+     */
+    private void visitBlocks(Consumer<Block> action) {
+        if (blockGraph.isEmpty()) {
+            throw new IllegalStateException();
+        }
+        var b = blockGraph.peekFirst();
+        visitBlocksRec(b, action);
+    }
+
+    private void visitBlocksRec(Block b, Consumer<Block> action) {
+        b.getNext().forEach(succ -> {
+            if (succ.getType() != BlockType.END) {
+                action.accept(succ);
+            }
+        });
+
+        b.getNext().forEach(succ -> {
+            visitBlocksRec(succ, action);
         });
     }
 

@@ -64,6 +64,8 @@ public final class Instruction {
             type = InstructionType.SWITCH;
         } else if (statement instanceof Return) {
             type = InstructionType.RETURN;
+        } else if (statement instanceof Declaration) {
+            type = InstructionType.DECLARATION;
         }
 
         return new Instruction(statement, type, next);
