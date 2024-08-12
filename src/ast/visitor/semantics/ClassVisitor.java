@@ -206,8 +206,9 @@ public final class ClassVisitor implements Visitor {
     }
 
     @Override
-    public void visit(IntArrayType n) {
-        n.type = TypeIntArray.getInstance();
+    public void visit(ArrayType n) {
+        n.t.accept(this);
+        n.type = new TypeArray((TypeSingular) n.t.type, n.dimension);
     }
 
     @Override

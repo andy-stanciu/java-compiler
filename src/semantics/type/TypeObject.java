@@ -2,7 +2,7 @@ package semantics.type;
 
 import semantics.info.ClassInfo;
 
-public class TypeObject extends Type {
+public class TypeObject extends TypeSingular {
     public final ClassInfo base;  // base class (declared type)
 
     public TypeObject(ClassInfo base) {

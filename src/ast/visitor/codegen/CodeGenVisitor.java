@@ -4,6 +4,8 @@ import ast.*;
 import ast.visitor.Visitor;
 import codegen.FlowContext;
 import codegen.Generator;
+import codegen.SyntheticFunction;
+import codegen.SyntheticFunctionGenerator;
 import semantics.table.SymbolContext;
 import semantics.type.TypeBoolean;
 import semantics.type.TypeObject;
@@ -14,10 +16,12 @@ import java.util.function.Consumer;
 
 public final class CodeGenVisitor implements Visitor {
     private final Generator generator;
+    private final SyntheticFunctionGenerator syntheticFunctionGenerator;
     private final SymbolContext symbolContext;
 
     public CodeGenVisitor(SymbolContext symbolContext) {
         this.generator = Generator.getInstance();
+        this.syntheticFunctionGenerator = SyntheticFunctionGenerator.getInstance();
         this.symbolContext = symbolContext;
     }
 
@@ -26,6 +30,7 @@ public final class CodeGenVisitor implements Visitor {
         generator.genCodeSection();
         n.m.accept(this);
         n.cl.forEach(c -> c.accept(this));
+        syntheticFunctionGenerator.generateAll();
     }
 
     @Override
@@ -132,7 +137,7 @@ public final class CodeGenVisitor implements Visitor {
     }
 
     @Override
-    public void visit(IntArrayType n) {
+    public void visit(ArrayType n) {
         throw new IllegalStateException();
     }
 
@@ -631,21 +636,16 @@ public final class CodeGenVisitor implements Visitor {
         boolean assignable = generator.isAssignable();
 
         n.e1.accept(this);
-        generator.genPush("%rax");                                          // push arr ptr onto stack
-        n.e2.accept(this);
-        generator.genPop("%rcx");                                           // pop arr ptr into rcx
-        generator.genBinary("movq", "%rax", "%rdi");               // load index into rdi
-        generator.genBinary("movq", "0(%rcx)", "%rsi");            // load sizeof(arr) into rsi
-        generator.genBinary("movq", "$" + n.line_number, "%rdx");  // load line number into rdx
-        generator.genBinary("cmpq", "$0", "%rdi");                 // check if index < 0
-        generator.genUnary("jl", "exception_array");                   // array index out of bounds exception
-        generator.genBinary("cmpq", "%rsi", "%rdi");               // check if index >= sizeof(arr)
-        generator.genUnary("jge", "exception_array");                  // array index out of bounds exception
-        generator.genBinary("addq", "$1", "%rdi");                // index++ (since size @ index 0)
-
-        String instr = assignable ? "leaq" : "movq";
-        generator.genBinary(instr, "(%rcx,%rdi," +                         // load arr[i] or &arr[i] into rax
-                Generator.WORD_SIZE + ")", "%rax");
+        generator.genPush("%rax");                                                             // push arr ptr
+        for (int i = 0; i < n.getDimensionCount(); i++) {
+            n.el.get(i).accept(this);
+            generator.genBinary("addq", "$1", "%rax");                                  // i++ due to size
+            generator.genPop("%rcx");                                                           // push arr ptr onto stack
+            String instr = (assignable && i == n.getDimensionCount() - 1) ? "leaq" : "movq";
+            generator.genBinary(instr, "(%rcx,%rax," + Generator.WORD_SIZE + ")", "%rcx");  // load arr[i] or &arr[i] into rax
+            generator.genPush("%rcx");                                                          // push arr ptr onto stack
+        }
+        generator.genPop("%rax");                                                               // pop arr ptr
     }
 
     @Override
@@ -875,14 +875,24 @@ public final class CodeGenVisitor implements Visitor {
 
     @Override
     public void visit(NewArray n) {
-        n.e.accept(this);
-        generator.genPush("%rax");                               // push sizeof(arr) onto stack
-        generator.genBinary("addq", "$1", "%rax");       // sizeof(arr) + 1 bytes
-        generator.genBinary("shlq", "$3", "%rax");       // multiply size by word size (8)
-        generator.genBinary("movq", "%rax", "%rdi");     // load heap size into first arg
-        generator.genCall("mjcalloc");                          // allocate space on heap
-        generator.genPop("%rdx");                                // pop sizeof(arr) off stack
-        generator.genBinary("movq", "%rdx", "0(%rax)");  // store sizeof(arr) at start of array
+        if (n.getDimensionCount() == 1) {
+            n.el.get(0).accept(this);
+            generator.genBinary("movq", "%rax", "%rdi");
+            generator.genCall(SyntheticFunction.ALLOCATE_ARRAY);
+        } else {
+            n.el.get(0).accept(this);
+            generator.genBinary("movq", "%rax", "%rdi");
+            generator.genPush("%rdi");
+            generator.genCall(SyntheticFunction.ALLOCATE_ARRAY);
+            generator.genPop("%rdi");
+            generator.genPush("%rax");
+            for (int i = 1; i < n.getDimensionCount(); i++) {
+                n.el.get(i).accept(this);
+                generator.genBinary("movq", "%rax", generator.getArgumentRegister(i));
+            }
+            generator.genPop("%rax");
+            generator.genCall(SyntheticFunction.ALLOCATE_NESTED_ARRAY);
+        }
     }
 
     @Override

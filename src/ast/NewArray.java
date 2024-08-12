@@ -5,11 +5,25 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
 import semantics.Logger;
 
 public class NewArray extends Exp {
-    public Exp e;
+    public ExpList el;
+    public SingularType t;
 
-    public NewArray(Exp ae, Location pos) {
+    public NewArray(SingularType at, ExpList ael, Location pos) {
         super(pos);
-        e = ae;
+        el = ael;
+        t = at;
+    }
+
+    public void addDimension(Exp e) {
+        el.add(e);
+    }
+
+    public Exp getDimension(int i) {
+        return el.get(i);
+    }
+
+    public int getDimensionCount() {
+        return el.size();
     }
 
     public void accept(Visitor v) {

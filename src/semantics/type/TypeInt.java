@@ -1,6 +1,6 @@
 package semantics.type;
 
-public class TypeInt extends Type {
+public class TypeInt extends TypeSingular {
     private static final TypeInt instance = new TypeInt();
 
     public static TypeInt getInstance() {

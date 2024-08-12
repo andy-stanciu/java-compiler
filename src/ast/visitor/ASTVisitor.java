@@ -141,8 +141,11 @@ public final class ASTVisitor implements Visitor {
     }
 
     @Override
-    public void visit(IntArrayType n) {
-        System.out.print("int[]");
+    public void visit(ArrayType n) {
+        n.t.accept(this);
+        for (int i = 0; i < n.dimension; i++) {
+            System.out.print("[]");
+        }
     }
 
     @Override
@@ -653,9 +656,11 @@ public final class ASTVisitor implements Visitor {
     public void visit(ArrayLookup n) {
         System.out.print("ArrayLookup ");
         n.e1.accept(this);
-        System.out.print("[");
-        n.e2.accept(this);
-        System.out.print("]");
+        n.el.forEach(e -> {
+            System.out.print("[");
+            e.accept(this);
+            System.out.print("]");
+        });
     }
 
     @Override
@@ -741,9 +746,13 @@ public final class ASTVisitor implements Visitor {
 
     @Override
     public void visit(NewArray n) {
-        System.out.print("new int[");
-        n.e.accept(this);
-        System.out.print("]");
+        System.out.print("new ");
+        n.t.accept(this);
+        n.el.forEach(e -> {
+            System.out.print("[");
+            e.accept(this);
+            System.out.print("]");
+        });
     }
 
     @Override

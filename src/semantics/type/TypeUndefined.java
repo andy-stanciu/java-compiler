@@ -1,6 +1,6 @@
 package semantics.type;
 
-public class TypeUndefined extends Type {
+public class TypeUndefined extends TypeSingular {
     private static final TypeUndefined instance = new TypeUndefined();
 
     public static TypeUndefined getInstance() {

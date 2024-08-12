@@ -20,7 +20,7 @@ terminal PLUS, MINUS, TIMES, DIV, MOD, LSHIFT, RSHIFT, URSHIFT, LESS_THAN,
          BITWISE_XOR, BITWISE_NOT;
 
 /* delimiters */
-terminal LPAREN, RPAREN, LSQUARE, RSQUARE, LCURL, RCURL, SEMICOLON, COMMA, DOT,
+terminal ARRAY, LPAREN, RPAREN, LSQUARE, RSQUARE, LCURL, RCURL, SEMICOLON, COMMA, DOT,
          QUESTION, COLON;
 
 /* identifiers */
@@ -40,6 +40,10 @@ nonterminal FormalList FormalList;
 nonterminal Formal Formal;
 nonterminal Type Type;
 nonterminal DeclarableType DeclarableType;
+nonterminal SingularType SingularType;
+nonterminal ArrayType ArrayType;
+nonterminal ArrayLookup ArrayLookup;
+nonterminal NewArray NewArray;
 nonterminal Return Return;
 nonterminal StatementList StatementList;
 nonterminal Statement Statement;
@@ -84,9 +88,9 @@ Program ::= MainClass:m ClassDeclarationList:cl
         | MainClass:m
             {: RESULT = new Program(m, new ClassDeclList(mxright), mxleft); :};
 
-MainClass ::= CLASS:c Identifier:cid LCURL PUBLIC STATIC VOID MAIN LPAREN STRING LSQUARE RSQUARE Identifier:aid RPAREN LCURL StatementList:sl RCURL:e RCURL
+MainClass ::= CLASS:c Identifier:cid LCURL PUBLIC STATIC VOID MAIN LPAREN STRING ARRAY Identifier:aid RPAREN LCURL StatementList:sl RCURL:e RCURL
               {: RESULT = new MainClass(cid, aid, sl, cxleft, exright); :}
-          | CLASS:c Identifier:cid LCURL PUBLIC STATIC VOID MAIN LPAREN STRING LSQUARE RSQUARE Identifier:aid RPAREN LCURL:lc RCURL:e RCURL
+          | CLASS:c Identifier:cid LCURL PUBLIC STATIC VOID MAIN LPAREN STRING ARRAY Identifier:aid RPAREN LCURL:lc RCURL:e RCURL
                           {: RESULT = new MainClass(cid, aid, new StatementList(lcxright), cxleft, exright); :};
 
 ClassDeclarationList ::= ClassDeclaration:c
@@ -160,14 +164,23 @@ Type ::= VOID:v
          | DeclarableType:t
             {: RESULT = t; :};
 
-DeclarableType ::= INT:i LSQUARE RSQUARE
-                {: RESULT = new IntArrayType(ixleft); :}
-            | BOOLEAN:b
-                {: RESULT = new BooleanType(bxleft); :}
-            | INT:i
-                {: RESULT = new IntegerType(ixleft); :}
-            | Identifier:id
-                {: RESULT = new IdentifierType(id.toString(), idxleft); :};
+DeclarableType ::= ArrayType:t
+                {: RESULT = t; :}
+            | SingularType:t
+                {: RESULT = t; :};
+
+ArrayType ::= ArrayType:t ARRAY
+                {: t.dimension++;
+                   RESULT = t; :}
+            | SingularType:t ARRAY
+                {: RESULT = new ArrayType(t, txleft); :};
+
+SingularType ::= BOOLEAN:b
+                     {: RESULT = new BooleanType(bxleft); :}
+                 | INT:i
+                     {: RESULT = new IntegerType(ixleft); :}
+                 | Identifier:id
+                     {: RESULT = new IdentifierType(id.toString(), idxleft); :};
 
 StatementList ::= Statement:s
                   {: StatementList sl = new StatementList(sxleft);
@@ -286,8 +299,8 @@ StatementSimple ::= Call:c
               | DECREMENT:d Assignable:a
                   {: RESULT = new PreDecrement(a, dxleft); :};
 
-Assignable ::= Expression:e1 LSQUARE Expression:e2 RSQUARE
-               {: RESULT = new ArrayLookup(e1, e2, e1xleft); :}
+Assignable ::= ArrayLookup:a
+               {: RESULT = a; :}
            | Expression:e DOT Identifier:id
                {: RESULT = new Field(e, id, exleft); :}
            | Identifier:id
@@ -345,8 +358,8 @@ Expression ::= Call:c
                           {: RESULT = new RightShift(e1, e2, e1xleft); :}
            | Expression:e1 URSHIFT Expression:e2
                           {: RESULT = new UnsignedRightShift(e1, e2, e1xleft); :}
-           | Expression:e1 LSQUARE Expression:e2 RSQUARE
-                          {: RESULT = new ArrayLookup(e1, e2, e1xleft); :}
+           | ArrayLookup:a
+                          {: RESULT = a; :}
            | Expression:e DOT LENGTH
                           {: RESULT = new ArrayLength(e, exleft); :}
            | Expression:e DOT Identifier:id
@@ -365,8 +378,8 @@ Expression ::= Call:c
                           {: RESULT = new IdentifierExp(id.toString(), idxleft); :}
            | THIS:t
                           {: RESULT = new This(txleft); :}
-           | NEW:n INT LSQUARE Expression:e RSQUARE
-                          {: RESULT = new NewArray(e, nxleft); :}
+           | NewArray:a
+                          {: RESULT = a; :}
            | NEW:n Identifier:id LPAREN RPAREN
                           {: RESULT = new NewObject(id, nxleft); :}
            | NOT:n Expression:e
@@ -375,6 +388,22 @@ Expression ::= Call:c
                           {: RESULT = new BitwiseNot(e, nxleft); :}
            | LPAREN Expression:e RPAREN
                           {: RESULT = e; :};
+
+ArrayLookup ::= Expression:e1 LSQUARE Expression:e2 RSQUARE
+                    {: ExpList el = new ExpList();
+                       el.add(e2);
+                       RESULT = new ArrayLookup(e1, el, e1xleft); :}
+            | ArrayLookup:a LSQUARE Expression:e RSQUARE
+                    {: a.addDimension(e);
+                       RESULT = a; :};
+
+NewArray ::= NewArray:a LSQUARE Expression:e RSQUARE
+                {: a.addDimension(e);
+                   RESULT = a; :}
+            | NEW:n SingularType:t LSQUARE Expression:e RSQUARE
+                {: ExpList el = new ExpList();
+                   el.add(e);
+                   RESULT = new NewArray(t, el, nxleft); :};
 
 Call ::= Expression:e DOT Identifier:id LPAREN:lp RPAREN
            {: RESULT = new Call(e, id, new ExpList(lpxright), exleft); :}
