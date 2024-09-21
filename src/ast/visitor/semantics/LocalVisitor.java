@@ -436,6 +436,7 @@ public final class LocalVisitor implements Visitor {
 
         if (n.e1.type instanceof TypeArray arr && n.el.size() <= arr.dimension) {
             n.el.forEach(e -> {
+                e.accept(this);
                 if (!e.type.isAssignableTo(TypeInt.getInstance())) {
                     logger.logError("Array index expected an int, but provided %s%n",
                             e.type);
@@ -624,6 +625,7 @@ public final class LocalVisitor implements Visitor {
     public void visit(NewArray n) {
         n.t.accept(this);  // singular type
         n.el.forEach(e -> {
+            e.accept(this);
             if (!e.type.isAssignableTo(TypeInt.getInstance())) {
                 logger.logError("Array instantiation expected an int, but provided %s%n",
                         e.type);

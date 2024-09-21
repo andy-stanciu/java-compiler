@@ -6,6 +6,11 @@ import codegen.FlowContext;
 import codegen.Generator;
 import codegen.SyntheticFunction;
 import codegen.SyntheticFunctionGenerator;
+import codegen.platform.Immediate;
+import codegen.platform.Memory;
+import codegen.platform.MemoryScaledIndex;
+import codegen.platform.Operation;
+import codegen.platform.isa.ISA;
 import semantics.table.SymbolContext;
 import semantics.type.TypeBoolean;
 import semantics.type.TypeObject;
@@ -14,14 +19,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import static codegen.platform.Operation.*;
+import static codegen.platform.Register.*;
+
 public final class CodeGenVisitor implements Visitor {
     private final Generator generator;
     private final SyntheticFunctionGenerator syntheticFunctionGenerator;
     private final SymbolContext symbolContext;
 
-    public CodeGenVisitor(SymbolContext symbolContext) {
-        this.generator = Generator.getInstance();
-        this.syntheticFunctionGenerator = SyntheticFunctionGenerator.getInstance();
+    public CodeGenVisitor(SymbolContext symbolContext, ISA isa) {
+        this.generator = Generator.getInstance(isa);
+        this.syntheticFunctionGenerator = SyntheticFunctionGenerator.getInstance(isa);
         this.symbolContext = symbolContext;
     }
 
@@ -45,7 +53,7 @@ public final class CodeGenVisitor implements Visitor {
 
         // allocate main method stack frame
         if (main.frameSize > 0) {
-            generator.genBinary("subq", "$" + main.frameSize, "%rsp");
+            generator.genBinary(SUB, Immediate.of(main.frameSize), RSP);
         }
 
         n.sl.forEach(s -> s.accept(this));
@@ -84,11 +92,11 @@ public final class CodeGenVisitor implements Visitor {
             throw new IllegalStateException();
         }
 
-        generator.genBinary("leaq", v.getOffset() + "(%rbp)", "%rax");  // load var from frame
-        generator.genPush("%rax");                                              // push lvalue onto stack
+        generator.genBinary(LEA, Memory.of(RBP, v.getOffset()), RAX);  // load var from frame
+        generator.genPush(RAX);  // push lvalue onto stack
         n.e.accept(this);
-        generator.genPop("%rdx");                                               // pop lvalue into rdx
-        generator.genBinary("movq", "%rax", "0(%rdx)");                 // move result into lvalue
+        generator.genPop(RDX);  // pop lvalue into rdx
+        generator.genBinary(MOV, RAX, Memory.of(RDX, 0));  // move result into lvalue
     }
 
     @Override
@@ -102,10 +110,10 @@ public final class CodeGenVisitor implements Visitor {
         generator.genPrologue();
 
         // allocate method stack frame
-        generator.genBinary("subq", "$" + method.frameSize, "%rsp");
+        generator.genBinary(SUB, Immediate.of(method.frameSize), RSP);
 
         // obj ptr is always first
-        generator.genBinary("movq", "%rdi", -Generator.WORD_SIZE + "(%rbp)");
+        generator.genBinary(MOV, RDI, Memory.of(RBP, -Generator.WORD_SIZE));
 
         symbolContext.enterMethod(n.i.s);
         // save parameters on the stack
@@ -115,8 +123,8 @@ public final class CodeGenVisitor implements Visitor {
                 throw new IllegalStateException();
             }
 
-            generator.genBinary("movq", generator.getArgumentRegister(i + 1),
-                    p.getOffset() + "(%rbp)");
+            generator.genBinary(MOV, generator.getArgumentRegister(i + 1),
+                    Memory.of(RBP, p.getOffset()));
         }
 
         n.sl.forEach(s -> s.accept(this));
@@ -169,7 +177,7 @@ public final class CodeGenVisitor implements Visitor {
         }
 
         n.e.accept(this);
-        generator.genUnary("jmp", "ret$" + m.getQualifiedName());
+        generator.genUnary(JMP, "ret$" + m.getQualifiedName());
     }
 
     @Override
@@ -192,7 +200,7 @@ public final class CodeGenVisitor implements Visitor {
         n.e.accept(this);  // bool expression
 
         n.s1.accept(this);
-        generator.genUnary("jmp", endifLabel);
+        generator.genUnary(JMP, endifLabel);
         generator.genLabel(elseLabel);
         n.s2.accept(this);
         generator.genLabel(endifLabel);
@@ -213,8 +221,8 @@ public final class CodeGenVisitor implements Visitor {
             if (c instanceof CaseSimple case_) {
                 String caseLabel = generator.nextLabel("case");
                 cases.add(caseLabel);
-                generator.genBinary("cmpq", "$" + case_.n, "%rax");
-                generator.genUnary("je", caseLabel);
+                generator.genBinary(CMP, Immediate.of(case_.n), RAX);
+                generator.genUnary(JE, caseLabel);
             } else if (c instanceof CaseDefault default_) {
                 String defaultLabel = generator.nextLabel("default");
                 cases.add(defaultLabel);
@@ -224,9 +232,9 @@ public final class CodeGenVisitor implements Visitor {
         }
 
         if (d != null) {
-            generator.genUnary("jmp", cases.get(defaultIdx));
+            generator.genUnary(JMP, cases.get(defaultIdx));
         } else {
-            generator.genUnary("jmp", endSwitchLabel);
+            generator.genUnary(JMP, endSwitchLabel);
         }
 
         for (int i = 0; i < n.cl.size(); i++) {
@@ -235,9 +243,9 @@ public final class CodeGenVisitor implements Visitor {
                 generator.genLabel(cases.get(i));
                 c.accept(this);
                 if (c.breaks || i + 1 == n.cl.size()) {
-                    generator.genUnary("jmp", endSwitchLabel);
+                    generator.genUnary(JMP, endSwitchLabel);
                 } else if (i + 1 == defaultIdx && defaultIdx + 1 < cases.size()) {
-                    generator.genUnary("jmp", cases.get(defaultIdx));
+                    generator.genUnary(JMP, cases.get(defaultIdx));
                 }
             }
         }
@@ -246,7 +254,7 @@ public final class CodeGenVisitor implements Visitor {
             generator.genLabel(cases.get(defaultIdx));
             d.accept(this);
             if (!d.breaks && defaultIdx + 1 < cases.size()) {
-                generator.genUnary("jmp", cases.get(defaultIdx + 1));
+                generator.genUnary(JMP, cases.get(defaultIdx + 1));
             }
         }
 
@@ -268,7 +276,7 @@ public final class CodeGenVisitor implements Visitor {
         String testLabel = generator.nextLabel("while_test");
         String bodyLabel = generator.nextLabel("while");
 
-        generator.genUnary("jmp", testLabel);
+        generator.genUnary(JMP, testLabel);
         generator.genLabel(bodyLabel);
         n.s.accept(this);
         generator.genLabel(testLabel);
@@ -282,7 +290,7 @@ public final class CodeGenVisitor implements Visitor {
         String bodyLabel = generator.nextLabel("for");
 
         n.s0.accept(this);  // initializer instructions
-        generator.genUnary("jmp", testLabel);
+        generator.genUnary(JMP, testLabel);
         generator.genLabel(bodyLabel);
         n.s2.accept(this);  // body instructions
         n.s1.accept(this);  // incrementer instructions
@@ -294,7 +302,7 @@ public final class CodeGenVisitor implements Visitor {
     @Override
     public void visit(Print n) {
         n.e.accept(this);
-        generator.genBinary("movq", "%rax", "%rdi");
+        generator.genBinary(MOV, RAX, RDI);
         generator.genCall("put");
     }
 
@@ -306,102 +314,102 @@ public final class CodeGenVisitor implements Visitor {
     @Override
     public void visit(AssignPlus n) {
         visitAssign(n, g -> {
-            g.genBinary("addq", "0(%rdx)", "%rax");  // add value to rax
+            g.genBinary(ADD, Memory.of(RDX, 0), RAX);  // add value to rax
         });
     }
 
     @Override
     public void visit(AssignMinus n) {
         visitAssign(n, g -> {
-            g.genBinary("subq", "0(%rdx)", "%rax");    // subtract rcx from rax
+            g.genBinary(SUB, Memory.of(RDX, 0), RAX);  // subtract rcx from rax
         });
     }
 
     @Override
     public void visit(AssignTimes n) {
         visitAssign(n, g -> {
-            g.genBinary("imulq", "0(%rdx)", "%rax");    // multiply rax by rcx
+            g.genBinary(IMUL, Memory.of(RDX, 0), RAX);  // multiply rax by rcx
         });
     }
 
     @Override
     public void visit(AssignDivide n) {
         visitAssign(n, g -> {
-            g.genBinary("movq", "$" + n.line_number, "%rdi");  // load line number in first arg
-            g.genBinary("cmpq", "$0", "%rax");                 // check if divisor is 0
-            g.genUnary("je", "exception_division");                // division by 0 error
-            g.genPush("%rdx");                                          // push lvalue onto stack
-            g.genPush("%rax");                                          // push expr (divisor) onto stack
-            g.genBinary("movq", "0(%rdx)", "%rax");            // dereference rdx into rax
-            g.gen("cqto");                                        // sign extend rax to rdx:rax
-            g.genPop("%rcx");                                           // pop divisor into rcx
-            g.genUnary("idivq", "%rcx");                           // divide rdx:rax by rcx, result in rax
-            g.genPop("%rdx");                                          // pop lvalue back into rdx
+            g.genBinary(MOV, Immediate.of(n.line_number), RDI);  // load line number in first arg
+            g.genBinary(CMP, Immediate.of(0), RAX);  // check if divisor is 0
+            g.genUnary(JE, "exception_division");  // division by 0 error
+            g.genPush(RDX);  // push lvalue onto stack
+            g.genPush(RAX);  // push expr (divisor) onto stack
+            g.genBinary(MOV, Memory.of(RDX, 0), RAX);  // dereference rdx into rax
+            g.gen(CQTO);  // sign extend rax to rdx:rax
+            g.genPop(RCX);  // pop divisor into rcx
+            g.genUnary(IDIV, RCX);  // divide rdx:rax by rcx, result in rax
+            g.genPop(RDX);  // pop lvalue back into rdx
         });
     }
 
     @Override
     public void visit(AssignMod n) {
         visitAssign(n, g -> {
-            g.genBinary("movq", "$" + n.line_number, "%rdi");  // load line number in first arg
-            g.genBinary("cmpq", "$0", "%rax");                 // check if divisor is 0
-            g.genUnary("je", "exception_division");                // division by 0 error
-            g.genPush("%rdx");                                          // push lvalue onto stack
-            g.genPush("%rax");                                          // push expr (divisor) onto stack
-            g.genBinary("movq", "0(%rdx)", "%rax");            // dereference rdx into rax
-            g.gen("cqto");                                        // sign extend rax to rdx:rax
-            g.genPop("%rcx");                                           // pop divisor into rcx
-            g.genUnary("idivq", "%rcx");                           // divide rdx:rax by rcx, result in rax
-            g.genBinary("movq", "%rdx", "%rax");               // move remainder into rax
-            g.genPop("%rdx");                                          // pop lvalue back into rdx
+            g.genBinary(MOV, Immediate.of(n.line_number), RDI);  // load line number in first arg
+            g.genBinary(CMP, Immediate.of(0), RAX);  // check if divisor is 0
+            g.genUnary(JE, "exception_division");  // division by 0 error
+            g.genPush(RDX);  // push lvalue onto stack
+            g.genPush(RAX);  // push expr (divisor) onto stack
+            g.genBinary(MOV, Memory.of(RDX, 0), RAX);  // dereference rdx into rax
+            g.gen(CQTO);  // sign extend rax to rdx:rax
+            g.genPop(RCX);  // pop divisor into rcx
+            g.genUnary(IDIV, RCX);  // divide rdx:rax by rcx, result in rax
+            g.genBinary(MOV, RDX, RAX);  // move remainder into rax
+            g.genPop(RDX);  // pop lvalue back into rdx
         });
     }
 
     @Override
     public void visit(AssignAnd n) {
         visitAssign(n, g -> {
-            g.genBinary("andq", "0(%rdx)", "%rax");  // bitwise and rax by rcx
+            g.genBinary(AND, Memory.of(RDX, 0), RAX);  // bitwise and rax by rcx
         });
     }
 
     @Override
     public void visit(AssignOr n) {
         visitAssign(n, g -> {
-            g.genBinary("orq", "0(%rdx)", "%rax");  // bitwise or rax by rcx
+            g.genBinary(OR, Memory.of(RDX, 0), RAX);  // bitwise or rax by rcx
         });
     }
 
     @Override
     public void visit(AssignXor n) {
         visitAssign(n, g -> {
-            g.genBinary("xorq", "0(%rdx)", "%rax");  // bitwise xor rax by rcx
+            g.genBinary(XOR, Memory.of(RDX, 0), RAX);  // bitwise xor rax by rcx
         });
     }
 
     @Override
     public void visit(AssignLeftShift n) {
         visitAssign(n, g -> {
-            g.genBinary("movq", "%rax", "%rcx");     // move lshift amount into rcx
-            g.genBinary("movq", "0(%rdx)", "%rax");  // dereference rdx into rax
-            g.genBinary("shlq", "%cl", "%rax");      // lshift rax by lshift amount
+            g.genBinary(MOV, RAX, RCX);  // move lshift amount into rcx
+            g.genBinary(MOV, Memory.of(RDX, 0), RAX);  // dereference rdx into rax
+            g.genBinary(SHL, CL, RAX);  // lshift rax by lshift amount
         });
     }
 
     @Override
     public void visit(AssignRightShift n) {
         visitAssign(n, g -> {
-            g.genBinary("movq", "%rax", "%rcx");     // move rshift amount into rcx
-            g.genBinary("movq", "0(%rdx)", "%rax");  // dereference rdx into rax
-            g.genBinary("sarq", "%cl", "%rax");      // rshift rax by rshift amount
+            g.genBinary(MOV, RAX, RCX);  // move rshift amount into rcx
+            g.genBinary(MOV, Memory.of(RDX, 0), RAX);  // dereference rdx into rax
+            g.genBinary(SAR, CL, RAX);  // rshift rax by rshift amount
         });
     }
 
     @Override
     public void visit(AssignUnsignedRightShift n) {
         visitAssign(n, g -> {
-            g.genBinary("movq", "%rax", "%rcx");     // move urshift amount into rcx
-            g.genBinary("movq", "0(%rdx)", "%rax");  // dereference rdx into rax
-            g.genBinary("shrq", "%cl", "%rax");      // urshift rax by urshift amount
+            g.genBinary(MOV, RAX, RCX);  // move urshift amount into rcx
+            g.genBinary(MOV, Memory.of(RDX, 0), RAX);  // dereference rdx into rax
+            g.genBinary(SHR, CL, RAX);  // urshift rax by urshift amount
         });
     }
 
@@ -409,7 +417,7 @@ public final class CodeGenVisitor implements Visitor {
     public void visit(PostIncrement n) {
         generator.signalAssignable();
         n.a.accept(this);
-        generator.genBinary("addq", "$1", "0(%rax)");  // increment value by 1
+        generator.genBinary(ADD, Immediate.of(1), Memory.of(RAX, 0));  // increment value by 1
     }
 
     @Override
@@ -418,14 +426,14 @@ public final class CodeGenVisitor implements Visitor {
         // there is no difference between pre/post increment for now
         generator.signalAssignable();
         n.a.accept(this);
-        generator.genBinary("addq", "$1", "0(%rax)");  // increment value by 1
+        generator.genBinary(ADD, Immediate.of(1), Memory.of(RAX, 0));  // increment value by 1
     }
 
     @Override
     public void visit(PostDecrement n) {
         generator.signalAssignable();
         n.a.accept(this);
-        generator.genBinary("subq", "$1", "0(%rax)");  // decrement value by 1
+        generator.genBinary(SUB, Immediate.of(1), Memory.of(RAX, 0));  // decrement value by 1
     }
 
     @Override
@@ -434,7 +442,7 @@ public final class CodeGenVisitor implements Visitor {
         // there is no difference between pre/post decrement for now
         generator.signalAssignable();
         n.a.accept(this);
-        generator.genBinary("subq", "$1", "0(%rax)");  // decrement value by 1
+        generator.genBinary(SUB, Immediate.of(1), Memory.of(RAX, 0));  // decrement value by 1
     }
 
     @Override
@@ -443,19 +451,19 @@ public final class CodeGenVisitor implements Visitor {
         String joinLabel = generator.nextLabel("join");
 
         n.e1.accept(this);
-        generator.genBinary("cmpq", "$0", "%rax");
+        generator.genBinary(CMP, Immediate.of(0), RAX);
         if (context != null && !context.jumpIf()) {
-            generator.genUnary("je", context.targetLabel());
+            generator.genUnary(JE, context.targetLabel());
         } else {
-            generator.genUnary("je", joinLabel);
+            generator.genUnary(JE, joinLabel);
         }
         n.e2.accept(this);
-        generator.genBinary("cmpq", "$0", "%rax");
+        generator.genBinary(CMP, Immediate.of(0), RAX);
         if (context != null) {
             if (!context.jumpIf()) {
-                generator.genUnary("je", context.targetLabel());
+                generator.genUnary(JE, context.targetLabel());
             } else {
-                generator.genUnary("jne", context.targetLabel());
+                generator.genUnary(JNE, context.targetLabel());
             }
         }
         generator.genLabel(joinLabel);
@@ -467,19 +475,19 @@ public final class CodeGenVisitor implements Visitor {
         String joinLabel = generator.nextLabel("join");
 
         n.e1.accept(this);
-        generator.genBinary("cmpq", "$0", "%rax");
+        generator.genBinary(CMP, Immediate.of(0), RAX);
         if (context != null && context.jumpIf()) {
-            generator.genUnary("jne", context.targetLabel());
+            generator.genUnary(JNE, context.targetLabel());
         } else {
-            generator.genUnary("jne", joinLabel);
+            generator.genUnary(JNE, joinLabel);
         }
         n.e2.accept(this);
-        generator.genBinary("cmpq", "$0", "%rax");
+        generator.genBinary(CMP, Immediate.of(0), RAX);
         if (context != null) {
             if (!context.jumpIf()) {
-                generator.genUnary("je", context.targetLabel());
+                generator.genUnary(JE, context.targetLabel());
             } else {
-                generator.genUnary("jne", context.targetLabel());
+                generator.genUnary(JNE, context.targetLabel());
             }
         }
         generator.genLabel(joinLabel);
@@ -533,7 +541,7 @@ public final class CodeGenVisitor implements Visitor {
     @Override
     public void visit(UnaryMinus n) {
         n.e.accept(this);
-        generator.genUnary("negq", "%rax");
+        generator.genUnary(NEG, RAX);
     }
 
     @Override
@@ -544,91 +552,91 @@ public final class CodeGenVisitor implements Visitor {
     @Override
     public void visit(Plus n) {
         n.e1.accept(this);
-        generator.genPush("%rax");
+        generator.genPush(RAX);
         n.e2.accept(this);
-        generator.genPop("%rdx");
-        generator.genBinary("addq", "%rdx", "%rax");
+        generator.genPop(RDX);
+        generator.genBinary(ADD, RDX, RAX);
     }
 
     @Override
     public void visit(Minus n) {
         n.e1.accept(this);
-        generator.genPush("%rax");
+        generator.genPush(RAX);
         n.e2.accept(this);
-        generator.genPop("%rdx");
-        generator.genBinary("movq", "%rax", "%rcx");
-        generator.genBinary("subq", "%rcx", "%rdx");
-        generator.genBinary("movq", "%rdx", "%rax");
+        generator.genPop(RDX);
+        generator.genBinary(MOV, RAX, RCX);
+        generator.genBinary(SUB, RCX, RDX);
+        generator.genBinary(MOV, RDX, RAX);
     }
 
     @Override
     public void visit(Times n) {
         n.e1.accept(this);
-        generator.genPush("%rax");
+        generator.genPush(RAX);
         n.e2.accept(this);
-        generator.genPop("%rdx");
-        generator.genBinary("imulq", "%rdx", "%rax");
+        generator.genPop(RDX);
+        generator.genBinary(IMUL, RDX, RAX);
     }
 
     @Override
     public void visit(Divide n) {
         n.e1.accept(this);
-        generator.genPush("%rax");
+        generator.genPush(RAX);
         n.e2.accept(this);
-        generator.genPop("%rdx");
-        generator.genBinary("movq", "%rax", "%rcx");               // load divisor in rcx
-        generator.genBinary("movq", "%rdx", "%rax");               // load dividend in rax
-        generator.genBinary("movq", "$" + n.line_number, "%rdi");  // load line number in first arg
-        generator.genBinary("cmpq", "$0", "%rcx");                 // check if divisor is 0
-        generator.genUnary("je", "exception_division");                // division by 0 error
-        generator.gen("cqto");                                        // sign extend rax to rdx:rax
-        generator.genUnary("idivq", "%rcx");                           // divide rdx:rax by rcx, result in rax
+        generator.genPop(RDX);
+        generator.genBinary(MOV, RAX, RCX);  // load divisor in rcx
+        generator.genBinary(MOV, RDX, RAX);  // load dividend in rax
+        generator.genBinary(MOV, Immediate.of(n.line_number), RDI);  // load line number in first arg
+        generator.genBinary(CMP, Immediate.of(0), RCX);  // check if divisor is 0
+        generator.genUnary(JE, "exception_division");  // division by 0 error
+        generator.gen(CQTO);  // sign extend rax to rdx:rax
+        generator.genUnary(IDIV, RCX);  // divide rdx:rax by rcx, result in rax
     }
 
     @Override
     public void visit(Mod n) {
         n.e1.accept(this);
-        generator.genPush("%rax");
+        generator.genPush(RAX);
         n.e2.accept(this);
-        generator.genPop("%rdx");
-        generator.genBinary("movq", "%rax", "%rcx");               // load divisor in rcx
-        generator.genBinary("movq", "%rdx", "%rax");               // load dividend in rax
-        generator.genBinary("movq", "$" + n.line_number, "%rdi");  // load line number in first arg
-        generator.genBinary("cmpq", "$0", "%rcx");                 // check if divisor is 0
-        generator.genUnary("je", "exception_division");                // division by 0 error
-        generator.gen("cqto");                                        // sign extend rax to rdx:rax
-        generator.genUnary("idivq", "%rcx");                           // divide rdx:rax by rcx, result in rax
-        generator.genBinary("movq", "%rdx", "%rax");               // move remainder into rax
+        generator.genPop(RDX);
+        generator.genBinary(MOV, RAX, RCX);  // load divisor in rcx
+        generator.genBinary(MOV, RDX, RAX);  // load dividend in rax
+        generator.genBinary(MOV, Immediate.of(n.line_number), RDI);  // load line number in first arg
+        generator.genBinary(CMP, Immediate.of(0), RCX);  // check if divisor is 0
+        generator.genUnary(JE, "exception_division");  // division by 0 error
+        generator.gen(CQTO);  // sign extend rax to rdx:rax
+        generator.genUnary(IDIV, RCX);  // divide rdx:rax by rcx, result in rax
+        generator.genBinary(MOV, RDX, RAX);  // move remainder into rax
     }
 
     @Override
     public void visit(LeftShift n) {
         n.e1.accept(this);
-        generator.genPush("%rax");
+        generator.genPush(RAX);
         n.e2.accept(this);
-        generator.genBinary("movq", "%rax", "%rcx");  // move lshift amount into rcx
-        generator.genPop("%rax");                              // pop value into rax
-        generator.genBinary("shlq", "%cl", "%rax");   // lshift rax by lshift amount
+        generator.genBinary(MOV, RAX, RCX);  // move lshift amount into rcx
+        generator.genPop(RAX);  // pop value into rax
+        generator.genBinary(SHL, CL, RAX);  // lshift rax by lshift amount
     }
 
     @Override
     public void visit(RightShift n) {
         n.e1.accept(this);
-        generator.genPush("%rax");
+        generator.genPush(RAX);
         n.e2.accept(this);
-        generator.genBinary("movq", "%rax", "%rcx");  // move rshift amount into rcx
-        generator.genPop("%rax");                              // pop value into rax
-        generator.genBinary("sarq", "%cl", "%rax");   // rshift rax by rshift amount
+        generator.genBinary(MOV, RAX, RCX);  // move rshift amount into rcx
+        generator.genPop(RAX);  // pop value into rax
+        generator.genBinary(SAR, CL, RAX);   // rshift rax by rshift amount
     }
 
     @Override
     public void visit(UnsignedRightShift n) {
         n.e1.accept(this);
-        generator.genPush("%rax");
+        generator.genPush(RAX);
         n.e2.accept(this);
-        generator.genBinary("movq", "%rax", "%rcx");  // move urshift amount into rcx
-        generator.genPop("%rax");                              // pop value into rax
-        generator.genBinary("shrq", "%cl", "%rax");   // urshift rax by urshift amount
+        generator.genBinary(MOV, RAX, RCX);  // move urshift amount into rcx
+        generator.genPop(RAX);  // pop value into rax
+        generator.genBinary(SHR, CL, RAX);   // urshift rax by urshift amount
     }
 
     @Override
@@ -636,22 +644,28 @@ public final class CodeGenVisitor implements Visitor {
         boolean assignable = generator.isAssignable();
 
         n.e1.accept(this);
-        generator.genPush("%rax");                                                             // push arr ptr
+        generator.genPush(RAX);  // push arr ptr
         for (int i = 0; i < n.getDimensionCount(); i++) {
             n.el.get(i).accept(this);
-            generator.genBinary("addq", "$1", "%rax");                                  // i++ due to size
-            generator.genPop("%rcx");                                                           // push arr ptr onto stack
-            String instr = (assignable && i == n.getDimensionCount() - 1) ? "leaq" : "movq";
-            generator.genBinary(instr, "(%rcx,%rax," + Generator.WORD_SIZE + ")", "%rcx");  // load arr[i] or &arr[i] into rax
-            generator.genPush("%rcx");                                                          // push arr ptr onto stack
+            generator.genBinary(MOV, RAX, RDI);  // move i to rdi
+            generator.genPop(RCX);  // pop arr ptr into rcx
+            generator.genBinary(MOV, Memory.of(RCX, 0), RSI);  // load sizeof(arr) into rsi
+            generator.genBinary(CMP, Immediate.of(0), RDI);
+            generator.genUnary(JL, "exception_array");
+            generator.genBinary(CMP, RSI, RDI);
+            generator.genUnary(JGE, "exception_array");
+            generator.genBinary(ADD, Immediate.of(1), RDI);  // i++ due to size
+            Operation op = (assignable && i == n.getDimensionCount() - 1) ? LEA : MOV;
+            generator.genBinary(op, MemoryScaledIndex.of(RCX, RDI, Generator.WORD_SIZE, 0), RCX);  // load arr[i] or &arr[i] into rax
+            generator.genPush(RCX);  // push arr ptr onto stack
         }
-        generator.genPop("%rax");                                                               // pop arr ptr
+        generator.genPop(RAX);  // pop arr ptr
     }
 
     @Override
     public void visit(ArrayLength n) {
         n.e.accept(this);
-        generator.genBinary("movq", "0(%rax)", "%rax");
+        generator.genBinary(MOV, Memory.of(RAX, 0), RAX);
     }
 
     @Override
@@ -663,7 +677,7 @@ public final class CodeGenVisitor implements Visitor {
     public void visit(Call n) {
         var context = generator.pop();
         n.e.accept(this);
-        generator.genPush("%rax");  // push obj ptr onto stack
+        generator.genPush(RAX);  // push obj ptr onto stack
 
         var class_ = ((TypeObject) n.e.type).base;
         var method = symbolContext.lookupMethod(n.i.s, class_);
@@ -674,7 +688,7 @@ public final class CodeGenVisitor implements Visitor {
         // push args onto stack
         for (int i = 0; i < n.el.size(); i++) {
             n.el.get(i).accept(this);
-            generator.genPush("%rax");
+            generator.genPush(RAX);
         }
 
         // pop args off stack
@@ -682,8 +696,8 @@ public final class CodeGenVisitor implements Visitor {
             generator.genPop(generator.getArgumentRegister(i));
         }
 
-        generator.genPop("%rdi");                                 // pop obj ptr off stack
-        generator.genBinary("movq", "0(%rdi)", "%rax");   // load vtable addr
+        generator.genPop(RDI);  // pop obj ptr off stack
+        generator.genBinary(MOV, Memory.of(RDI, 0), RAX);  // load vtable addr
         generator.genCall("*" + method.getOffset() + "(%rax)");  // call method from vtable
 
         if (context != null) {
@@ -693,11 +707,11 @@ public final class CodeGenVisitor implements Visitor {
                 throw new IllegalStateException();
             }
 
-            generator.genBinary("cmpq", "$0", "%rax");
+            generator.genBinary(CMP, Immediate.of(0), RAX);
             if (!context.jumpIf()) {
-                generator.genUnary("je", context.targetLabel());
+                generator.genUnary(JE, context.targetLabel());
             } else {
-                generator.genUnary("jne", context.targetLabel());
+                generator.genUnary(JNE, context.targetLabel());
             }
         }
     }
@@ -714,8 +728,8 @@ public final class CodeGenVisitor implements Visitor {
             throw new IllegalStateException();
         }
 
-        String instr = assignable ? "leaq" : "movq";
-        generator.genBinary(instr, v.getOffset() + "(%rax)", "%rax");  // load var into rax
+        Operation op = assignable ? LEA : MOV;
+        generator.genBinary(op, Memory.of(RAX, v.getOffset()), RAX);  // load var into rax
 
         if (context != null) {
             if (!v.type.equals(TypeBoolean.getInstance())) {
@@ -730,11 +744,11 @@ public final class CodeGenVisitor implements Visitor {
                 throw new IllegalStateException();
             }
 
-            generator.genBinary("cmpq", "$0", "%rax");
+            generator.genBinary(CMP, Immediate.of(0), RAX);
             if (!context.jumpIf()) {
-                generator.genUnary("je", context.targetLabel());
+                generator.genUnary(JE, context.targetLabel());
             } else {
-                generator.genUnary("jne", context.targetLabel());
+                generator.genUnary(JNE, context.targetLabel());
             }
         }
     }
@@ -747,10 +761,10 @@ public final class CodeGenVisitor implements Visitor {
         String endTernaryLabel = generator.nextLabel("end_ternary");
 
         n.c.accept(this);
-        generator.genBinary("cmpq", "$0", "%rax");
-        generator.genUnary("je", ternaryElseLabel);
+        generator.genBinary(CMP, Immediate.of(0), RAX);
+        generator.genUnary(JE, ternaryElseLabel);
         n.e1.accept(this);
-        generator.genUnary("jmp", endTernaryLabel);
+        generator.genUnary(JMP, endTernaryLabel);
         generator.genLabel(ternaryElseLabel);
         n.e2.accept(this);
         generator.genLabel(endTernaryLabel);
@@ -762,11 +776,11 @@ public final class CodeGenVisitor implements Visitor {
                 throw new IllegalStateException();
             }
 
-            generator.genBinary("cmpq", "$0", "%rax");
+            generator.genBinary(CMP, Immediate.of(0), RAX);
             if (!context.jumpIf()) {
-                generator.genUnary("je", context.targetLabel());
+                generator.genUnary(JE, context.targetLabel());
             } else {
-                generator.genUnary("jne", context.targetLabel());
+                generator.genUnary(JNE, context.targetLabel());
             }
         }
     }
@@ -783,49 +797,49 @@ public final class CodeGenVisitor implements Visitor {
             throw new IllegalStateException();
         }
 
-        generator.genBinary("leaq", class_.name + "$$(%rip)", "%rax");  // lea of vtable into rax
-        generator.genPush("%rax");                                               // push vtable ptr on stack
+        generator.genBinary(LEA, Memory.of(RIP, class_.name + "$$"), RAX);  // lea of vtable into rax
+        generator.genPush(RAX);  // push vtable ptr on stack
         n.e.accept(this);
-        generator.genPop("%rdx");                                                // pop vtable ptr into rdx
+        generator.genPop(RDX);  // pop vtable ptr into rdx
         generator.genLabel(instanceOfLabel);
-        generator.genBinary("movq", "0(%rax)", "%rax");                 // load vtable ptr of obj
-        generator.genBinary("cmpq", "$0", "%rax");                      // check if vtable ptr is null
-        generator.genUnary("je", endInstanceOfLabel);                            // if null, jump to end (rax = 0)
-        generator.genBinary("cmpq", "%rax", "%rdx");                    // compare vtable ptrs
-        generator.genUnary("jne", instanceOfLabel);                              // if not equal, loop
-        generator.genBinary("movq", "$1", "%rax");                      // vtable ptrs are equal
+        generator.genBinary(MOV, Memory.of(RAX, 0), RAX);  // load vtable ptr of obj
+        generator.genBinary(CMP, Immediate.of(0), RAX);  // check if vtable ptr is null
+        generator.genUnary(JE, endInstanceOfLabel);  // if null, jump to end (rax = 0)
+        generator.genBinary(CMP, RAX, RDX);  // compare vtable ptrs
+        generator.genUnary(JNE, instanceOfLabel);  // if not equal, loop
+        generator.genBinary(MOV, Immediate.of(1), RAX);  // vtable ptrs are equal
         generator.genLabel(endInstanceOfLabel);
 
         if (context != null) {
-            generator.genBinary("cmpq", "$0", "%rax");
+            generator.genBinary(CMP, Immediate.of(0), RAX);
             if (!context.jumpIf()) {
-                generator.genUnary("je", context.targetLabel());
+                generator.genUnary(JE, context.targetLabel());
             } else {
-                generator.genUnary("jne", context.targetLabel());
+                generator.genUnary(JNE, context.targetLabel());
             }
         }
     }
 
     @Override
     public void visit(IntegerLiteral n) {
-        generator.genBinary("movq", "$" + n.i, "%rax");
+        generator.genBinary(MOV, Immediate.of(n.i), RAX);
     }
 
     @Override
     public void visit(True n) {
         var context = generator.pop();
-        generator.genBinary("movq", "$1", "%rax");
+        generator.genBinary(MOV, Immediate.of(1), RAX);
         if (context != null && context.jumpIf()) {
-            generator.genUnary("jmp", context.targetLabel());
+            generator.genUnary(JMP, context.targetLabel());
         }
     }
 
     @Override
     public void visit(False n) {
         var context = generator.pop();
-        generator.genBinary("movq", "$0", "%rax");
+        generator.genBinary(MOV, Immediate.of(0), RAX);
         if (context != null && !context.jumpIf()) {
-            generator.genUnary("jmp", context.targetLabel());
+            generator.genUnary(JMP, context.targetLabel());
         }
     }
 
@@ -838,12 +852,12 @@ public final class CodeGenVisitor implements Visitor {
             throw new IllegalStateException();
         }
 
-        String instr = assignable ? "leaq" : "movq";
+        Operation op = assignable ? LEA : MOV;
         if (v.isInstanceVariable()) {
-            generator.genBinary("movq", -Generator.WORD_SIZE + "(%rbp)", "%rdx");  // load obj ptr in rdx
-            generator.genBinary(instr, v.getOffset() + "(%rdx)", "%rax");              // load var from obj
+            generator.genBinary(MOV, Memory.of(RBP, -Generator.WORD_SIZE), RDX);  // load obj ptr in rdx
+            generator.genBinary(op, Memory.of(RDX, v.getOffset()), RAX);  // load var from obj
         } else {
-            generator.genBinary(instr, v.getOffset() + "(%rbp)", "%rax");              // load var from frame
+            generator.genBinary(op, Memory.of(RBP, v.getOffset()), RAX);  // load var from frame
         }
 
         if (context != null) {
@@ -859,38 +873,38 @@ public final class CodeGenVisitor implements Visitor {
                 throw new IllegalStateException();
             }
 
-            generator.genBinary("cmpq", "$0", "%rax");
+            generator.genBinary(CMP, Immediate.of(0), RAX);
             if (!context.jumpIf()) {
-                generator.genUnary("je", context.targetLabel());
+                generator.genUnary(JE, context.targetLabel());
             } else {
-                generator.genUnary("jne", context.targetLabel());
+                generator.genUnary(JNE, context.targetLabel());
             }
         }
     }
 
     @Override
     public void visit(This n) {
-        generator.genBinary("movq", -Generator.WORD_SIZE + "(%rbp)", "%rax");  // load obj ptr
+        generator.genBinary(MOV, Memory.of(RBP, -Generator.WORD_SIZE), RAX);  // load obj ptr
     }
 
     @Override
     public void visit(NewArray n) {
         if (n.getDimensionCount() == 1) {
             n.el.get(0).accept(this);
-            generator.genBinary("movq", "%rax", "%rdi");
+            generator.genBinary(MOV, RAX, RDI);
             generator.genCall(SyntheticFunction.ALLOCATE_ARRAY);
         } else {
             n.el.get(0).accept(this);
-            generator.genBinary("movq", "%rax", "%rdi");
-            generator.genPush("%rdi");
+            generator.genBinary(MOV, RAX, RDI);
+            generator.genPush(RDI);
             generator.genCall(SyntheticFunction.ALLOCATE_ARRAY);
-            generator.genPop("%rdi");
-            generator.genPush("%rax");
+            generator.genPop(RDI);
+            generator.genPush(RAX);
             for (int i = 1; i < n.getDimensionCount(); i++) {
                 n.el.get(i).accept(this);
-                generator.genBinary("movq", "%rax", generator.getArgumentRegister(i));
+                generator.genBinary(MOV, RAX, generator.getArgumentRegister(i));
             }
-            generator.genPop("%rax");
+            generator.genPop(RAX);
             generator.genCall(SyntheticFunction.ALLOCATE_NESTED_ARRAY);
         }
     }
@@ -902,26 +916,26 @@ public final class CodeGenVisitor implements Visitor {
             throw new IllegalStateException();
         }
 
-        generator.genBinary("movq", "$" + class_.size(), "%rdi");       // load obj size into first arg
-        generator.genCall("mjcalloc");                                         // allocate space on heap
-        generator.genBinary("leaq", class_.name + "$$(%rip)", "%rdx");  // lea of vtable
-        generator.genBinary("movq", "%rdx", "0(%rax)");                 // store vtable at start of obj
-        generator.genBinary("movq", "%rax", "%rdx");                    // move obj to rdx
+        generator.genBinary(MOV, Immediate.of(class_.size()), RDI);  // load obj size into first arg
+        generator.genCall("mjcalloc");  // allocate space on heap
+        generator.genBinary(LEA, Memory.of(RIP, class_.name + "$$"), RDX);  // lea of vtable
+        generator.genBinary(MOV, RDX, Memory.of(RAX, 0));  // store vtable at start of obj
+        generator.genBinary(MOV, RAX, RDX);  // move obj to rdx
 
         // TODO: this is not gonna work. need to jump to ctor, which means we might as well implement constructors.
         // TODO: before constructor logic can be invoked, we apply all initializers to instance variables.
         symbolContext.swap(class_.name);
         class_.getInstanceVariables().forEach(v -> {
             if (v.hasInitializer()) {
-                generator.genPush("%rdx");                                              // push obj onto stack
+                generator.genPush(RDX);  // push obj onto stack
                 v.initializer.accept(this);
-                generator.genPop("%rdx");                                               // pop obj into rdx
-                generator.genBinary("movq", "%rax", v.getOffset() + "(%rdx)");  // move result into obj
+                generator.genPop(RDX);  // pop obj into rdx
+                generator.genBinary(MOV, RAX, Memory.of(RDX, v.getOffset()));  // move result into obj
             }
         });
         symbolContext.restore();
 
-        generator.genBinary("movq", "%rdx", "%rax");                    // move obj back to rax
+        generator.genBinary(MOV, RDX, RAX);  // move obj back to rax
     }
 
     @Override
@@ -929,14 +943,14 @@ public final class CodeGenVisitor implements Visitor {
         var context = generator.pop();
 
         n.e.accept(this);
-        generator.genBinary("xorq", "$1", "%rax");
+        generator.genBinary(XOR, Immediate.of(1), RAX);
 
         if (context != null) {
-            generator.genBinary("cmpq", "$0", "%rax");
+            generator.genBinary(CMP, Immediate.of(0), RAX);
             if (!context.jumpIf()) {
-                generator.genUnary("je", context.targetLabel());
+                generator.genUnary(JE, context.targetLabel());
             } else {
-                generator.genUnary("jne", context.targetLabel());
+                generator.genUnary(JNE, context.targetLabel());
             }
         }
     }
@@ -944,7 +958,7 @@ public final class CodeGenVisitor implements Visitor {
     @Override
     public void visit(BitwiseNot n) {
         n.e.accept(this);
-        generator.genUnary("notq", "%rax");
+        generator.genUnary(NOT, RAX);
     }
 
     @Override
@@ -955,10 +969,10 @@ public final class CodeGenVisitor implements Visitor {
         }
 
         if (v.isInstanceVariable()) {
-            generator.genBinary("movq", -Generator.WORD_SIZE + "(%rbp)", "%rdx");  // load obj ptr in rdx
-            generator.genBinary("leaq", v.getOffset() + "(%rdx)", "%rax");         // lea of var in obj
+            generator.genBinary(MOV, Memory.of(RBP, -Generator.WORD_SIZE), RDX);  // load obj ptr in rdx
+            generator.genBinary(LEA, Memory.of(RDX, v.getOffset()), RAX);  // lea of var in obj
         } else {
-            generator.genBinary("leaq", v.getOffset() + "(%rbp)", "%rax");         // lea of var in frame
+            generator.genBinary(LEA, Memory.of(RBP, v.getOffset()), RAX);  // lea of var in frame
         }
     }
 
@@ -983,11 +997,11 @@ public final class CodeGenVisitor implements Visitor {
         generator.signalAssignable();
         n.a.accept(this);
 
-        generator.genPush("%rax");                               // push addr of var onto stack
+        generator.genPush(RAX);  // push addr of var onto stack
         n.e.accept(this);
-        generator.genPop("%rdx");                                // pop lvalue off stack
-        ops.accept(generator);                                       // apply assignment ops to rax
-        generator.genBinary("movq", "%rax", "0(%rdx)");  // move rax to lvalue
+        generator.genPop(RDX);  // pop lvalue off stack
+        ops.accept(generator);  // apply assignment ops to rax
+        generator.genBinary(MOV, RAX, Memory.of(RDX, 0));  // move rax to lvalue
     }
 
     /**
@@ -1001,37 +1015,37 @@ public final class CodeGenVisitor implements Visitor {
         String joinLabel = generator.nextLabel("join");
 
         n.e1.accept(this);
-        generator.genPush("%rax");
+        generator.genPush(RAX);
         n.e2.accept(this);
-        generator.genPop("%rdx");
-        generator.genBinary("cmpq", "%rax", "%rdx");
+        generator.genPop(RDX);
+        generator.genBinary(CMP, RAX, RDX);
 
         if (n instanceof LessThan) {
-            generator.genUnary("jl", trueLabel);
+            generator.genUnary(JL, trueLabel);
         } else if (n instanceof LessThanOrEqual) {
-            generator.genUnary("jle", trueLabel);
+            generator.genUnary(JLE, trueLabel);
         } else if (n instanceof GreaterThan) {
-            generator.genUnary("jg", trueLabel);
+            generator.genUnary(JG, trueLabel);
         } else if (n instanceof GreaterThanOrEqual) {
-            generator.genUnary("jge", trueLabel);
+            generator.genUnary(JGE, trueLabel);
         } else if (n instanceof Equal) {
-            generator.genUnary("je", trueLabel);
+            generator.genUnary(JE, trueLabel);
         } else if (n instanceof NotEqual) {
-            generator.genUnary("jne", trueLabel);
+            generator.genUnary(JNE, trueLabel);
         } else {
             throw new IllegalStateException();
         }
 
-        generator.genBinary("movq", "$0", "%rax");
+        generator.genBinary(MOV, Immediate.of(0), RAX);
         if (context != null && !context.jumpIf()) {
-            generator.genUnary("jmp", context.targetLabel());
+            generator.genUnary(JMP, context.targetLabel());
         } else {
-            generator.genUnary("jmp", joinLabel);
+            generator.genUnary(JMP, joinLabel);
         }
         generator.genLabel(trueLabel);
-        generator.genBinary("movq", "$1", "%rax");
+        generator.genBinary(MOV, Immediate.of(1), RAX);
         if (context != null && context.jumpIf()) {
-            generator.genUnary("jmp", context.targetLabel());
+            generator.genUnary(JMP, context.targetLabel());
         }
         generator.genLabel(joinLabel);
     }
@@ -1045,16 +1059,16 @@ public final class CodeGenVisitor implements Visitor {
         var context = generator.pop();
 
         n.e1.accept(this);
-        generator.genPush("%rax");
+        generator.genPush(RAX);
         n.e2.accept(this);
-        generator.genPop("%rdx");
+        generator.genPop(RDX);
 
         if (n instanceof BitwiseAnd) {
-            generator.genBinary("andq", "%rdx", "%rax");
+            generator.genBinary(AND, RDX, RAX);
         } else if (n instanceof BitwiseOr) {
-            generator.genBinary("orq", "%rdx", "%rax");
+            generator.genBinary(OR, RDX, RAX);
         } else if (n instanceof BitwiseXor) {
-            generator.genBinary("xorq", "%rdx", "%rax");
+            generator.genBinary(XOR, RDX, RAX);
         } else {
             throw new IllegalStateException();
         }
@@ -1066,11 +1080,11 @@ public final class CodeGenVisitor implements Visitor {
                 throw new IllegalStateException();
             }
 
-            generator.genBinary("cmpq", "$0", "%rax");
+            generator.genBinary(CMP, Immediate.of(0), RAX);
             if (!context.jumpIf()) {
-                generator.genUnary("je", context.targetLabel());
+                generator.genUnary(JE, context.targetLabel());
             } else {
-                generator.genUnary("jne", context.targetLabel());
+                generator.genUnary(JNE, context.targetLabel());
             }
         }
     }

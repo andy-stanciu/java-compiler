@@ -390,7 +390,7 @@ Expression ::= Call:c
                           {: RESULT = e; :};
 
 ArrayLookup ::= Expression:e1 LSQUARE Expression:e2 RSQUARE
-                    {: ExpList el = new ExpList();
+                    {: ExpList el = new ExpList(e2xleft);
                        el.add(e2);
                        RESULT = new ArrayLookup(e1, el, e1xleft); :}
             | ArrayLookup:a LSQUARE Expression:e RSQUARE
@@ -401,7 +401,7 @@ NewArray ::= NewArray:a LSQUARE Expression:e RSQUARE
                 {: a.addDimension(e);
                    RESULT = a; :}
             | NEW:n SingularType:t LSQUARE Expression:e RSQUARE
-                {: ExpList el = new ExpList();
+                {: ExpList el = new ExpList(exleft);
                    el.add(e);
                    RESULT = new NewArray(t, el, nxleft); :};
 
