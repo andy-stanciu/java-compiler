@@ -26,7 +26,7 @@ if [ $# -eq 0 ]; then
   for file in ${PATH_TO_JAVA_FILES}/src/*.java; do
     filename=$(basename "$file")
     echo "${filename} -> ${filename%.*}.S"
-    java -cp "build/classes;lib/*" Java "$file" > "${PATH_TO_JAVA_FILES}/out/${filename%.*}.S"
+    java -cp 'build/classes:lib/*' Java "$file" > "${PATH_TO_JAVA_FILES}/out/${filename%.*}.S"
   done
 
   echo ""
@@ -42,7 +42,7 @@ elif [ $# -eq 1 ]; then
   echo "Compiling $1.java..."
   echo ""
   echo "$1.java -> $1.S"
-  java -cp "build/classes;lib/*" Java "${PATH_TO_JAVA_FILES}/src/$1.java" > "${PATH_TO_JAVA_FILES}/out/$1.S"
+  java -cp 'build/classes:lib/*' Java "${PATH_TO_JAVA_FILES}/src/$1.java" > "${PATH_TO_JAVA_FILES}/out/$1.S"
 
   echo ""
   echo "Sending Java programs to attu..."
