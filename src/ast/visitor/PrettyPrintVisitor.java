@@ -166,8 +166,9 @@ public final class PrettyPrintVisitor implements Visitor {
         System.out.print("void");
     }
 
-    public void visit(IntArrayType n) {
-        System.out.print("int[]");
+    public void visit(ArrayType n) {
+        n.t.accept(this);
+        System.out.print("[]".repeat(n.dimension));
     }
 
     public void visit(BooleanType n) {
@@ -746,9 +747,11 @@ public final class PrettyPrintVisitor implements Visitor {
         precedentTracker.leftParen(n);
         precedentTracker.push(n);
         n.e1.accept(this);
-        System.out.print("[");
-        n.e2.accept(this);
-        System.out.print("]");
+        n.el.forEach(e -> {
+            System.out.print("[");
+            e.accept(this);
+            System.out.print("]");
+        });
         precedentTracker.pop();
         precedentTracker.rightParen(n);
     }
@@ -851,9 +854,12 @@ public final class PrettyPrintVisitor implements Visitor {
     public void visit(NewArray n) {
         precedentTracker.leftParen(n);
         precedentTracker.push(n);
-        System.out.print("new int[");
-        n.e.accept(this);
-        System.out.print("]");
+        System.out.print("new int");
+        n.el.forEach(e -> {
+            System.out.print("[");
+            e.accept(this);
+            System.out.print("]");
+        });
         precedentTracker.pop();
         precedentTracker.rightParen(n);
     }

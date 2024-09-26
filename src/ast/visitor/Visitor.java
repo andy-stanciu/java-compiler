@@ -21,7 +21,7 @@ public interface Visitor {
 
     void visit(VoidType n);
 
-    void visit(IntArrayType n);
+    void visit(ArrayType n);
 
     void visit(BooleanType n);
 

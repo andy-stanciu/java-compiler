@@ -4,7 +4,7 @@ import ast.visitor.Visitor;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 import semantics.Logger;
 
-public class BooleanType extends DeclarableType {
+public class BooleanType extends SingularType {
     public BooleanType(Location pos) {
         super(pos);
     }

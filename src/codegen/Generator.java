@@ -46,6 +46,10 @@ public final class Generator {
         genCall(label, "");
     }
 
+    public void genCall(SyntheticFunction syntheticFunction) {
+        genCall(SyntheticFunctionGenerator.getSyntheticFunctionLabel(syntheticFunction));
+    }
+
     public void genCall(String label, String comment) {
         boolean aligned = stackSize % 2 == 0;
         if (!aligned) genBinary("subq", "$" + WORD_SIZE, "%rsp");
@@ -121,6 +125,39 @@ public final class Generator {
         }
 
         return ARGUMENT_REGISTERS[i];
+    }
+
+    public void pushArgumentRegisters() {
+        for (int i = 0; i < ARGUMENT_REGISTERS.length; i++) {
+            genPush(getArgumentRegister(i));
+        }
+    }
+
+    public void popArgumentRegisters() {
+        for (int i = ARGUMENT_REGISTERS.length - 1; i >= 0 ; i--) {
+            genPop(getArgumentRegister(i));
+        }
+    }
+
+    public void clearArgumentRegisters() {
+        for (int i = 0; i < ARGUMENT_REGISTERS.length; i++) {
+            genBinary("xorq", getArgumentRegister(i), getArgumentRegister(i));
+        }
+    }
+
+    public void leftShiftArgumentRegisters() {
+        for (int i = 1; i < ARGUMENT_REGISTERS.length; i++) {
+            genBinary("movq", getArgumentRegister(i), getArgumentRegister(i - 1));
+        }
+        genBinary("xorq", getArgumentRegister(ARGUMENT_REGISTERS.length - 1),
+                getArgumentRegister(ARGUMENT_REGISTERS.length - 1));
+    }
+
+    public void rightShiftArgumentRegisters() {
+        for (int i = ARGUMENT_REGISTERS.length - 2; i >= 0; i--) {
+            genBinary("movq", getArgumentRegister(i), getArgumentRegister(i + 1));
+        }
+        genBinary("xorq", getArgumentRegister(0), getArgumentRegister(0));
     }
 
     public String nextLabel(String name) {

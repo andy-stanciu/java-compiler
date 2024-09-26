@@ -8,4 +8,8 @@ public abstract class Type {
     public boolean isUndefined() {
         return this == TypeUndefined.getInstance();
     }
+
+    public boolean isArray() {
+        return isUndefined() || !(this instanceof TypeSingular);
+    }
 }

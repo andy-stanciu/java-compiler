@@ -9,6 +9,7 @@
 ##############################################################################################################
 # Remember to modify these constants!
 PATH_TO_JAVA_FILES="test/resources/CodeGen" # relative path to the directory containing java test files
+PATH_TO_BOOT_C="src/runtime"
 ATTU="andys22@attu.cs.washington.edu"       # attu connection string
 ATTU_PATH="~/java-compiler"                 # path to directory on attu containing boot.c and test_attu.sh
 ##############################################################################################################
@@ -26,8 +27,13 @@ if [ $# -eq 0 ]; then
   for file in ${PATH_TO_JAVA_FILES}/src/*.java; do
     filename=$(basename "$file")
     echo "${filename} -> ${filename%.*}.S"
-    java -cp "build/classes;lib/*" Java "$file" > "${PATH_TO_JAVA_FILES}/out/${filename%.*}.S"
+    java -cp 'build/classes:lib/*' Java "$file" > "${PATH_TO_JAVA_FILES}/out/${filename%.*}.S"
   done
+
+  echo ""
+  echo "Sending boot.c to attu..."
+  echo ""
+  scp "${PATH_TO_BOOT_C}/boot.c" "${ATTU}:${ATTU_PATH}/boot.c"
 
   echo ""
   echo "Sending Java programs to attu..."
@@ -42,7 +48,12 @@ elif [ $# -eq 1 ]; then
   echo "Compiling $1.java..."
   echo ""
   echo "$1.java -> $1.S"
-  java -cp "build/classes;lib/*" Java "${PATH_TO_JAVA_FILES}/src/$1.java" > "${PATH_TO_JAVA_FILES}/out/$1.S"
+  java -cp 'build/classes:lib/*' Java "${PATH_TO_JAVA_FILES}/src/$1.java" > "${PATH_TO_JAVA_FILES}/out/$1.S"
+
+  echo ""
+  echo "Sending boot.c to attu..."
+  echo ""
+  scp "${PATH_TO_BOOT_C}/boot.c" "${ATTU}:${ATTU_PATH}/boot.c"
 
   echo ""
   echo "Sending Java programs to attu..."
