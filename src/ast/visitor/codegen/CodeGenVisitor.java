@@ -650,14 +650,15 @@ public final class CodeGenVisitor implements Visitor {
             generator.genBinary(MOV, RAX, RDI);  // move i to rdi
             generator.genPop(RCX);  // pop arr ptr into rcx
             generator.genBinary(MOV, Memory.of(RCX, 0), RSI);  // load sizeof(arr) into rsi
+            generator.genBinary(MOV, Immediate.of(n.el.get(i).line_number), RDX);  // load line number into rdx
             generator.genBinary(CMP, Immediate.of(0), RDI);
             generator.genUnary(JL, "exception_array");
             generator.genBinary(CMP, RSI, RDI);
             generator.genUnary(JGE, "exception_array");
             generator.genBinary(ADD, Immediate.of(1), RDI);  // i++ due to size
             Operation op = (assignable && i == n.getDimensionCount() - 1) ? LEA : MOV;
-            generator.genBinary(op, MemoryScaledIndex.of(RCX, RDI, Generator.WORD_SIZE, 0), RCX);  // load arr[i] or &arr[i] into rax
-            generator.genPush(RCX);  // push arr ptr onto stack
+            generator.genBinary(op, MemoryScaledIndex.of(RCX, RDI, Generator.WORD_SIZE, 0), RCX);  // load arr[i] or &arr[i] into rcx
+            generator.genPush(RCX);  // push arr[i]/&arr[i] onto stack
         }
         generator.genPop(RAX);  // pop arr ptr
     }
@@ -889,22 +890,34 @@ public final class CodeGenVisitor implements Visitor {
 
     @Override
     public void visit(NewArray n) {
+        n.el.get(0).accept(this);
+        generator.genBinary(MOV, RAX, RDI);
+        generator.genBinary(MOV, Immediate.of(n.el.get(0).line_number), RSI);
+        generator.genBinary(CMP, 0, RDI);
+        generator.genUnary(JL, "exception_array_size");
+
         if (n.getDimensionCount() == 1) {
-            n.el.get(0).accept(this);
-            generator.genBinary(MOV, RAX, RDI);
             generator.genCall(SyntheticFunction.ALLOCATE_ARRAY);
         } else {
-            n.el.get(0).accept(this);
-            generator.genBinary(MOV, RAX, RDI);
             generator.genPush(RDI);
             generator.genCall(SyntheticFunction.ALLOCATE_ARRAY);
-            generator.genPop(RDI);
             generator.genPush(RAX);
             for (int i = 1; i < n.getDimensionCount(); i++) {
                 n.el.get(i).accept(this);
-                generator.genBinary(MOV, RAX, generator.getArgumentRegister(i));
+                generator.genBinary(MOV, RAX, RDI);
+                generator.genBinary(MOV, Immediate.of(n.el.get(i).line_number), RSI);
+                generator.genBinary(CMP, Immediate.of(0), RDI);
+                generator.genUnary(JL, "exception_array_size");
+                generator.genPush(RDI);
             }
+
+            generator.clearArgumentRegisters();
+            for (int i = n.getDimensionCount() - 1; i > 0; i--) {
+                generator.genPop(generator.getArgumentRegister(i));
+            }
+
             generator.genPop(RAX);
+            generator.genPop(RDI);
             generator.genCall(SyntheticFunction.ALLOCATE_NESTED_ARRAY);
         }
     }

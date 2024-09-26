@@ -51,7 +51,7 @@ public final class SyntheticFunctionGenerator {
 
         generator.genLabel(getSyntheticFunctionLabel(SyntheticFunction.ALLOCATE_NESTED_ARRAY));
         generator.genPrologue();
-        generator.genBinary(CMP, Immediate.of(0), RDI);
+        generator.genBinary(CMP, Immediate.of(0), RSI);  // if nested arr size is zero, we're done
         generator.genUnary(JE, arrayDoneLabel);
         generator.genBinary(MOV, Immediate.of(1), R10);
         generator.genLabel(arrayLoopLabel);
@@ -70,7 +70,7 @@ public final class SyntheticFunctionGenerator {
         generator.genPush(R10);  // save loop index
         generator.pushArgumentRegisters();
         generator.leftShiftArgumentRegisters();
-        generator.genCall("alloc_nested_arr" + SYNTHETIC_POSTFIX);
+        generator.genCall(SyntheticFunction.ALLOCATE_NESTED_ARRAY);
         generator.popArgumentRegisters();
         generator.genPop(R10);  // restore loop index
         generator.genPop(RAX);  // restore arr pointer in rax
@@ -81,7 +81,7 @@ public final class SyntheticFunctionGenerator {
     }
 
     private void generateAllocateArray() {
-        generator.genLabel( "alloc_arr" + SYNTHETIC_POSTFIX);
+        generator.genLabel(getSyntheticFunctionLabel(SyntheticFunction.ALLOCATE_ARRAY));
         generator.genPrologue();
 
         generator.genPush(RDI);                               // push sizeof(arr) onto stack
