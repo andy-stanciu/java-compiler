@@ -3,7 +3,8 @@ package codegen.platform;
 import codegen.platform.isa.ISA;
 
 public enum Directive {
-    QUAD;
+    QUAD,
+    GLOBAL;
 
     private static ISA isa;
 

@@ -13,7 +13,6 @@ public final class Generator {
     private static Generator instance;
     public static final int WORD_SIZE = 8;
     public static final Register[] ARGUMENT_REGISTERS = new Register[] { RDI, RSI, RDX, RCX, R8, R9 };
-    private static final int OPERATOR_SIZE = 8;
     private static final int INDENT_SIZE = 4;
     private static final int INSTRUCTION_SIZE = 32;
     private static final boolean COMMENTS_ENABLED = true;
@@ -66,8 +65,7 @@ public final class Generator {
      * @param comment The comment to append at the end of the instruction.
      */
     public void genUnary(Operation op, ISource src, String comment) {
-        String instruction = String.format("%s%s%s", op, getTab(op), src);
-        gen(instruction, comment);
+        gen(isa.toUnaryInstruction(op, src), comment);
     }
 
     /**
@@ -101,8 +99,7 @@ public final class Generator {
      * @param label The label to use.
      */
     public void genUnary(Operation op, Label label, String comment) {
-        String instruction = String.format("%s%s%s", op, getTab(op), label);
-        gen(instruction, comment);
+        gen(isa.toUnaryInstruction(op, label), comment);
     }
 
     /**
@@ -136,8 +133,7 @@ public final class Generator {
      * @param label The label to use.
      */
     public void genUnary(Directive dir, Label label, String comment) {
-        String instruction = String.format("%s%s%s", dir, getTab(dir), label);
-        gen(instruction, comment);
+        gen(isa.toUnaryInstruction(dir, label), comment);
     }
 
     /**
@@ -175,8 +171,7 @@ public final class Generator {
      * @param dst The destination location to use.
      */
     public void genBinary(Operation op, ISource src, IDestination dst, String comment) {
-        String instruction = String.format("%s%s%s,%s", op, getTab(op), src, dst);
-        gen(instruction, comment);
+        gen(isa.toBinaryInstruction(op, src, dst), comment);
     }
 
     /**
@@ -349,8 +344,7 @@ public final class Generator {
     public void genCodeSection() {
         indent();
         System.out.println(".text");
-        indent();
-        System.out.printf("%s%sasm_main%n", ".globl", getTab(".globl"));
+        genUnary(Directive.GLOBAL, Label.of("asm_main"));
     }
 
     /**
@@ -504,18 +498,6 @@ public final class Generator {
 
     private void indent() {
         System.out.print(" ".repeat(INDENT_SIZE));
-    }
-
-    private String getTab(Operation op) {
-        return getTab(op.toString());
-    }
-
-    private String getTab(Directive dir) {
-        return getTab(dir.toString());
-    }
-
-    private String getTab(String str) {
-        return " ".repeat(OPERATOR_SIZE - str.length());
     }
 
     private String getCommentTab(String instruction) {

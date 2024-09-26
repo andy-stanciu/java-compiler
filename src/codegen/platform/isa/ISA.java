@@ -10,6 +10,8 @@ import static codegen.platform.Operation.*;
 import static codegen.platform.Register.*;
 
 public abstract class ISA {
+    private static final int OPERATOR_SIZE = 8;
+
     private static final Map<Operation, String> operations = new HashMap<>();
     private static final Map<Directive, String> directives = new HashMap<>();
     private static final Map<Register, String> registers = new HashMap<>();
@@ -47,6 +49,7 @@ public abstract class ISA {
 
         // directives
         directives.put(QUAD, quad());
+        directives.put(GLOBAL, global());
 
         // registers
         registers.put(RAX, rax());
@@ -93,6 +96,18 @@ public abstract class ISA {
     public String getMapping(Register register) {
         return registers.get(register);
     }
+
+    public abstract String toUnaryInstruction(Directive dir, Label label);
+
+    public abstract String toUnaryInstruction(Operation op, Label label);
+
+    public abstract String toUnaryInstruction(Operation op, ISource src);
+
+    /**
+     * Converts the specified operation, source location, and destination location
+     * to a formatted binary instruction.
+     */
+    public abstract String toBinaryInstruction(Operation op, ISource src, IDestination dst);
 
     /**
      * Converts the specified immediate.
@@ -154,6 +169,7 @@ public abstract class ISA {
 
     // directives
     abstract String quad();
+    abstract String global();
 
     // registers
     abstract String rax();
@@ -169,4 +185,16 @@ public abstract class ISA {
     abstract String r11();
     abstract String rip();
     abstract String cl();
+
+    protected String getTab(Operation op) {
+        return getTab(op.toString());
+    }
+
+    protected String getTab(Directive dir) {
+        return getTab(dir.toString());
+    }
+
+    protected String getTab(String str) {
+        return " ".repeat(OPERATOR_SIZE - str.length());
+    }
 }

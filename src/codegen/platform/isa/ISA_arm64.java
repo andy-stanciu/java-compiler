@@ -1,14 +1,31 @@
 package codegen.platform.isa;
 
-import codegen.platform.Immediate;
-import codegen.platform.Label;
-import codegen.platform.Memory;
-import codegen.platform.MemoryScaledIndex;
+import codegen.platform.*;
 
 public final class ISA_arm64 extends ISA {
     @Override
+    public String toUnaryInstruction(Directive dir, Label label) {
+        return "";
+    }
+
+    @Override
+    public String toUnaryInstruction(Operation op, Label label) {
+        return "";
+    }
+
+    @Override
+    public String toUnaryInstruction(Operation op, ISource src) {
+        return "";
+    }
+
+    @Override
+    public String toBinaryInstruction(Operation op, ISource src, IDestination dst) {
+        return String.format("%s%s%s,%s", op, getTab(op), dst, src);
+    }
+
+    @Override
     public String toImmediate(Immediate immediate) {
-        return "$" + immediate.n();
+        return "#" + immediate.n();
     }
 
     @Override
@@ -29,22 +46,22 @@ public final class ISA_arm64 extends ISA {
 
     @Override
     String mov() {
-        return "movq";
+        return "mov";
     }
 
     @Override
     String add() {
-        return "addq";
+        return "add";
     }
 
     @Override
     String sub() {
-        return "subq";
+        return "sub";
     }
 
     @Override
     String imul() {
-        return "imulq";
+        return "mul";
     }
 
     @Override
@@ -124,7 +141,7 @@ public final class ISA_arm64 extends ISA {
 
     @Override
     String neg() {
-        return "negq";
+        return "neg";
     }
 
     @Override
@@ -170,6 +187,11 @@ public final class ISA_arm64 extends ISA {
     @Override
     String quad() {
         return ".quad";
+    }
+
+    @Override
+    String global() {
+        return "";
     }
 
     @Override

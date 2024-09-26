@@ -1,11 +1,28 @@
 package codegen.platform.isa;
 
-import codegen.platform.Immediate;
-import codegen.platform.Label;
-import codegen.platform.Memory;
-import codegen.platform.MemoryScaledIndex;
+import codegen.platform.*;
 
 public final class ISA_x86_64 extends ISA {
+    @Override
+    public String toUnaryInstruction(Directive dir, Label label) {
+        return String.format("%s%s%s", dir, getTab(dir), label);
+    }
+
+    @Override
+    public String toUnaryInstruction(Operation op, Label label) {
+        return String.format("%s%s%s", op, getTab(op), label);
+    }
+
+    @Override
+    public String toUnaryInstruction(Operation op, ISource src) {
+        return String.format("%s%s%s", op, getTab(op), src);
+    }
+
+    @Override
+    public String toBinaryInstruction(Operation op, ISource src, IDestination dst) {
+        return String.format("%s%s%s,%s", op, getTab(op), src, dst);
+    }
+
     @Override
     public String toImmediate(Immediate immediate) {
         return "$" + immediate.n();
@@ -170,6 +187,11 @@ public final class ISA_x86_64 extends ISA {
     @Override
     String quad() {
         return ".quad";
+    }
+
+    @Override
+    String global() {
+        return ".globl";
     }
 
     @Override
