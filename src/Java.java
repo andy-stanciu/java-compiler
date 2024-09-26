@@ -8,6 +8,8 @@ import ast.visitor.dataflow.DataflowVisitor;
 import ast.visitor.semantics.ClassVisitor;
 import ast.visitor.semantics.GlobalVisitor;
 import ast.visitor.semantics.LocalVisitor;
+import codegen.platform.isa.ISA;
+import codegen.platform.isa.ISAProvider;
 import parser.parser;
 import scanner.*;
 import parser.sym;
@@ -27,12 +29,13 @@ public class Java {
     private static scanner scanner;
     private static Program ast;
     private static SymbolContext symbolContext;
+    private static ISA isa;
     private static DataflowVisitor dataflowVisitor;  // TODO: move data structures to separate class
 
     public static void main(String[] args) {
         var tasks = parseTasks(args);
         if (tasks == null) {
-            System.err.println("Usage: Java [-S | -P | -A | -T | -I | -B] <file1.java, file2.java, ...>");
+            System.err.println("Usage: Java [-S | -P | -A | -T | -I | -B | -V] <file1.java, file2.java, ...>");
             System.exit(EXIT_FAILURE);
         }
 
@@ -158,8 +161,8 @@ public class Java {
         int status = doDataflowAnalysis(task);
         if (status == EXIT_FAILURE) return status;
 
-        ast.accept(new CodeDataVisitor(symbolContext));
-        ast.accept(new CodeGenVisitor(symbolContext));
+        ast.accept(new CodeDataVisitor(symbolContext, isa));
+        ast.accept(new CodeGenVisitor(symbolContext, isa));
 
         return EXIT_SUCCESS;
     }
@@ -185,6 +188,17 @@ public class Java {
                     case "-t", "--table" -> type = TaskType.TABLE;
                     case "-i", "--instructions" -> type = TaskType.INSTRUCTIONS;
                     case "-b", "--blocks" -> type = TaskType.BLOCKS;
+                    case "-v", "--version" -> {
+                        type = TaskType.COMPILE;
+                        String version = args[j++];
+                        switch (version.toLowerCase()) {
+                            case "x86_64" -> isa = ISAProvider.getISA_x86_64();
+                            default -> {
+                                System.err.printf("Invalid version: %s. Supported versions: x86_64, ...%n", version);
+                                return null;
+                            }
+                        }
+                    }
                     default -> {
                         System.err.printf("Unrecognized operand: %s%n", operator);
                         return null;
@@ -193,6 +207,7 @@ public class Java {
             } else {  // no operands => we want to compile everything
                 j = i;
                 type = TaskType.COMPILE;
+                isa = ISAProvider.getISA_x86_64();  // default isa
             }
 
             boolean foundValidArgs = false;

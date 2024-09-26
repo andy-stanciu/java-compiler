@@ -3,14 +3,17 @@ package ast.visitor.codegen;
 import ast.*;
 import ast.visitor.Visitor;
 import codegen.Generator;
+import codegen.platform.isa.ISA;
 import semantics.table.SymbolContext;
+
+import static codegen.platform.Directive.QUAD;
 
 public final class CodeDataVisitor implements Visitor {
     private final Generator generator;
     private final SymbolContext symbolContext;
 
-    public CodeDataVisitor(SymbolContext symbolContext) {
-        this.generator = Generator.getInstance();
+    public CodeDataVisitor(SymbolContext symbolContext, ISA isa) {
+        this.generator = Generator.getInstance(isa);
         this.symbolContext = symbolContext;
     }
 
@@ -68,9 +71,9 @@ public final class CodeDataVisitor implements Visitor {
         }
 
         generator.genLabel(n.i.s + "$$");
-        generator.genUnary(".quad", "0");  // no superclass
+        generator.genUnary(QUAD, "0");  // no superclass
         class_.methodEntries().forEachRemaining(m ->
-                generator.genUnary(".quad", m.getQualifiedName()));
+                generator.genUnary(QUAD, m.getQualifiedName()));
 
         symbolContext.enterClass(n.i.s);
         n.ml.forEach(m -> m.accept(this));
@@ -85,9 +88,9 @@ public final class CodeDataVisitor implements Visitor {
         }
 
         generator.genLabel(n.i.s + "$$");
-        generator.genUnary(".quad", n.j.s + "$$");  // superclass
+        generator.genUnary(QUAD, n.j.s + "$$");  // superclass
         class_.methodEntries().forEachRemaining(m ->
-                generator.genUnary(".quad", m.getQualifiedName()));
+                generator.genUnary(QUAD, m.getQualifiedName()));
 
         symbolContext.enterClass(n.i.s);
         n.ml.forEach(m -> m.accept(this));

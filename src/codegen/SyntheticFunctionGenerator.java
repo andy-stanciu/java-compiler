@@ -1,15 +1,26 @@
 package codegen;
 
+import codegen.platform.Immediate;
+import codegen.platform.Memory;
+import codegen.platform.MemoryScaledIndex;
+import codegen.platform.isa.ISA;
+
 import java.util.HashMap;
 import java.util.Map;
+
+import static codegen.platform.Operation.*;
+import static codegen.platform.Register.*;
 
 public final class SyntheticFunctionGenerator {
     private static final String SYNTHETIC_POSTFIX = "$$";
     private static final Map<SyntheticFunction, String> syntheticFunctionTable = new HashMap<>();
-    private static final SyntheticFunctionGenerator instance = new SyntheticFunctionGenerator();
+    private static SyntheticFunctionGenerator instance;
     private final Generator generator;
 
-    public static SyntheticFunctionGenerator getInstance() {
+    public static SyntheticFunctionGenerator getInstance(ISA isa) {
+        if (instance == null) {
+            instance = new SyntheticFunctionGenerator(isa);
+        }
         return instance;
     }
 
@@ -25,8 +36,8 @@ public final class SyntheticFunctionGenerator {
         syntheticFunctionTable.put(SyntheticFunction.ALLOCATE_NESTED_ARRAY, "alloc_nested_arr" + SYNTHETIC_POSTFIX);
     }
 
-    private SyntheticFunctionGenerator() {
-        this.generator = Generator.getInstance();
+    private SyntheticFunctionGenerator(ISA isa) {
+        this.generator = Generator.getInstance(isa);
     }
 
     public void generateAll() {
@@ -40,31 +51,31 @@ public final class SyntheticFunctionGenerator {
 
         generator.genLabel(getSyntheticFunctionLabel(SyntheticFunction.ALLOCATE_NESTED_ARRAY));
         generator.genPrologue();
-        generator.genBinary("cmpq", "$0", "%rsi");  // if nested arr size is zero, we're done
-        generator.genUnary("je", arrayDoneLabel);
-        generator.genBinary("movq", "$1", "%r10");
+        generator.genBinary(CMP, Immediate.of(0), RSI);  // if nested arr size is zero, we're done
+        generator.genUnary(JE, arrayDoneLabel);
+        generator.genBinary(MOV, Immediate.of(1), R10);
         generator.genLabel(arrayLoopLabel);
-        generator.genBinary("cmpq", "%r10", "%rdi");
-        generator.genUnary("jl", arrayDoneLabel);
-        generator.genPush("%rax");  // save arr pointer
-        generator.genPush("%r10");  // save loop index (arr[i])
+        generator.genBinary(CMP, R10, RDI);
+        generator.genUnary(JL, arrayDoneLabel);
+        generator.genPush(RAX);  // save arr pointer
+        generator.genPush(R10);  // save loop index (arr[i])
         generator.pushArgumentRegisters();
-        generator.genBinary("movq", "%rsi", "%rdi");
+        generator.genBinary(MOV, RSI, RDI);
         generator.genCall(SyntheticFunction.ALLOCATE_ARRAY);  // alloc nested arr, result in rax
         generator.popArgumentRegisters();
-        generator.genPop("%r10");  // restore loop index in r10
-        generator.genPop("%r11");  // restore arr pointer in r11
-        generator.genBinary("movq", "%rax", "(%r11,%r10," + Generator.WORD_SIZE + ")");  // arr[i] = nested arr
-        generator.genPush("%r11");  // save arr pointer
-        generator.genPush("%r10");  // save loop index
+        generator.genPop(R10);  // restore loop index in r10
+        generator.genPop(R11);  // restore arr pointer in r11
+        generator.genBinary(MOV, RAX, MemoryScaledIndex.of(R11, R10, Generator.WORD_SIZE, 0));  // arr[i] = nested arr
+        generator.genPush(R11);  // save arr pointer
+        generator.genPush(R10);  // save loop index
         generator.pushArgumentRegisters();
         generator.leftShiftArgumentRegisters();
         generator.genCall(SyntheticFunction.ALLOCATE_NESTED_ARRAY);
         generator.popArgumentRegisters();
-        generator.genPop("%r10");  // restore loop index
-        generator.genPop("%rax");  // restore arr pointer in rax
-        generator.genBinary("addq", "$1", "%r10");  // i++
-        generator.genUnary("jmp", arrayLoopLabel);
+        generator.genPop(R10);  // restore loop index
+        generator.genPop(RAX);  // restore arr pointer in rax
+        generator.genBinary(ADD, Immediate.of(1), R10);  // i++
+        generator.genUnary(JMP, arrayLoopLabel);
         generator.genLabel(arrayDoneLabel);
         generator.genEpilogue();
     }
@@ -73,12 +84,12 @@ public final class SyntheticFunctionGenerator {
         generator.genLabel(getSyntheticFunctionLabel(SyntheticFunction.ALLOCATE_ARRAY));
         generator.genPrologue();
 
-        generator.genPush("%rdi");                               // push sizeof(arr) onto stack
-        generator.genBinary("addq", "$1", "%rdi");       // arr[0] = sizeof(arr)
-        generator.genBinary("shlq", "$3", "%rdi");       // multiply by word size (8)
+        generator.genPush(RDI);                               // push sizeof(arr) onto stack
+        generator.genBinary(ADD, Immediate.of(1), RDI);       // arr[0] = sizeof(arr)
+        generator.genBinary(SHL, Immediate.of(3), RDI);       // multiply by word size (8)
         generator.genCall("mjcalloc");                          // allocate space on heap
-        generator.genPop("%rdi");                                // pop sizeof(arr) into rdi
-        generator.genBinary("movq", "%rdi", "0(%rax)");  // store sizeof(arr) at start of array
+        generator.genPop(RDI);                                // pop sizeof(arr) into rdi
+        generator.genBinary(MOV, RDI, Memory.of(RAX, 0));  // store sizeof(arr) at start of array
 
         generator.genEpilogue();
     }
