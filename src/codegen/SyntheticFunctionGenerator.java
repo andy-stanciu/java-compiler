@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class SyntheticFunctionGenerator {
-    private static final String SYNTHETIC_PREFIX = "$$";
+    private static final String SYNTHETIC_POSTFIX = "$$";
     private static final Map<SyntheticFunction, String> syntheticFunctionTable = new HashMap<>();
     private static final SyntheticFunctionGenerator instance = new SyntheticFunctionGenerator();
     private final Generator generator;
@@ -21,8 +21,8 @@ public final class SyntheticFunctionGenerator {
     }
 
     static {
-        syntheticFunctionTable.put(SyntheticFunction.ALLOCATE_ARRAY, SYNTHETIC_PREFIX + "alloc_arr");
-        syntheticFunctionTable.put(SyntheticFunction.ALLOCATE_NESTED_ARRAY, SYNTHETIC_PREFIX + "alloc_nested_arr");
+        syntheticFunctionTable.put(SyntheticFunction.ALLOCATE_ARRAY, "alloc_arr" + SYNTHETIC_POSTFIX);
+        syntheticFunctionTable.put(SyntheticFunction.ALLOCATE_NESTED_ARRAY, "alloc_nested_arr" + SYNTHETIC_POSTFIX);
     }
 
     private SyntheticFunctionGenerator() {
@@ -40,7 +40,7 @@ public final class SyntheticFunctionGenerator {
 
         generator.genLabel(getSyntheticFunctionLabel(SyntheticFunction.ALLOCATE_NESTED_ARRAY));
         generator.genPrologue();
-        generator.genBinary("cmpq", "$0", "%rdi");
+        generator.genBinary("cmpq", "$0", "%rsi");  // if nested arr size is zero, we're done
         generator.genUnary("je", arrayDoneLabel);
         generator.genBinary("movq", "$1", "%r10");
         generator.genLabel(arrayLoopLabel);
@@ -59,7 +59,7 @@ public final class SyntheticFunctionGenerator {
         generator.genPush("%r10");  // save loop index
         generator.pushArgumentRegisters();
         generator.leftShiftArgumentRegisters();
-        generator.genCall(SYNTHETIC_PREFIX + "alloc_nested_arr");
+        generator.genCall(SyntheticFunction.ALLOCATE_NESTED_ARRAY);
         generator.popArgumentRegisters();
         generator.genPop("%r10");  // restore loop index
         generator.genPop("%rax");  // restore arr pointer in rax
@@ -70,7 +70,7 @@ public final class SyntheticFunctionGenerator {
     }
 
     private void generateAllocateArray() {
-        generator.genLabel(SYNTHETIC_PREFIX + "alloc_arr");
+        generator.genLabel(getSyntheticFunctionLabel(SyntheticFunction.ALLOCATE_ARRAY));
         generator.genPrologue();
 
         generator.genPush("%rdi");                               // push sizeof(arr) onto stack

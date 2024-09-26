@@ -32,6 +32,13 @@ void exception_array(int64_t x, int64_t s, int64_t l) {
   exit(1);
 }
 
+/* Write negative array size exception to standard error and exit with failure */
+void exception_array_size(int64_t s, int64_t l) {
+  fprintf(stderr,
+          "Error on line %" PRId64 ": Array size %" PRId64 " cannot be negative\n", l, s);
+  exit(1);
+}
+
 /* Write division exception to standard error and exit with failure */
 void exception_division(int64_t l) {
   fprintf(stderr, "Error on line %" PRId64 ": Division by zero\n", l);

@@ -636,16 +636,23 @@ public final class CodeGenVisitor implements Visitor {
         boolean assignable = generator.isAssignable();
 
         n.e1.accept(this);
-        generator.genPush("%rax");                                                             // push arr ptr
+        generator.genPush("%rax");  // push arr ptr
         for (int i = 0; i < n.getDimensionCount(); i++) {
             n.el.get(i).accept(this);
-            generator.genBinary("addq", "$1", "%rax");                                  // i++ due to size
-            generator.genPop("%rcx");                                                           // push arr ptr onto stack
-            String instr = (assignable && i == n.getDimensionCount() - 1) ? "leaq" : "movq";
-            generator.genBinary(instr, "(%rcx,%rax," + Generator.WORD_SIZE + ")", "%rcx");  // load arr[i] or &arr[i] into rax
-            generator.genPush("%rcx");                                                          // push arr ptr onto stack
+            generator.genBinary("movq", "%rax", "%rdi");  // move i to rdi
+            generator.genPop("%rcx");  // pop arr ptr into rcx
+            generator.genBinary("movq", "0(%rcx)", "%rsi");  // load sizeof(arr) into rsi
+            generator.genBinary("movq", "$" + n.el.get(i).line_number, "%rdx");  // load line number into rdx
+            generator.genBinary("cmpq", "$0", "%rdi");
+            generator.genUnary("jl", "exception_array");
+            generator.genBinary("cmpq", "%rsi", "%rdi");
+            generator.genUnary("jge", "exception_array");
+            generator.genBinary("addq", "$1", "%rdi");  // i++ due to size
+            String op = (assignable && i == n.getDimensionCount() - 1) ? "leaq" : "movq";
+            generator.genBinary(op, "0(%rcx,%rdi," + Generator.WORD_SIZE + ")", "%rcx");  // load arr[i] or &arr[i] into rcx
+            generator.genPush("%rcx");  // push arr[i]/&arr[i] onto stack
         }
-        generator.genPop("%rax");                                                               // pop arr ptr
+        generator.genPop("%rax");  // pop arr[i]/&arr[i]
     }
 
     @Override
@@ -875,22 +882,34 @@ public final class CodeGenVisitor implements Visitor {
 
     @Override
     public void visit(NewArray n) {
+        n.el.get(0).accept(this);
+        generator.genBinary("movq", "%rax", "%rdi");
+        generator.genBinary("movq", "$" + n.el.get(0).line_number, "%rsi");
+        generator.genBinary("cmpq", "$0", "%rdi");
+        generator.genUnary("jl", "exception_array_size");
+
         if (n.getDimensionCount() == 1) {
-            n.el.get(0).accept(this);
-            generator.genBinary("movq", "%rax", "%rdi");
             generator.genCall(SyntheticFunction.ALLOCATE_ARRAY);
         } else {
-            n.el.get(0).accept(this);
-            generator.genBinary("movq", "%rax", "%rdi");
             generator.genPush("%rdi");
             generator.genCall(SyntheticFunction.ALLOCATE_ARRAY);
-            generator.genPop("%rdi");
             generator.genPush("%rax");
             for (int i = 1; i < n.getDimensionCount(); i++) {
                 n.el.get(i).accept(this);
-                generator.genBinary("movq", "%rax", generator.getArgumentRegister(i));
+                generator.genBinary("movq", "%rax", "%rdi");
+                generator.genBinary("movq", "$" + n.el.get(i).line_number, "%rsi");
+                generator.genBinary("cmpq", "$0", "%rdi");
+                generator.genUnary("jl", "exception_array_size");
+                generator.genPush("%rdi");
             }
+
+            generator.clearArgumentRegisters();
+            for (int i = n.getDimensionCount() - 1; i > 0; i--) {
+                generator.genPop(generator.getArgumentRegister(i));
+            }
+
             generator.genPop("%rax");
+            generator.genPop("%rdi");
             generator.genCall(SyntheticFunction.ALLOCATE_NESTED_ARRAY);
         }
     }
