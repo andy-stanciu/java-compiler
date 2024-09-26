@@ -193,8 +193,9 @@ public class Java {
                         String version = args[j++];
                         switch (version.toLowerCase()) {
                             case "x86_64" -> isa = ISAProvider.getISA_x86_64();
+                            case "arm64" -> isa = ISAProvider.getISA_arm64();
                             default -> {
-                                System.err.printf("Invalid version: %s. Supported versions: x86_64, ...%n", version);
+                                System.err.printf("Invalid version: %s. Supported versions: x86_64, arm64, ...%n", version);
                                 return null;
                             }
                         }

@@ -1,19 +1,18 @@
 package codegen;
 
-import codegen.platform.Immediate;
-import codegen.platform.Memory;
-import codegen.platform.MemoryScaledIndex;
+import codegen.platform.*;
 import codegen.platform.isa.ISA;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import static codegen.platform.CFunction.MALLOC;
 import static codegen.platform.Operation.*;
 import static codegen.platform.Register.*;
 
 public final class SyntheticFunctionGenerator {
     private static final String SYNTHETIC_POSTFIX = "$$";
-    private static final Map<SyntheticFunction, String> syntheticFunctionTable = new HashMap<>();
+    private static final Map<SyntheticFunction, Label> syntheticFunctionTable = new HashMap<>();
     private static SyntheticFunctionGenerator instance;
     private final Generator generator;
 
@@ -24,7 +23,7 @@ public final class SyntheticFunctionGenerator {
         return instance;
     }
 
-    public static String getSyntheticFunctionLabel(SyntheticFunction syntheticFunction) {
+    public static Label getSyntheticFunctionLabel(SyntheticFunction syntheticFunction) {
         if (!syntheticFunctionTable.containsKey(syntheticFunction)) {
             throw new IllegalArgumentException();
         }
@@ -32,8 +31,8 @@ public final class SyntheticFunctionGenerator {
     }
 
     static {
-        syntheticFunctionTable.put(SyntheticFunction.ALLOCATE_ARRAY, "alloc_arr" + SYNTHETIC_POSTFIX);
-        syntheticFunctionTable.put(SyntheticFunction.ALLOCATE_NESTED_ARRAY, "alloc_nested_arr" + SYNTHETIC_POSTFIX);
+        syntheticFunctionTable.put(SyntheticFunction.ALLOCATE_ARRAY, Label.of("alloc_arr" + SYNTHETIC_POSTFIX));
+        syntheticFunctionTable.put(SyntheticFunction.ALLOCATE_NESTED_ARRAY, Label.of("alloc_nested_arr" + SYNTHETIC_POSTFIX));
     }
 
     private SyntheticFunctionGenerator(ISA isa) {
@@ -46,8 +45,8 @@ public final class SyntheticFunctionGenerator {
     }
 
     private void generateAllocateNestedArray() {
-        String arrayDoneLabel = generator.nextLabel("arr_done");
-        String arrayLoopLabel = generator.nextLabel("arr_loop");
+        var arrayDoneLabel = generator.nextLabel("arr_done");
+        var arrayLoopLabel = generator.nextLabel("arr_loop");
 
         generator.genLabel(getSyntheticFunctionLabel(SyntheticFunction.ALLOCATE_NESTED_ARRAY));
         generator.genPrologue();
@@ -84,11 +83,11 @@ public final class SyntheticFunctionGenerator {
         generator.genLabel(getSyntheticFunctionLabel(SyntheticFunction.ALLOCATE_ARRAY));
         generator.genPrologue();
 
-        generator.genPush(RDI);                               // push sizeof(arr) onto stack
-        generator.genBinary(ADD, Immediate.of(1), RDI);       // arr[0] = sizeof(arr)
-        generator.genBinary(SHL, Immediate.of(3), RDI);       // multiply by word size (8)
-        generator.genCall("mjcalloc");                          // allocate space on heap
-        generator.genPop(RDI);                                // pop sizeof(arr) into rdi
+        generator.genPush(RDI);  // push sizeof(arr) onto stack
+        generator.genBinary(ADD, Immediate.of(1), RDI);  // arr[0] = sizeof(arr)
+        generator.genBinary(SHL, Immediate.of(3), RDI);  // multiply by word size (8)
+        generator.genCall(MALLOC);  // allocate space on heap
+        generator.genPop(RDI);  // pop sizeof(arr) into rdi
         generator.genBinary(MOV, RDI, Memory.of(RAX, 0));  // store sizeof(arr) at start of array
 
         generator.genEpilogue();

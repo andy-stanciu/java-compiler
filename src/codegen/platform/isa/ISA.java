@@ -68,6 +68,7 @@ public abstract class ISA {
         Directive.setISA(this);
         Register.setISA(this);
         Immediate.setISA(this);
+        Label.setISA(this);
         Memory.setISA(this);
         MemoryScaledIndex.setISA(this);
     }
@@ -99,6 +100,13 @@ public abstract class ISA {
      * @return The converted immediate.
      */
     public abstract String toImmediate(Immediate immediate);
+
+    /**
+     * Converts the specified label.
+     * @param label The label to convert.
+     * @return The converted label.
+     */
+    public abstract String toLabel(Label label);
 
     /**
      * Converts the specified memory location.
