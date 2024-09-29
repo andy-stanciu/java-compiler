@@ -101,6 +101,8 @@ letter = [a-zA-Z]
 digit = [0-9]
 eol = [\r\n]
 white = {eol}|[ \t]
+comment = ((\/\*)([^*/]|(\**[^*/])|\/)*(\**)(\*\/))|((\/\/)[^{eol}]*)
+
 
 %%
 
@@ -171,6 +173,7 @@ white = {eol}|[ \t]
 "~" { return symbol(sym.BITWISE_NOT); }
 
 /* delimiters */
+\[({white}|{comment})*\] { return symbol(sym.ARRAY); } // can't find a better solution here...
 "(" { return symbol(sym.LPAREN); }
 ")" { return symbol(sym.RPAREN); }
 "[" { return symbol(sym.LSQUARE); }
@@ -194,7 +197,7 @@ white = {eol}|[ \t]
 }
 
 /* comments */
-((\/\*)([^*/]|(\**[^*/])|\/)*(\**)(\*\/))|((\/\/)[^{eol}]*) { /* ignore comments */ }
+{comment} { /* ignore comments */ }
 
 /* whitespace */
 {white}+ { /* ignore whitespace */ }

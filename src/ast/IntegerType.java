@@ -4,7 +4,7 @@ import ast.visitor.Visitor;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 import semantics.Logger;
 
-public class IntegerType extends DeclarableType {
+public class IntegerType extends SingularType {
     public IntegerType(Location pos) {
         super(pos);
     }

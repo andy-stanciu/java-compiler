@@ -13,13 +13,15 @@ public interface Visitor {
 
     void visit(VarDecl n);
 
+    void visit(VarInit n);
+
     void visit(MethodDecl n);
 
     void visit(Formal n);
 
     void visit(VoidType n);
 
-    void visit(IntArrayType n);
+    void visit(ArrayType n);
 
     void visit(BooleanType n);
 

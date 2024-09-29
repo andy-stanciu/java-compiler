@@ -4,10 +4,7 @@ import semantics.Logger;
 import semantics.info.*;
 import semantics.type.TypeVoid;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 
 public final class SymbolContext {
@@ -19,6 +16,7 @@ public final class SymbolContext {
 
     private final Logger logger;
     private final SymbolTable global;
+    private final Stack<TableContext> contexts;
     private SymbolTable table;
     private ClassInfo currentClass;
     private MethodInfo currentMethod;
@@ -27,6 +25,36 @@ public final class SymbolContext {
         this.logger = Logger.getInstance();
         this.table = new SymbolTable();
         this.global = this.table;
+        this.contexts = new Stack<>();
+    }
+
+    /**
+     * Swap the current symbol context with the specified class.
+     * The current symbol context is saved, and can later be restored using
+     * {@link SymbolContext#restore()}.
+     * @param name The name of the class to swap with.
+     */
+    public void swap(String name) {
+        contexts.push(new TableContext(table, currentClass, currentMethod));
+        table = global;
+        currentClass = null;
+        currentMethod = null;
+        enterClass(name);
+    }
+
+    /**
+     * Restores the current symbol context.
+     * @throws IllegalStateException If there is no context to restore.
+     */
+    public void restore() {
+        if (contexts.isEmpty()) {
+            throw new IllegalStateException();
+        }
+
+        var context = contexts.pop();
+        table = context.table();
+        currentClass = context.currentClass();
+        currentMethod = context.currentMethod();
     }
 
     /**
@@ -109,6 +137,20 @@ public final class SymbolContext {
         }
 
         return currentMethod;
+    }
+
+    /**
+     * @return Whether a method is currently in scope.
+     */
+    public boolean isMethod() {
+        return currentMethod != null;
+    }
+
+    /**
+     * @return Whether a class is currently in scope.
+     */
+    public boolean isClass() {
+        return currentClass != null;
     }
 
     /**

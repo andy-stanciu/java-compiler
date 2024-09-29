@@ -1,12 +1,13 @@
 package ast;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
 import java_cup.runtime.ComplexSymbolFactory.Location;
 
-public class ExpressionList extends ASTNode {
+public class ExpressionList extends ASTNode implements Iterable<Expression> {
    private List<Expression> list;
 
    public ExpressionList(Location pos) {
@@ -26,9 +27,14 @@ public class ExpressionList extends ASTNode {
       return list.size(); 
    }
 
-   public void forEach(Consumer<Expression> action) {
+   public void forEach(Consumer<? super Expression> action) {
       for (var c : list) {
          action.accept(c);
       }
+   }
+
+   @Override
+   public Iterator<Expression> iterator() {
+      return list.iterator();
    }
 }

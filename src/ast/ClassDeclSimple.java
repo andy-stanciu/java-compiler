@@ -6,14 +6,14 @@ import semantics.Logger;
 
 public class ClassDeclSimple extends ClassDecl {
     public Identifier i;
-    public VarDeclList vl;
+    public DeclarationList dl;
     public MethodDeclList ml;
 
-    public ClassDeclSimple(Identifier ai, VarDeclList avl, MethodDeclList aml,
+    public ClassDeclSimple(Identifier ai, DeclarationList adl, MethodDeclList aml,
                            Location pos) {
         super(pos);
         i = ai;
-        vl = avl;
+        dl = adl;
         ml = aml;
     }
 

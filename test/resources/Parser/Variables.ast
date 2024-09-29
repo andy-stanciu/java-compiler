@@ -1,0 +1,9 @@
+Program
+  MainClass Main (line 1)
+    int x <- 0 (line 3)
+    Print (line 4)
+      x
+    PostIncrement x (line 5)
+    int y <- x (line 6)
+    Print (line 7)
+      y

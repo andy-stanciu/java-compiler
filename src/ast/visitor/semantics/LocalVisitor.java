@@ -10,6 +10,8 @@ import semantics.type.Type;
 import java.util.HashSet;
 import java.util.Set;
 
+import static codegen.Generator.ARGUMENT_REGISTERS;
+
 /**
  * Final visitor pass of semantic analysis. Verifies that types match
  * for all expressions, variables are in scope, etc.
@@ -43,6 +45,7 @@ public final class LocalVisitor implements Visitor {
         if (n.conflict) return;
 
         symbolContext.enterClass(n.i.s);
+        n.dl.forEach(d -> d.accept(this));
         n.ml.forEach(m -> m.accept(this));
         symbolContext.exit();
     }
@@ -52,13 +55,21 @@ public final class LocalVisitor implements Visitor {
         if (n.conflict) return;
 
         symbolContext.enterClass(n.i.s);
+        n.dl.forEach(d -> d.accept(this));
         n.ml.forEach(m -> m.accept(this));
         symbolContext.exit();
     }
 
     @Override
-    public void visit(VarDecl n) {
-        throw new IllegalStateException();
+    public void visit(VarDecl n) {}
+
+    @Override
+    public void visit(VarInit n) {
+        n.e.accept(this);  // initialization expression
+        if (!n.e.eval().type.isAssignableTo(n.type)) {
+            logger.logError("Cannot assign %s to %s%n",
+                    n.e.eval().type, n.type);
+        }
     }
 
     @Override
@@ -82,23 +93,28 @@ public final class LocalVisitor implements Visitor {
     }
 
     @Override
-    public void visit(IntArrayType n) {
+    public void visit(ArrayType n) {
         throw new IllegalStateException();
     }
 
     @Override
     public void visit(BooleanType n) {
-        throw new IllegalStateException();
+        n.type = TypeBoolean.getInstance();
     }
 
     @Override
     public void visit(IntegerType n) {
-        throw new IllegalStateException();
+        n.type = TypeInt.getInstance();
     }
 
     @Override
     public void visit(IdentifierType n) {
-        throw new IllegalStateException();
+        var class_ = symbolContext.lookupClass(n.s);
+        if (class_ != null) {
+            n.type = new TypeObject(class_);
+        } else {
+            n.type = TypeUndefined.getInstance();
+        }
     }
 
     @Override
@@ -416,27 +432,33 @@ public final class LocalVisitor implements Visitor {
 
     @Override
     public void visit(ArrayLookup n) {
-        n.e1.accept(this);  // int array expression
-        n.e2.accept(this);  // indexing expression
+        n.e1.accept(this);  // array expression
 
-        if (!n.e1.eval().type.isAssignableTo(TypeIntArray.getInstance())) {
-            logger.logError("Cannot index on %s, expected an int[]%n", n.e1.eval().type);
+        if (n.e1.eval().type instanceof TypeArray arr && n.el.size() <= arr.dimension) {
+            n.el.forEach(e -> {
+                e.accept(this);
+                if (!e.eval().type.isAssignableTo(TypeInt.getInstance())) {
+                    logger.logError("Array index expected an int, but provided %s%n",
+                            e.eval().type);
+                }
+            });
+
+            if (n.el.size() == arr.dimension) {
+                n.type = arr.type;
+            } else {
+                n.type = new TypeArray(arr.type, arr.dimension - n.el.size());
+            }
+        } else {
+            logger.logError("Cannot index on non-array type %s%n", n.e1.eval().type);
+            n.type = TypeUndefined.getInstance();
         }
-
-        if (!n.e2.eval().type.isAssignableTo(TypeInt.getInstance())) {
-            logger.logError("Array index expected an int, but provided %s%n",
-                    n.e2.eval().type);
-        }
-
-        // only supporting int[] for now
-        n.type = TypeInt.getInstance();
     }
 
     @Override
     public void visit(ArrayLength n) {
         n.e.accept(this);  // int array expression
-        if (!n.e.eval().type.isAssignableTo(TypeIntArray.getInstance())) {
-            logger.logError("Cannot get length of %s, expected an int[]%n", n.e.eval().type);
+        if (!n.e.eval().type.isArray()) {
+            logger.logError("Cannot get length of non-array type %s%n", n.e.eval().type);
         }
 
         n.type = TypeInt.getInstance();
@@ -601,13 +623,21 @@ public final class LocalVisitor implements Visitor {
 
     @Override
     public void visit(NewArray n) {
-        n.e.accept(this);  // array length
-        if (!n.e.eval().type.isAssignableTo(TypeInt.getInstance())) {
-            logger.logError("Array instantiation expected an int, but provided %s%n",
-                    n.e.eval().type);
+        n.t.accept(this);  // singular type
+        n.el.forEach(e -> {
+            e.accept(this);
+            if (!e.eval().type.isAssignableTo(TypeInt.getInstance())) {
+                logger.logError("Array instantiation expected an int, but provided %s%n",
+                        e.eval().type);
+            }
+        });
+
+        if (n.el.size() > ARGUMENT_REGISTERS.length) {
+            logger.logError("Encountered %d size arguments for %s array (too many!)%n",
+                    n.el.size(), n.t);
         }
 
-        n.type = TypeIntArray.getInstance();
+        n.type = new TypeArray((TypeSingular) n.t.type, n.el.size());
     }
 
     @Override

@@ -30,7 +30,12 @@ public final class ASTVisitor implements Visitor {
         n.i1.accept(this);
         System.out.printf(" (line %d)%n", n.line_number);
         indenter.push();
-        n.sl.forEach(s -> s.accept(this));
+        for (int i = 0; i < n.sl.size(); i++) {
+            n.sl.get(i).accept(this);
+            if (i + 1 < n.sl.size()) {
+                System.out.println();
+            }
+        }
         indenter.pop();
     }
 
@@ -41,9 +46,9 @@ public final class ASTVisitor implements Visitor {
         n.i.accept(this);
         System.out.printf(" (line %d)", n.line_number);
         indenter.push();
-        for (int i = 0; i < n.vl.size(); i++) {
+        for (int i = 0; i < n.dl.size(); i++) {
             System.out.println();
-            n.vl.get(i).accept(this);
+            n.dl.get(i).accept(this);
         }
         for (int i = 0; i < n.ml.size(); i++) {
             System.out.println();
@@ -61,9 +66,9 @@ public final class ASTVisitor implements Visitor {
         n.j.accept(this);
         System.out.printf(" (line %d)", n.line_number);
         indenter.push();
-        for (int i = 0; i < n.vl.size(); i++) {
+        for (int i = 0; i < n.dl.size(); i++) {
             System.out.println();
-            n.vl.get(i).accept(this);
+            n.dl.get(i).accept(this);
         }
         for (int i = 0; i < n.ml.size(); i++) {
             System.out.println();
@@ -78,6 +83,17 @@ public final class ASTVisitor implements Visitor {
         n.t.accept(this);
         System.out.print(" ");
         n.i.accept(this);
+        System.out.printf(" (line %d)", n.line_number);
+    }
+
+    @Override
+    public void visit(VarInit n) {
+        indenter.print();
+        n.t.accept(this);
+        System.out.print(" ");
+        n.i.accept(this);
+        System.out.print(" <- ");
+        n.e.accept(this);
         System.out.printf(" (line %d)", n.line_number);
     }
 
@@ -102,10 +118,6 @@ public final class ASTVisitor implements Visitor {
             System.out.println();
         }
         indenter.pop();
-        for (int i = 0; i < n.vl.size(); i++) {
-            n.vl.get(i).accept(this);
-            System.out.println();
-        }
         for (int i = 0; i < n.sl.size(); i++) {
             n.sl.get(i).accept(this);
             if (i + 1 < n.sl.size()) {
@@ -129,8 +141,11 @@ public final class ASTVisitor implements Visitor {
     }
 
     @Override
-    public void visit(IntArrayType n) {
-        System.out.print("int[]");
+    public void visit(ArrayType n) {
+        n.t.accept(this);
+        for (int i = 0; i < n.dimension; i++) {
+            System.out.print("[]");
+        }
     }
 
     @Override
@@ -641,9 +656,11 @@ public final class ASTVisitor implements Visitor {
     public void visit(ArrayLookup n) {
         System.out.print("ArrayLookup ");
         n.e1.accept(this);
-        System.out.print("[");
-        n.e2.accept(this);
-        System.out.print("]");
+        n.el.forEach(e -> {
+            System.out.print("[");
+            e.accept(this);
+            System.out.print("]");
+        });
     }
 
     @Override
@@ -729,9 +746,13 @@ public final class ASTVisitor implements Visitor {
 
     @Override
     public void visit(NewArray n) {
-        System.out.print("new int[");
-        n.e.accept(this);
-        System.out.print("]");
+        System.out.print("new ");
+        n.t.accept(this);
+        n.el.forEach(e -> {
+            System.out.print("[");
+            e.accept(this);
+            System.out.print("]");
+        });
     }
 
     @Override

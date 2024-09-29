@@ -17,6 +17,7 @@ public final class MethodInfo extends Info {
     public int lineNumber;
     public int endLineNumber;
     private final List<Type> argumentTypes;
+    private final List<VariableInfo> localVariables;
     private final SymbolTable table;
 
     public MethodInfo(SymbolTable parent, String name) {
@@ -24,6 +25,7 @@ public final class MethodInfo extends Info {
         this.table = new SymbolTable(parent, TableType.LOCAL, parent.getName() +
                 SymbolContext.METHOD_PREFIX + name);
         this.argumentTypes = new ArrayList<>();
+        this.localVariables = new ArrayList<>();
     }
 
     /**
@@ -54,6 +56,18 @@ public final class MethodInfo extends Info {
 
     public Type getArgument(int i) {
         return argumentTypes.get(i);
+    }
+
+    public void addLocalVariable(VariableInfo v) {
+        localVariables.add(v);
+    }
+
+    public VariableInfo getLocalVariable(int i) {
+        return localVariables.get(i);
+    }
+
+    public int localVariableCount() {
+        return localVariables.size();
     }
 
     public SymbolTable getTable() {

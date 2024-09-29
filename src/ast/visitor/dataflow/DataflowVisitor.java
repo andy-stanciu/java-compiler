@@ -76,7 +76,18 @@ public final class DataflowVisitor implements Visitor {
 
     @Override
     public void visit(VarDecl n) {
-        throw new IllegalStateException();
+        n.t.accept(this);
+        System.out.print(" ");
+        n.i.accept(this);
+    }
+
+    @Override
+    public void visit(VarInit n) {
+        n.t.accept(this);
+        System.out.print(" ");
+        n.i.accept(this);
+        System.out.print(" = ");
+        n.e.accept(this);
     }
 
     @Override
@@ -103,7 +114,7 @@ public final class DataflowVisitor implements Visitor {
     }
 
     @Override
-    public void visit(IntArrayType n) {
+    public void visit(ArrayType n) {
         throw new IllegalStateException();
     }
 
@@ -439,9 +450,11 @@ public final class DataflowVisitor implements Visitor {
     @Override
     public void visit(ArrayLookup n) {
         n.e1.accept(this);
-        System.out.print("[");
-        n.e2.accept(this);
-        System.out.print("]");
+        n.el.forEach(e -> {
+            System.out.print("[");
+            e.accept(this);
+            System.out.print("]");
+        });
     }
 
     @Override
@@ -516,9 +529,12 @@ public final class DataflowVisitor implements Visitor {
 
     @Override
     public void visit(NewArray n) {
-        System.out.print("new int[");
-        n.e.accept(this);
-        System.out.print("]");
+        System.out.print("new ");
+        n.el.forEach(e -> {
+            System.out.print("[");
+            e.accept(this);
+            System.out.print("]");
+        });
     }
 
     @Override

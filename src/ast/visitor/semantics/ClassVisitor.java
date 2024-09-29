@@ -27,6 +27,7 @@ public final class ClassVisitor implements Visitor {
 
     @Override
     public void visit(Program n) {
+        n.m.accept(this);
         n.cl.forEach(c -> c.accept(this));
 
         // after this visitor finishes visiting all the classes, the
@@ -39,9 +40,13 @@ public final class ClassVisitor implements Visitor {
     public void visit(MainClass n) {
         symbolContext.enterClass(n.i1.s);
         symbolContext.enterMethod("main");
+
         var m = symbolContext.getCurrentMethod();
         m.lineNumber = n.line_number;
         m.endLineNumber = n.endPos.getLine();
+
+        n.sl.forEach(s -> s.accept(this));
+
         symbolContext.exit();
         symbolContext.exit();
     }
@@ -57,7 +62,7 @@ public final class ClassVisitor implements Visitor {
 
         symbolContext.enterClass(n.i.s);
         symbolContext.addEntry("this", this_);  // point to this class
-        n.vl.forEach(v -> v.accept(this));
+        n.dl.forEach(v -> v.accept(this));  // instance variables
         n.ml.forEach(m -> m.accept(this));
         symbolContext.exit();
     }
@@ -84,7 +89,7 @@ public final class ClassVisitor implements Visitor {
 
         symbolContext.enterClass(n.i.s);
         symbolContext.addEntry("this", derived);  // point to derived class
-        n.vl.forEach(v -> v.accept(this));
+        n.dl.forEach(v -> v.accept(this));  // instance variables
         n.ml.forEach(m -> m.accept(this));
         symbolContext.exit();
     }
@@ -116,12 +121,39 @@ public final class ClassVisitor implements Visitor {
 
     @Override
     public void visit(VarDecl n) {
-        var varInfo = symbolContext.addVariableEntry(n.i.s);
-        n.conflict = varInfo == null;
-        if (n.conflict) return;
-
         n.t.accept(this);  // declared type
-        varInfo.type = n.type = n.t.type;
+        var varInfo = symbolContext.addVariableEntry(n.i.s);
+        n.type = n.t.type;
+
+        if (varInfo != null) {  // if there was no conflict
+            varInfo.type = n.type;
+            if (symbolContext.isMethod()) {
+                var method = symbolContext.getCurrentMethod();
+                method.addLocalVariable(varInfo);
+            } else if (symbolContext.isClass()) {
+                var class_ = symbolContext.getCurrentClass();
+                class_.addInstanceVariable(varInfo);
+            }
+        }
+    }
+
+    @Override
+    public void visit(VarInit n) {
+        n.t.accept(this);  // declared type
+        var varInfo = symbolContext.addVariableEntry(n.i.s);
+        n.type = n.t.type;
+
+        if (varInfo != null) {  // if there was no conflict
+            varInfo.type = n.type;
+            varInfo.initializer = n.e;
+            if (symbolContext.isMethod()) {
+                var method = symbolContext.getCurrentMethod();
+                method.addLocalVariable(varInfo);
+            } else if (symbolContext.isClass()) {
+                var class_ = symbolContext.getCurrentClass();
+                class_.addInstanceVariable(varInfo);
+            }
+        }
     }
 
     @Override
@@ -152,7 +184,8 @@ public final class ClassVisitor implements Visitor {
                     methodInfo.argumentCount(), n.i);
         }
 
-        n.vl.forEach(v -> v.accept(this));  // local variables
+        // visit local variable declarations among all statements
+        n.sl.forEach(s -> s.accept(this));
         symbolContext.exit();
     }
 
@@ -173,8 +206,9 @@ public final class ClassVisitor implements Visitor {
     }
 
     @Override
-    public void visit(IntArrayType n) {
-        n.type = TypeIntArray.getInstance();
+    public void visit(ArrayType n) {
+        n.t.accept(this);
+        n.type = new TypeArray((TypeSingular) n.t.type, n.dimension);
     }
 
     @Override
@@ -199,133 +233,100 @@ public final class ClassVisitor implements Visitor {
 
     @Override
     public void visit(Block n) {
-        throw new IllegalStateException();
+        n.sl.forEach(s -> s.accept(this));
     }
 
     @Override
-    public void visit(Return n) {
-        throw new IllegalStateException();
-    }
+    public void visit(Return n) {}
 
     @Override
     public void visit(If n) {
-        throw new IllegalStateException();
+        n.s.accept(this);
     }
 
     @Override
     public void visit(IfElse n) {
-        throw new IllegalStateException();
+        n.s1.accept(this);
+        n.s2.accept(this);
     }
 
     @Override
     public void visit(Switch n) {
-        throw new IllegalStateException();
+        n.cl.forEach(c -> c.accept(this));
     }
 
     @Override
     public void visit(CaseSimple n) {
-        throw new IllegalStateException();
+        n.sl.forEach(s -> s.accept(this));
     }
 
     @Override
     public void visit(CaseDefault n) {
-        throw new IllegalStateException();
+        n.sl.forEach(s -> s.accept(this));
     }
 
     @Override
     public void visit(While n) {
-        throw new IllegalStateException();
+        n.s.accept(this);
     }
 
     @Override
     public void visit(For n) {
-        throw new IllegalStateException();
+        n.s0.accept(this);
+        n.s1.accept(this);
+        n.s2.accept(this);
     }
 
     @Override
-    public void visit(Print n) {
-        throw new IllegalStateException();
-    }
+    public void visit(Print n) {}
 
     @Override
-    public void visit(AssignSimple n) {
-        throw new IllegalStateException();
-    }
+    public void visit(AssignSimple n) {}
 
     @Override
-    public void visit(AssignPlus n) {
-        throw new IllegalStateException();
-    }
+    public void visit(AssignPlus n) {}
 
     @Override
-    public void visit(AssignMinus n) {
-        throw new IllegalStateException();
-    }
+    public void visit(AssignMinus n) {}
 
     @Override
-    public void visit(AssignTimes n) {
-        throw new IllegalStateException();
-    }
+    public void visit(AssignTimes n) {}
 
     @Override
-    public void visit(AssignDivide n) {
-        throw new IllegalStateException();
-    }
+    public void visit(AssignDivide n) {}
 
     @Override
-    public void visit(AssignMod n) {
-        throw new IllegalStateException();
-    }
+    public void visit(AssignMod n) {}
 
     @Override
-    public void visit(AssignAnd n) {
-        throw new IllegalStateException();
-    }
+    public void visit(AssignAnd n) {}
 
     @Override
-    public void visit(AssignOr n) {
-        throw new IllegalStateException();
-    }
+    public void visit(AssignOr n) {}
 
     @Override
-    public void visit(AssignXor n) {
-        throw new IllegalStateException();
-    }
+    public void visit(AssignXor n) {}
 
     @Override
-    public void visit(AssignLeftShift n) {
-        throw new IllegalStateException();
-    }
+    public void visit(AssignLeftShift n) {}
 
     @Override
-    public void visit(AssignRightShift n) {
-        throw new IllegalStateException();
-    }
+    public void visit(AssignRightShift n) {}
 
     @Override
-    public void visit(AssignUnsignedRightShift n) {
-        throw new IllegalStateException();
-    }
+    public void visit(AssignUnsignedRightShift n) {}
 
     @Override
-    public void visit(PostIncrement n) {
-        throw new IllegalStateException();
-    }
+    public void visit(PostIncrement n) {}
 
     @Override
-    public void visit(PreIncrement n) {
-        throw new IllegalStateException();
-    }
+    public void visit(PreIncrement n) {}
 
     @Override
-    public void visit(PostDecrement n) {
-        throw new IllegalStateException();
-    }
+    public void visit(PostDecrement n) {}
 
     @Override
-    public void visit(PreDecrement n) {
-        throw new IllegalStateException();
-    }
+    public void visit(PreDecrement n) {}
 
     @Override
     public void visit(And n) {
@@ -443,9 +444,7 @@ public final class ClassVisitor implements Visitor {
     }
 
     @Override
-    public void visit(Action n) {
-        throw new IllegalStateException();
-    }
+    public void visit(Action n) {}
 
     @Override
     public void visit(Call n) {
@@ -518,9 +517,7 @@ public final class ClassVisitor implements Visitor {
     }
 
     @Override
-    public void visit(NoOp n) {
-        throw new IllegalStateException();
-    }
+    public void visit(NoOp n) {}
 
     @Override
     public void visit(NoOpExp n) {
