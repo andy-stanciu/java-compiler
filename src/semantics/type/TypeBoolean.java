@@ -1,6 +1,6 @@
 package semantics.type;
 
-public class TypeBoolean extends Type {
+public class TypeBoolean extends TypeSingular {
     private static final TypeBoolean instance = new TypeBoolean();
 
     public static TypeBoolean getInstance() {

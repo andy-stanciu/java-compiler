@@ -1,13 +1,13 @@
 package semantics.info;
 
-import ast.Exp;
+import ast.Expression;
 import codegen.Generator;
 import semantics.table.SymbolTable;
 import semantics.type.Type;
 
 public final class VariableInfo extends Info {
     public Type type;
-    public Exp initializer;
+    public Expression initializer;
     public int vIndex;  // index of variable, either as an instance variable or parameter/local variable
     private final SymbolTable parent;
     private final boolean isInstanceVariable;

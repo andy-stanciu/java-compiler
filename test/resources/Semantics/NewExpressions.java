@@ -58,8 +58,8 @@ class New {
         z = (z == y) ? z >>> 3 : y | 1;
         x++;
         y--;
-        ++z;
-        --y;
+        // ++z;
+        // --y;
 
         foo = new Bar();
         if (foo instanceof Bar) {

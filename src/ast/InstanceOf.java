@@ -5,10 +5,10 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
 import semantics.Logger;
 
 public class InstanceOf extends Exp {
-    public Exp e;
+    public Expression e;
     public Identifier i;
 
-    public InstanceOf(Exp ae, Identifier ai, Location pos) {
+    public InstanceOf(Expression ae, Identifier ai, Location pos) {
         super(pos);
         e = ae;
         i = ai;

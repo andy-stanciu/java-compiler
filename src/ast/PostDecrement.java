@@ -5,8 +5,8 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
 import semantics.Logger;
 
 public class PostDecrement extends Increment {
-    public PostDecrement(Assignable ai, Location pos) {
-        super(ai, pos);
+    public PostDecrement(Expression ei, Location pos) {
+        super(ei, pos);
     }
 
     @Override

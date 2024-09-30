@@ -116,7 +116,7 @@ public final class DataflowVisitor implements Visitor {
     }
 
     @Override
-    public void visit(IntArrayType n) {
+    public void visit(ArrayType n) {
         throw new IllegalStateException();
     }
 
@@ -198,110 +198,110 @@ public final class DataflowVisitor implements Visitor {
 
     @Override
     public void visit(AssignSimple n) {
-        n.a.accept(this);
+        n.e1.accept(this);
         System.out.print(" = ");
-        n.e.accept(this);
+        n.e2.accept(this);
     }
 
     @Override
     public void visit(AssignPlus n) {
-        n.a.accept(this);
+        n.e1.accept(this);
         System.out.print(" += ");
-        n.e.accept(this);
+        n.e2.accept(this);
     }
 
     @Override
     public void visit(AssignMinus n) {
-        n.a.accept(this);
+        n.e1.accept(this);
         System.out.print(" -= ");
-        n.e.accept(this);
+        n.e2.accept(this);
     }
 
     @Override
     public void visit(AssignTimes n) {
-        n.a.accept(this);
+        n.e1.accept(this);
         System.out.print(" *= ");
-        n.e.accept(this);
+        n.e2.accept(this);
     }
 
     @Override
     public void visit(AssignDivide n) {
-        n.a.accept(this);
+        n.e1.accept(this);
         System.out.print(" /= ");
-        n.e.accept(this);
+        n.e2.accept(this);
     }
 
     @Override
     public void visit(AssignMod n) {
-        n.a.accept(this);
+        n.e1.accept(this);
         System.out.print(" %= ");
-        n.e.accept(this);
+        n.e2.accept(this);
     }
 
     @Override
     public void visit(AssignAnd n) {
-        n.a.accept(this);
+        n.e1.accept(this);
         System.out.print(" &= ");
-        n.e.accept(this);
+        n.e1.accept(this);
     }
 
     @Override
     public void visit(AssignOr n) {
-        n.a.accept(this);
+        n.e1.accept(this);
         System.out.print(" |= ");
-        n.e.accept(this);
+        n.e2.accept(this);
     }
 
     @Override
     public void visit(AssignXor n) {
-        n.a.accept(this);
+        n.e1.accept(this);
         System.out.print(" ^= ");
-        n.e.accept(this);
+        n.e2.accept(this);
     }
 
     @Override
     public void visit(AssignLeftShift n) {
-        n.a.accept(this);
+        n.e1.accept(this);
         System.out.print(" <<= ");
-        n.e.accept(this);
+        n.e2.accept(this);
     }
 
     @Override
     public void visit(AssignRightShift n) {
-        n.a.accept(this);
+        n.e1.accept(this);
         System.out.print(" >>= ");
-        n.e.accept(this);
+        n.e2.accept(this);
     }
 
     @Override
     public void visit(AssignUnsignedRightShift n) {
-        n.a.accept(this);
+        n.e1.accept(this);
         System.out.print(" >>>= ");
-        n.e.accept(this);
+        n.e2.accept(this);
     }
 
     @Override
     public void visit(PostIncrement n) {
-        n.a.accept(this);
+        n.e.accept(this);
         System.out.print("++");
     }
 
     @Override
     public void visit(PreIncrement n) {
         System.out.print("++");
-        n.a.accept(this);
+        n.e.accept(this);
     }
 
     @Override
     public void visit(PostDecrement n) {
-        n.a.accept(this);
+        n.e.accept(this);
         System.out.print("--");
     }
 
     @Override
     public void visit(PreDecrement n) {
         System.out.print("--");
-        n.a.accept(this);
+        n.e.accept(this);
     }
 
     @Override
@@ -452,9 +452,11 @@ public final class DataflowVisitor implements Visitor {
     @Override
     public void visit(ArrayLookup n) {
         n.e1.accept(this);
-        System.out.print("[");
-        n.e2.accept(this);
-        System.out.print("]");
+        n.el.forEach(e -> {
+            System.out.print("[");
+            e.accept(this);
+            System.out.print("]");
+        });
     }
 
     @Override
@@ -529,9 +531,12 @@ public final class DataflowVisitor implements Visitor {
 
     @Override
     public void visit(NewArray n) {
-        System.out.print("new int[");
-        n.e.accept(this);
-        System.out.print("]");
+        System.out.print("new ");
+        n.el.forEach(e -> {
+            System.out.print("[");
+            e.accept(this);
+            System.out.print("]");
+        });
     }
 
     @Override

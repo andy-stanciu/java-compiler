@@ -1,10 +1,7 @@
 package ast;
 
 import ast.visitor.Visitor;
-import semantics.type.Type;
 
-public interface Assignable {
-    Type getAssignableType();
-
+public interface Assignable extends Expression {
     void accept(Visitor visitor);
 }

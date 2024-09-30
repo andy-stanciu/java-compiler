@@ -5,9 +5,9 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
 import semantics.Logger;
 
 public class ArrayLength extends Exp {
-    public Exp e;
+    public Expression e;
 
-    public ArrayLength(Exp ae, Location pos) {
+    public ArrayLength(Expression ae, Location pos) {
         super(pos);
         e = ae;
     }

@@ -4,7 +4,7 @@ import ast.visitor.Visitor;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 import semantics.Logger;
 
-public class IdentifierType extends DeclarableType {
+public class IdentifierType extends SingularType {
     public String s;
 
     public IdentifierType(String as, Location pos) {

@@ -1,6 +1,6 @@
 class Main {
     public static void main(String[] args) {
-        new Test().print1();
+        (new Test()).print1();
         new Test().print2();
         new Test().print3();
     }

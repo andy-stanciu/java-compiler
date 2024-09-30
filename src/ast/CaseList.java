@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class CaseList extends ASTNode implements Iterable<Case> {
-    private List<Case> list;
+    private final List<Case> list;
 
     public CaseList(Location pos) {
         super(pos);

@@ -1,13 +1,14 @@
 package ast;
 
 import ast.visitor.Visitor;
-import java_cup.runtime.ComplexSymbolFactory;
+import java_cup.runtime.ComplexSymbolFactory.Location;
 import semantics.Logger;
 
 public class Ternary extends Exp {
-    public Exp c, e1, e2;
+    public Expression c, e1, e2;
 
-    public Ternary(Exp ac, Exp ae1, Exp ae2, ComplexSymbolFactory.Location pos) {
+    public Ternary(Expression ac, Expression ae1,
+                   Expression ae2, Location pos) {
         super(pos);
         c = ac;
         e1 = ae1;
