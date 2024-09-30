@@ -3,17 +3,17 @@ package ast;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 
 public abstract class Assign extends StatementSimple implements Expression {
-    public Assignable a;
-    public Expression e;
+    public Expression e1;
+    public Expression e2;
 
-    public Assign(Assignable ai, Expression ae, Location pos) {
+    public Assign(Expression ei, Expression ae, Location pos) {
         super(pos);
-        a = ai;
-        e = ae;
+        e1 = ei;
+        e2 = ae;
     }
 
     @Override
     public Exp eval() {
-        return e.eval();
+        return e2.eval();
     }
 }

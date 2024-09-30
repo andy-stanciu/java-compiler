@@ -692,11 +692,13 @@ public final class LocalVisitor implements Visitor {
      * @param sym The symbol associated with the increment/decrement statement.
      */
     private void visitIncrement(Increment n, String sym) {
-        n.a.accept(this);  // assignable
+        n.e.accept(this);  // assignable
 
-        if (!n.a.eval().type.equals(TypeInt.getInstance())) {
+        if (!(n.e instanceof Assignable)) {
+            logger.logError("Cannot assign to expression%n");
+        } else if (!n.e.eval().type.equals(TypeInt.getInstance())) {
             logger.logError("Cannot apply operator %s to %s%n",
-                    sym, n.a.eval().type);
+                    sym, n.e.eval().type);
         }
     }
 
@@ -707,13 +709,13 @@ public final class LocalVisitor implements Visitor {
      * @param accepted The types to accept (optional).
      */
     private void visitAssign(Assign n, String sym, Type... accepted) {
-        n.e.accept(this);  // RHS
-        n.a.accept(this);  // assignable
+        n.e2.accept(this);  // RHS
+        n.e1.accept(this);  // assignable
 
         if (accepted != null && accepted.length > 0) {
             boolean legal = false;
             for (var type : accepted) {
-                if (n.e.eval().type.equals(type)) {
+                if (n.e2.eval().type.equals(type)) {
                     legal = true;
                     break;
                 }
@@ -721,13 +723,15 @@ public final class LocalVisitor implements Visitor {
 
             if (!legal) {
                 logger.logError("Assignment operator %s cannot be applied to %s%n",
-                        sym, n.e.eval().type);
+                        sym, n.e2.eval().type);
                 return;
             }
         }
 
-        if (!n.e.eval().type.isAssignableTo(n.a.eval().type)) {
-            logger.logError("Cannot assign %s to %s%n", n.e.eval().type, n.a.eval().type);
+        if (!(n.e1 instanceof Assignable)) {
+            logger.logError("Cannot assign to expression%n");
+        } else if (!n.e2.eval().type.isAssignableTo(n.e1.eval().type)) {
+            logger.logError("Cannot assign %s to %s%n", n.e2.eval().type, n.e1.eval().type);
         }
     }
 

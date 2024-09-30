@@ -5,8 +5,8 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
 import semantics.Logger;
 
 public class PreDecrement extends Increment {
-    public PreDecrement(Assignable ai, Location pos) {
-        super(ai, pos);
+    public PreDecrement(Expression ei, Location pos) {
+        super(ei, pos);
     }
 
     @Override

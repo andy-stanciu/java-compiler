@@ -5,8 +5,8 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
 import semantics.Logger;
 
 public class AssignPlus extends Assign {
-    public AssignPlus(Assignable ai, Expression ae, Location pos) {
-        super(ai, ae, pos);
+    public AssignPlus(Expression ei, Expression ae, Location pos) {
+        super(ei, ae, pos);
     }
 
     public void accept(Visitor v) {

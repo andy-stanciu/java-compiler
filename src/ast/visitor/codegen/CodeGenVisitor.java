@@ -413,33 +413,35 @@ public final class CodeGenVisitor implements Visitor {
     @Override
     public void visit(PostIncrement n) {
         generator.signalAssignable();
-        n.a.accept(this);
+        n.e.accept(this);
+        generator.genBinary(MOV, Memory.of(RAX, 0), RDX);  // load value into rdx
         generator.genBinary(ADD, Immediate.of(1), Memory.of(RAX, 0));  // increment value by 1
+        generator.genBinary(MOV, RDX, RAX);  // move initial value into rax
     }
 
     @Override
     public void visit(PreIncrement n) {
-        // since increments are statements (not expressions),
-        // there is no difference between pre/post increment for now
         generator.signalAssignable();
-        n.a.accept(this);
+        n.e.accept(this);
         generator.genBinary(ADD, Immediate.of(1), Memory.of(RAX, 0));  // increment value by 1
+        generator.genBinary(MOV, Memory.of(RAX, 0), RAX);  // load value into rax
     }
 
     @Override
     public void visit(PostDecrement n) {
         generator.signalAssignable();
-        n.a.accept(this);
+        n.e.accept(this);
+        generator.genBinary(MOV, Memory.of(RAX, 0), RDX);  // load value into rdx
         generator.genBinary(SUB, Immediate.of(1), Memory.of(RAX, 0));  // decrement value by 1
+        generator.genBinary(MOV, RDX, RAX);  // move initial value into rax
     }
 
     @Override
     public void visit(PreDecrement n) {
-        // since increments are statements (not expressions),
-        // there is no difference between pre/post decrement for now
         generator.signalAssignable();
-        n.a.accept(this);
+        n.e.accept(this);
         generator.genBinary(SUB, Immediate.of(1), Memory.of(RAX, 0));  // decrement value by 1
+        generator.genBinary(MOV, Memory.of(RAX, 0), RAX);  // load value into rax
     }
 
     @Override
@@ -1005,10 +1007,10 @@ public final class CodeGenVisitor implements Visitor {
      */
     private void visitAssign(Assign n, Consumer<Generator> ops) {
         generator.signalAssignable();
-        n.a.accept(this);
+        n.e1.accept(this);
 
         generator.genPush(RAX);  // push addr of var onto stack
-        n.e.accept(this);
+        n.e2.accept(this);
         generator.genPop(RDX);  // pop lvalue off stack
         ops.accept(generator);  // apply assignment ops to rax
         generator.genBinary(MOV, RAX, Memory.of(RDX, 0));  // move rax to lvalue

@@ -5,15 +5,15 @@ import semantics.type.TypeInt;
 
 public abstract class Increment extends StatementSimple implements Expression {
     private static final Exp rvalue = new IntegerLiteral(1, new Location(0, 0));
-    public Assignable a;
+    public Expression e;
 
     static {
         rvalue.type = TypeInt.getInstance();
     }
 
-    public Increment(Assignable ai, Location pos) {
+    public Increment(Expression ei, Location pos) {
         super(pos);
-        a = ai;
+        e = ei;
     }
 
     @Override
