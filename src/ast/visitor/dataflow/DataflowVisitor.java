@@ -117,22 +117,23 @@ public final class DataflowVisitor implements Visitor {
 
     @Override
     public void visit(ArrayType n) {
-        throw new IllegalStateException();
+        n.t.accept(this);
+        System.out.print("[]".repeat(n.dimension));
     }
 
     @Override
     public void visit(BooleanType n) {
-        throw new IllegalStateException();
+        System.out.print("boolean");
     }
 
     @Override
     public void visit(IntegerType n) {
-        throw new IllegalStateException();
+        System.out.print("int");;
     }
 
     @Override
     public void visit(IdentifierType n) {
-        throw new IllegalStateException();
+        System.out.print(n.s);
     }
 
     @Override
@@ -558,7 +559,7 @@ public final class DataflowVisitor implements Visitor {
 
     @Override
     public void visit(Identifier n) {
-        throw new IllegalStateException();
+        System.out.print(n.s);
     }
 
     @Override

@@ -6,7 +6,6 @@ import ast.visitor.dataflow.LiveVariableVisitor;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 import semantics.Logger;
 import semantics.info.MethodInfo;
-import semantics.info.VariableInfo;
 import semantics.table.SymbolContext;
 import semantics.type.TypeVoid;
 
@@ -82,7 +81,7 @@ public final class DataflowGraph {
             throw new IllegalStateException();
         }
 
-        validateDeclarations();
+        // validateDeclarations();
         return this;
     }
 
@@ -207,7 +206,7 @@ public final class DataflowGraph {
 
         // compute in and out sets for each block
         visitBlocks(b -> {
-
+            // TODO
         });
     }
 
