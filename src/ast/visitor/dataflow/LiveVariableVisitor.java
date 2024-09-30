@@ -56,7 +56,7 @@ public class LiveVariableVisitor implements Visitor {
     }
 
     @Override
-    public void visit(IntArrayType n) {
+    public void visit(ArrayType n) {
         throw new IllegalStateException();
     }
 
@@ -130,109 +130,109 @@ public class LiveVariableVisitor implements Visitor {
     @Override
     public void visit(AssignSimple n) {
         used = n.used;
-        n.a.accept(this);
-        n.e.accept(this);
+        n.e1.accept(this);
+        n.e2.accept(this);
     }
 
     @Override
     public void visit(AssignPlus n) {
         used = n.used;
-        n.a.accept(this);
-        n.e.accept(this);
+        n.e1.accept(this);
+        n.e2.accept(this);
     }
 
     @Override
     public void visit(AssignMinus n) {
         used = n.used;
-        n.a.accept(this);
-        n.e.accept(this);
+        n.e1.accept(this);
+        n.e2.accept(this);
     }
 
     @Override
     public void visit(AssignTimes n) {
         used = n.used;
-        n.a.accept(this);
-        n.e.accept(this);
+        n.e1.accept(this);
+        n.e2.accept(this);
     }
 
     @Override
     public void visit(AssignDivide n) {
         used = n.used;
-        n.a.accept(this);
-        n.e.accept(this);
+        n.e1.accept(this);
+        n.e2.accept(this);
     }
 
     @Override
     public void visit(AssignMod n) {
         used = n.used;
-        n.a.accept(this);
-        n.e.accept(this);
+        n.e1.accept(this);
+        n.e2.accept(this);
     }
 
     @Override
     public void visit(AssignAnd n) {
         used = n.used;
-        n.a.accept(this);
-        n.e.accept(this);
+        n.e1.accept(this);
+        n.e2.accept(this);
     }
 
     @Override
     public void visit(AssignOr n) {
         used = n.used;
-        n.a.accept(this);
-        n.e.accept(this);
+        n.e1.accept(this);
+        n.e2.accept(this);
     }
 
     @Override
     public void visit(AssignXor n) {
         used = n.used;
-        n.a.accept(this);
-        n.e.accept(this);
+        n.e1.accept(this);
+        n.e2.accept(this);
     }
 
     @Override
     public void visit(AssignLeftShift n) {
         used = n.used;
-        n.a.accept(this);
-        n.e.accept(this);
+        n.e1.accept(this);
+        n.e2.accept(this);
     }
 
     @Override
     public void visit(AssignRightShift n) {
         used = n.used;
-        n.a.accept(this);
-        n.e.accept(this);
+        n.e1.accept(this);
+        n.e2.accept(this);
     }
 
     @Override
     public void visit(AssignUnsignedRightShift n) {
         used = n.used;
-        n.a.accept(this);
-        n.e.accept(this);
+        n.e1.accept(this);
+        n.e2.accept(this);
     }
 
     @Override
     public void visit(PostIncrement n) {
         used = n.used;
-        n.a.accept(this);
+        n.e.accept(this);
     }
 
     @Override
     public void visit(PreIncrement n) {
         used = n.used;
-        n.a.accept(this);
+        n.e.accept(this);
     }
 
     @Override
     public void visit(PostDecrement n) {
         used = n.used;
-        n.a.accept(this);
+        n.e.accept(this);
     }
 
     @Override
     public void visit(PreDecrement n) {
         used = n.used;
-        n.a.accept(this);
+        n.e.accept(this);
     }
 
     @Override
@@ -362,7 +362,7 @@ public class LiveVariableVisitor implements Visitor {
     @Override
     public void visit(ArrayLookup n) {
         n.e1.accept(this);
-        n.e2.accept(this);
+        n.el.forEach(e -> e.accept(this));
     }
 
     @Override
@@ -422,7 +422,7 @@ public class LiveVariableVisitor implements Visitor {
 
     @Override
     public void visit(NewArray n) {
-        n.e.accept(this);
+        n.el.forEach(e -> e.accept(this));
     }
 
     @Override
