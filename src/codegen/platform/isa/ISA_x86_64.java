@@ -1,6 +1,7 @@
 package codegen.platform.isa;
 
 import codegen.platform.Immediate;
+import codegen.platform.Label;
 import codegen.platform.Memory;
 import codegen.platform.MemoryScaledIndex;
 
@@ -8,6 +9,11 @@ public final class ISA_x86_64 extends ISA {
     @Override
     public String toImmediate(Immediate immediate) {
         return "$" + immediate.n();
+    }
+
+    @Override
+    public String toLabel(Label label) {
+        return label.name();
     }
 
     @Override

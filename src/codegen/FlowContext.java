@@ -1,3 +1,5 @@
 package codegen;
 
-public record FlowContext(String targetLabel, boolean jumpIf) {}
+import codegen.platform.Label;
+
+public record FlowContext(Label targetLabel, boolean jumpIf) {}

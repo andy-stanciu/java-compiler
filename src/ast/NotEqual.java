@@ -5,7 +5,7 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
 import semantics.Logger;
 
 public class NotEqual extends BinaryExp {
-    public NotEqual(Exp ae1, Exp ae2, Location pos) {
+    public NotEqual(Expression ae1, Expression ae2, Location pos) {
         super(ae1, ae2, pos);
     }
 

@@ -5,9 +5,9 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
 import semantics.Logger;
 
 public class VarInit extends Declaration {
-    public Exp e;
+    public Expression e;
 
-    public VarInit(Type at, Identifier ai, Exp ae, Location pos) {
+    public VarInit(Type at, Identifier ai, Expression ae, Location pos) {
         super(at, ai, pos);
         e = ae;
     }

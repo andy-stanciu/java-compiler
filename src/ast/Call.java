@@ -5,11 +5,11 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
 import semantics.Logger;
 
 public class Call extends Exp {
-    public Exp e;
+    public Expression e;
     public Identifier i;
-    public ExpList el;
+    public ExpressionList el;
 
-    public Call(Exp ae, Identifier ai, ExpList ael, Location pos) {
+    public Call(Expression ae, Identifier ai, ExpressionList ael, Location pos) {
         super(pos);
         e = ae;
         i = ai;

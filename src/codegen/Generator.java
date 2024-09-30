@@ -83,7 +83,7 @@ public final class Generator {
      * @param op The operation to use.
      * @param label The label to use.
      */
-    public void genUnary(Operation op, String label) {
+    public void genUnary(Operation op, Label label) {
         genUnary(op, label, "");
     }
 
@@ -100,7 +100,7 @@ public final class Generator {
      * @param op The operation to use.
      * @param label The label to use.
      */
-    public void genUnary(Operation op, String label, String comment) {
+    public void genUnary(Operation op, Label label, String comment) {
         String instruction = String.format("%s%s%s", op, getTab(op), label);
         gen(instruction, comment);
     }
@@ -118,7 +118,7 @@ public final class Generator {
      * @param dir The directive to use.
      * @param label The label to use.
      */
-    public void genUnary(Directive dir, String label) {
+    public void genUnary(Directive dir, Label label) {
         genUnary(dir, label, "");
     }
 
@@ -135,7 +135,7 @@ public final class Generator {
      * @param dir The directive to use.
      * @param label The label to use.
      */
-    public void genUnary(Directive dir, String label, String comment) {
+    public void genUnary(Directive dir, Label label, String comment) {
         String instruction = String.format("%s%s%s", dir, getTab(dir), label);
         gen(instruction, comment);
     }
@@ -191,7 +191,7 @@ public final class Generator {
      *
      * @param label The label to use.
      */
-    public void genCall(String label) {
+    public void genCall(Label label) {
         genCall(label, "");
     }
 
@@ -208,6 +208,17 @@ public final class Generator {
 
     /**
      * <p>
+     *     Generates a call instruction to the specified C function.
+     * </p>
+     *
+     * @param cFunction The C function to call.
+     */
+    public void genCall(CFunction cFunction) {
+        genCall(CFunctionMapper.map(cFunction));
+    }
+
+    /**
+     * <p>
      *     Generates a commented call instruction to the specified label.
      * </p>
      *
@@ -218,7 +229,7 @@ public final class Generator {
      *
      * @param label The label to use.
      */
-    public void genCall(String label, String comment) {
+    public void genCall(Label label, String comment) {
         boolean aligned = stackSize % 2 == 0;
         if (!aligned) genBinary(SUB, Immediate.of(WORD_SIZE), RSP);
         genUnary(CALL, label, comment);
@@ -296,11 +307,11 @@ public final class Generator {
     }
 
     /**
-     * Generates a label with the specified name.
-     * @param name The name of the label.
+     * Generates a label.
+     * @param label The name of the label.
      */
-    public void genLabel(String name) {
-        System.out.printf("%s:%n", name);
+    public void genLabel(Label label) {
+        System.out.printf("%s:%n", label);
     }
 
     /**
@@ -422,11 +433,11 @@ public final class Generator {
      * @param name The prefix of the label.
      * @return The label name, concatenated with an auto-incremented id.
      */
-    public String nextLabel(String name) {
+    public Label nextLabel(String name) {
         int count = labelCounts.getOrDefault(name, 0);
         labelCounts.put(name, count + 1);
 
-        return name + count;
+        return Label.of(name + count);
     }
 
     /**

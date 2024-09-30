@@ -5,10 +5,10 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
 import semantics.Logger;
 
 public class While extends Statement {
-    public Exp e;
+    public Expression e;
     public Statement s;
 
-    public While(Exp ae, Statement as, Location pos) {
+    public While(Expression ae, Statement as, Location pos) {
         super(pos);
         e = ae;
         s = as;

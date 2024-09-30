@@ -66,9 +66,9 @@ public final class LocalVisitor implements Visitor {
     @Override
     public void visit(VarInit n) {
         n.e.accept(this);  // initialization expression
-        if (!n.e.type.isAssignableTo(n.type)) {
+        if (!n.e.eval().type.isAssignableTo(n.type)) {
             logger.logError("Cannot assign %s to %s%n",
-                    n.e.type, n.type);
+                    n.e.eval().type, n.type);
         }
     }
 
@@ -128,9 +128,9 @@ public final class LocalVisitor implements Visitor {
         n.e.accept(this);
 
         // is the return expression assignable to the return type?
-        if (!n.e.type.isAssignableTo(m.returnType)) {
+        if (!n.e.eval().type.isAssignableTo(m.returnType)) {
             logger.logError("Method \"%s\" expected to return %s, but provided %s%n",
-                    m.name, m.returnType, n.e.type);
+                    m.name, m.returnType, n.e.eval().type);
         }
 
         // if returning void, then the return expression MUST be a no-op
@@ -143,9 +143,9 @@ public final class LocalVisitor implements Visitor {
     @Override
     public void visit(If n) {
         n.e.accept(this);
-        if (!n.e.type.isAssignableTo(TypeBoolean.getInstance())) {
+        if (!n.e.eval().type.isAssignableTo(TypeBoolean.getInstance())) {
             logger.logError("If statement condition expected boolean, but provided %s%n",
-                    n.e.type);
+                    n.e.eval().type);
         }
 
         n.s.accept(this);  // if statement(s)
@@ -154,9 +154,9 @@ public final class LocalVisitor implements Visitor {
     @Override
     public void visit(IfElse n) {
         n.e.accept(this);
-        if (!n.e.type.isAssignableTo(TypeBoolean.getInstance())) {
+        if (!n.e.eval().type.isAssignableTo(TypeBoolean.getInstance())) {
             logger.logError("If statement condition expected boolean, but provided %s%n",
-                    n.e.type);
+                    n.e.eval().type);
         }
 
         n.s1.accept(this);  // if statement(s)
@@ -166,8 +166,8 @@ public final class LocalVisitor implements Visitor {
     @Override
     public void visit(Switch n) {
         n.e.accept(this);
-        if (!n.e.type.equals(TypeInt.getInstance())) {
-            logger.logError("Switch expected int, but provided %s%n", n.e.type);
+        if (!n.e.eval().type.equals(TypeInt.getInstance())) {
+            logger.logError("Switch expected int, but provided %s%n", n.e.eval().type);
         }
 
         Set<Integer> cases = new HashSet<>();
@@ -203,9 +203,9 @@ public final class LocalVisitor implements Visitor {
     @Override
     public void visit(While n) {
         n.e.accept(this);
-        if (!n.e.type.isAssignableTo(TypeBoolean.getInstance())) {
+        if (!n.e.eval().type.isAssignableTo(TypeBoolean.getInstance())) {
             logger.logError("While loop condition expected boolean, but provided %s%n",
-                    n.e.type);
+                    n.e.eval().type);
         }
 
         n.s.accept(this);  // loop body statement(s)
@@ -216,10 +216,10 @@ public final class LocalVisitor implements Visitor {
         n.s0.accept(this);  // initializer clause
         n.e.accept(this);  // condition clause
 
-        if (!n.e.type.equals(TypeBoolean.getInstance()) &&
-                !n.e.type.equals(TypeVoid.getInstance())) {
+        if (!n.e.eval().type.equals(TypeBoolean.getInstance()) &&
+                !n.e.eval().type.equals(TypeVoid.getInstance())) {
             // loop condition can either be boolean, or void (will loop indefinitely)
-            logger.logError("For loop condition provided %s%n", n.e.type);
+            logger.logError("For loop condition provided %s%n", n.e.eval().type);
         }
 
         n.s1.accept(this);  // incrementer clause
@@ -229,9 +229,9 @@ public final class LocalVisitor implements Visitor {
     @Override
     public void visit(Print n) {
         n.e.accept(this);
-        if (!n.e.type.isAssignableTo(TypeInt.getInstance())) {
+        if (!n.e.eval().type.isAssignableTo(TypeInt.getInstance())) {
             logger.logError("Print statement expected int, but provided %s%n",
-                    n.e.type);
+                    n.e.eval().type);
         }
     }
 
@@ -373,8 +373,8 @@ public final class LocalVisitor implements Visitor {
     @Override
     public void visit(UnaryMinus n) {
         n.e.accept(this);
-        if (!n.e.type.equals(TypeInt.getInstance())) {
-            logger.logError("Operator - cannot be applied to %s%n", n.e.type);
+        if (!n.e.eval().type.equals(TypeInt.getInstance())) {
+            logger.logError("Operator - cannot be applied to %s%n", n.e.eval().type);
         }
 
         n.type = TypeInt.getInstance();
@@ -383,8 +383,8 @@ public final class LocalVisitor implements Visitor {
     @Override
     public void visit(UnaryPlus n) {
         n.e.accept(this);
-        if (!n.e.type.equals(TypeInt.getInstance())) {
-            logger.logError("Operator + cannot be applied to %s%n", n.e.type);
+        if (!n.e.eval().type.equals(TypeInt.getInstance())) {
+            logger.logError("Operator + cannot be applied to %s%n", n.e.eval().type);
         }
 
         n.type = TypeInt.getInstance();
@@ -434,12 +434,12 @@ public final class LocalVisitor implements Visitor {
     public void visit(ArrayLookup n) {
         n.e1.accept(this);  // array expression
 
-        if (n.e1.type instanceof TypeArray arr && n.el.size() <= arr.dimension) {
+        if (n.e1.eval().type instanceof TypeArray arr && n.el.size() <= arr.dimension) {
             n.el.forEach(e -> {
                 e.accept(this);
-                if (!e.type.isAssignableTo(TypeInt.getInstance())) {
+                if (!e.eval().type.isAssignableTo(TypeInt.getInstance())) {
                     logger.logError("Array index expected an int, but provided %s%n",
-                            e.type);
+                            e.eval().type);
                 }
             });
 
@@ -449,7 +449,7 @@ public final class LocalVisitor implements Visitor {
                 n.type = new TypeArray(arr.type, arr.dimension - n.el.size());
             }
         } else {
-            logger.logError("Cannot index on non-array type %s%n", n.e1.type);
+            logger.logError("Cannot index on non-array type %s%n", n.e1.eval().type);
             n.type = TypeUndefined.getInstance();
         }
     }
@@ -457,8 +457,8 @@ public final class LocalVisitor implements Visitor {
     @Override
     public void visit(ArrayLength n) {
         n.e.accept(this);  // int array expression
-        if (!n.e.type.isArray()) {
-            logger.logError("Cannot get length of non-array type %s%n", n.e.type);
+        if (!n.e.eval().type.isArray()) {
+            logger.logError("Cannot get length of non-array type %s%n", n.e.eval().type);
         }
 
         n.type = TypeInt.getInstance();
@@ -480,12 +480,12 @@ public final class LocalVisitor implements Visitor {
 
         n.type = TypeUndefined.getInstance();  // mark as undefined for now
 
-        if (n.e.type == TypeUndefined.getInstance()) {
+        if (n.e.eval().type == TypeUndefined.getInstance()) {
             // if undefined, cannot invoke method so we skip
             return;
         }
 
-        if (n.e.type instanceof TypeObject obj) {
+        if (n.e.eval().type instanceof TypeObject obj) {
             var m = symbolContext.lookupMethod(n.i.s, obj.base);
             if (m == null) {
                 if (!symbolContext.isUndefined(n.i.s)) {
@@ -503,7 +503,7 @@ public final class LocalVisitor implements Visitor {
             } else {
                 // argument counts now match. verify that they are all assignable
                 for (int i = 0; i < m.argumentCount(); i++) {
-                    var actual = n.el.get(i).type;
+                    var actual = n.el.get(i).eval().type;
                     var formal = m.getArgument(i);
                     if (!actual.isAssignableTo(formal)) {
                         logger.logError("Cannot assign %s to %s for argument %d of method \"%s\"%n",
@@ -513,7 +513,7 @@ public final class LocalVisitor implements Visitor {
             }
         } else {
             logger.logError("Expected reference type for method invocation, but provided %s%n",
-                    n.e.type);
+                    n.e.eval().type);
         }
     }
 
@@ -522,12 +522,12 @@ public final class LocalVisitor implements Visitor {
         n.e.accept(this);                   // object type
         n.type = TypeUndefined.getInstance();  // mark as undefined for now
 
-        if (n.e.type == TypeUndefined.getInstance()) {
+        if (n.e.eval().type == TypeUndefined.getInstance()) {
             // if undefined, cannot access field so we skip
             return;
         }
 
-        if (n.e.type instanceof TypeObject obj) {
+        if (n.e.eval().type instanceof TypeObject obj) {
             var v = symbolContext.lookupInstanceVariable(n.i.s, obj.base);
             if (v == null) {
                 if (!symbolContext.isUndefined(n.i.s)) {
@@ -540,27 +540,27 @@ public final class LocalVisitor implements Visitor {
             n.type = v.type;  // field node type = instance variable type
         } else {
             logger.logError("Expected reference type for field access, but provided %s%n",
-                    n.e.type);
+                    n.e.eval().type);
         }
     }
 
     @Override
     public void visit(Ternary n) {
         n.c.accept(this);  // bool condition
-        if (!n.c.type.isAssignableTo(TypeBoolean.getInstance())) {
+        if (!n.c.eval().type.isAssignableTo(TypeBoolean.getInstance())) {
             logger.logError("Ternary condition expected boolean, but provided %s%n",
-                    n.c.type);
+                    n.c.eval().type);
         }
 
         n.e1.accept(this);  // true expression
         n.e2.accept(this);  // false expression
 
-        if (!n.e1.type.equals(n.e2.type)) {
+        if (!n.e1.eval().type.equals(n.e2.eval().type)) {
             logger.logError("Ternary expression cannot be applied to %s, %s%n",
-                    n.e1.type, n.e2.type);
+                    n.e1.eval().type, n.e2.eval().type);
             n.type = TypeUndefined.getInstance();
         } else {
-            n.type = n.e1.type;
+            n.type = n.e1.eval().type;
         }
     }
 
@@ -573,9 +573,9 @@ public final class LocalVisitor implements Visitor {
 
         if (c != null) {
             var obj = new TypeObject(c);
-            if (!n.e.type.isAssignableTo(obj) && !obj.isAssignableTo(n.e.type)) {
+            if (!n.e.eval().type.isAssignableTo(obj) && !obj.isAssignableTo(n.e.eval().type)) {
                 logger.logError("Inconvertible types %s, %s for instanceof%n",
-                        n.e.type, n.i.s);
+                        n.e.eval().type, n.i.s);
             }
         } else {
             if (!symbolContext.isUndefined(n.i.s)) {
@@ -626,9 +626,9 @@ public final class LocalVisitor implements Visitor {
         n.t.accept(this);  // singular type
         n.el.forEach(e -> {
             e.accept(this);
-            if (!e.type.isAssignableTo(TypeInt.getInstance())) {
+            if (!e.eval().type.isAssignableTo(TypeInt.getInstance())) {
                 logger.logError("Array instantiation expected an int, but provided %s%n",
-                        e.type);
+                        e.eval().type);
             }
         });
 
@@ -656,8 +656,8 @@ public final class LocalVisitor implements Visitor {
     @Override
     public void visit(Not n) {
         n.e.accept(this);  // bool expression
-        if (!n.e.type.isAssignableTo(TypeBoolean.getInstance())) {
-            logger.logError("Operator ! cannot be applied to %s%n", n.e.type);
+        if (!n.e.eval().type.isAssignableTo(TypeBoolean.getInstance())) {
+            logger.logError("Operator ! cannot be applied to %s%n", n.e.eval().type);
         }
 
         n.type = TypeBoolean.getInstance();
@@ -666,8 +666,8 @@ public final class LocalVisitor implements Visitor {
     @Override
     public void visit(BitwiseNot n) {
         n.e.accept(this);  // int expression
-        if (!n.e.type.isAssignableTo(TypeInt.getInstance())) {
-            logger.logError("Operator ~ cannot be applied to %s%n", n.e.type);
+        if (!n.e.eval().type.isAssignableTo(TypeInt.getInstance())) {
+            logger.logError("Operator ~ cannot be applied to %s%n", n.e.eval().type);
         }
 
         n.type = TypeInt.getInstance();
@@ -692,11 +692,13 @@ public final class LocalVisitor implements Visitor {
      * @param sym The symbol associated with the increment/decrement statement.
      */
     private void visitIncrement(Increment n, String sym) {
-        n.a.accept(this);  // assignable
+        n.e.accept(this);  // assignable
 
-        if (!n.a.getAssignableType().equals(TypeInt.getInstance())) {
+        if (!(n.e instanceof Assignable)) {
+            logger.logError("Cannot assign to expression%n");
+        } else if (!n.e.eval().type.equals(TypeInt.getInstance())) {
             logger.logError("Cannot apply operator %s to %s%n",
-                    sym, n.a.getAssignableType());
+                    sym, n.e.eval().type);
         }
     }
 
@@ -707,13 +709,13 @@ public final class LocalVisitor implements Visitor {
      * @param accepted The types to accept (optional).
      */
     private void visitAssign(Assign n, String sym, Type... accepted) {
-        n.e.accept(this);  // RHS
-        n.a.accept(this);  // assignable
+        n.e2.accept(this);  // RHS
+        n.e1.accept(this);  // assignable
 
         if (accepted != null && accepted.length > 0) {
             boolean legal = false;
             for (var type : accepted) {
-                if (n.e.type.equals(type)) {
+                if (n.e2.eval().type.equals(type)) {
                     legal = true;
                     break;
                 }
@@ -721,13 +723,15 @@ public final class LocalVisitor implements Visitor {
 
             if (!legal) {
                 logger.logError("Assignment operator %s cannot be applied to %s%n",
-                        sym, n.e.type);
+                        sym, n.e2.eval().type);
                 return;
             }
         }
 
-        if (!n.e.type.isAssignableTo(n.a.getAssignableType())) {
-            logger.logError("Cannot assign %s to %s%n", n.e.type, n.a.getAssignableType());
+        if (!(n.e1 instanceof Assignable)) {
+            logger.logError("Cannot assign to expression%n");
+        } else if (!n.e2.eval().type.isAssignableTo(n.e1.eval().type)) {
+            logger.logError("Cannot assign %s to %s%n", n.e2.eval().type, n.e1.eval().type);
         }
     }
 
@@ -748,7 +752,7 @@ public final class LocalVisitor implements Visitor {
 
         boolean legal = false;
         for (var type : expected) {
-            if (n.e1.type.equals(type) && n.e2.type.equals(type)) {
+            if (n.e1.eval().type.equals(type) && n.e2.eval().type.equals(type)) {
                 legal = true;
                 break;
             }
@@ -756,7 +760,7 @@ public final class LocalVisitor implements Visitor {
 
         if (!legal) {
             logger.logError("Operator %s cannot be applied to %s, %s%n",
-                    sym, n.e1.type, n.e2.type);
+                    sym, n.e1.eval().type, n.e2.eval().type);
         }
 
         n.type = result;
@@ -775,21 +779,21 @@ public final class LocalVisitor implements Visitor {
         n.e1.accept(this);
         n.e2.accept(this);
 
-        if (!n.e1.type.equals(n.e2.type)) {
+        if (!n.e1.eval().type.equals(n.e2.eval().type)) {
             logger.logError("Operator %s cannot be applied to %s, %s%n",
-                    sym, n.e1.type, n.e2.type);
+                    sym, n.e1.eval().type, n.e2.eval().type);
         } else {
             if (accepted != null && accepted.length > 0) {
                 boolean legal = false;
                 for (var type : accepted) {
-                    if (n.e1.type.equals(type)) {
+                    if (n.e1.eval().type.equals(type)) {
                         legal = true;
                     }
                 }
 
                 if (!legal) {
                     logger.logError("Operator %s cannot be applied to %s, %s%n",
-                            sym, n.e1.type, n.e2.type);
+                            sym, n.e1.eval().type, n.e2.eval().type);
                 }
             }
         }
@@ -814,19 +818,19 @@ public final class LocalVisitor implements Visitor {
         n.e1.accept(this);
         n.e2.accept(this);
 
-        if (!n.e1.type.equals(n.e2.type)) {
+        if (!n.e1.eval().type.equals(n.e2.eval().type)) {
             logger.logError("Operator %s cannot be applied to %s, %s%n",
-                    sym, n.e1.type, n.e2.type);
+                    sym, n.e1.eval().type, n.e2.eval().type);
         } else {
             for (var type : accepted) {
-                if (n.e1.type.equals(type)) {
+                if (n.e1.eval().type.equals(type)) {
                     n.type = type;
                     return;
                 }
             }
 
             logger.logError("Operator %s cannot be applied to %s, %s%n",
-                    sym, n.e1.type, n.e2.type);
+                    sym, n.e1.eval().type, n.e2.eval().type);
         }
 
         n.type = TypeUndefined.getInstance();

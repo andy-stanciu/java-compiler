@@ -5,7 +5,7 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
 import semantics.Logger;
 
 public class And extends BinaryExp {
-    public And(Exp ae1, Exp ae2, Location pos) {
+    public And(Expression ae1, Expression ae2, Location pos) {
         super(ae1, ae2, pos);
     }
 

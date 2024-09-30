@@ -361,9 +361,9 @@ public final class PrettyPrintVisitor implements Visitor {
     public void visit(AssignSimple n) {
         var context = blockContext.peek();
         if (context != BlockType.FOR) indenter.print();
-        n.a.accept(this);
+        n.e1.accept(this);
         System.out.print(" = ");
-        n.e.accept(this);
+        n.e2.accept(this);
         if (context != BlockType.FOR) System.out.print(";");
     }
 
@@ -371,9 +371,9 @@ public final class PrettyPrintVisitor implements Visitor {
     public void visit(AssignPlus n) {
         var context = blockContext.peek();
         if (context != BlockType.FOR) indenter.print();
-        n.a.accept(this);
+        n.e1.accept(this);
         System.out.print(" += ");
-        n.e.accept(this);
+        n.e2.accept(this);
         if (context != BlockType.FOR) System.out.print(";");
     }
 
@@ -381,9 +381,9 @@ public final class PrettyPrintVisitor implements Visitor {
     public void visit(AssignMinus n) {
         var context = blockContext.peek();
         if (context != BlockType.FOR) indenter.print();
-        n.a.accept(this);
+        n.e1.accept(this);
         System.out.print(" -= ");
-        n.e.accept(this);
+        n.e2.accept(this);
         if (context != BlockType.FOR) System.out.print(";");
     }
 
@@ -391,9 +391,9 @@ public final class PrettyPrintVisitor implements Visitor {
     public void visit(AssignTimes n) {
         var context = blockContext.peek();
         if (context != BlockType.FOR) indenter.print();
-        n.a.accept(this);
+        n.e1.accept(this);
         System.out.print(" *= ");
-        n.e.accept(this);
+        n.e2.accept(this);
         if (context != BlockType.FOR) System.out.print(";");
     }
 
@@ -401,9 +401,9 @@ public final class PrettyPrintVisitor implements Visitor {
     public void visit(AssignDivide n) {
         var context = blockContext.peek();
         if (context != BlockType.FOR) indenter.print();
-        n.a.accept(this);
+        n.e1.accept(this);
         System.out.print(" /= ");
-        n.e.accept(this);
+        n.e2.accept(this);
         if (context != BlockType.FOR) System.out.print(";");
     }
 
@@ -411,9 +411,9 @@ public final class PrettyPrintVisitor implements Visitor {
     public void visit(AssignMod n) {
         var context = blockContext.peek();
         if (context != BlockType.FOR) indenter.print();
-        n.a.accept(this);
+        n.e1.accept(this);
         System.out.print(" %= ");
-        n.e.accept(this);
+        n.e2.accept(this);
         if (context != BlockType.FOR) System.out.print(";");
     }
 
@@ -421,9 +421,9 @@ public final class PrettyPrintVisitor implements Visitor {
     public void visit(AssignAnd n) {
         var context = blockContext.peek();
         if (context != BlockType.FOR) indenter.print();
-        n.a.accept(this);
+        n.e1.accept(this);
         System.out.print(" &= ");
-        n.e.accept(this);
+        n.e2.accept(this);
         if (context != BlockType.FOR) System.out.print(";");
     }
 
@@ -431,9 +431,9 @@ public final class PrettyPrintVisitor implements Visitor {
     public void visit(AssignOr n) {
         var context = blockContext.peek();
         if (context != BlockType.FOR) indenter.print();
-        n.a.accept(this);
+        n.e1.accept(this);
         System.out.print(" |= ");
-        n.e.accept(this);
+        n.e2.accept(this);
         if (context != BlockType.FOR) System.out.print(";");
     }
 
@@ -441,9 +441,9 @@ public final class PrettyPrintVisitor implements Visitor {
     public void visit(AssignXor n) {
         var context = blockContext.peek();
         if (context != BlockType.FOR) indenter.print();
-        n.a.accept(this);
+        n.e1.accept(this);
         System.out.print(" ^= ");
-        n.e.accept(this);
+        n.e2.accept(this);
         if (context != BlockType.FOR) System.out.print(";");
     }
 
@@ -451,9 +451,9 @@ public final class PrettyPrintVisitor implements Visitor {
     public void visit(AssignLeftShift n) {
         var context = blockContext.peek();
         if (context != BlockType.FOR) indenter.print();
-        n.a.accept(this);
+        n.e1.accept(this);
         System.out.print(" <<= ");
-        n.e.accept(this);
+        n.e2.accept(this);
         if (context != BlockType.FOR) System.out.print(";");
     }
 
@@ -461,9 +461,9 @@ public final class PrettyPrintVisitor implements Visitor {
     public void visit(AssignRightShift n) {
         var context = blockContext.peek();
         if (context != BlockType.FOR) indenter.print();
-        n.a.accept(this);
+        n.e1.accept(this);
         System.out.print(" >>= ");
-        n.e.accept(this);
+        n.e2.accept(this);
         if (context != BlockType.FOR) System.out.print(";");
     }
 
@@ -471,9 +471,9 @@ public final class PrettyPrintVisitor implements Visitor {
     public void visit(AssignUnsignedRightShift n) {
         var context = blockContext.peek();
         if (context != BlockType.FOR) indenter.print();
-        n.a.accept(this);
+        n.e1.accept(this);
         System.out.print(" >>>= ");
-        n.e.accept(this);
+        n.e2.accept(this);
         if (context != BlockType.FOR) System.out.print(";");
     }
 
@@ -481,7 +481,7 @@ public final class PrettyPrintVisitor implements Visitor {
     public void visit(PostIncrement n) {
         var context = blockContext.peek();
         if (context != BlockType.FOR) indenter.print();
-        n.a.accept(this);
+        n.e.accept(this);
         System.out.print("++");
         if (context != BlockType.FOR) System.out.print(";");
     }
@@ -491,7 +491,7 @@ public final class PrettyPrintVisitor implements Visitor {
         var context = blockContext.peek();
         if (context != BlockType.FOR) indenter.print();
         System.out.print("++");
-        n.a.accept(this);
+        n.e.accept(this);
         if (context != BlockType.FOR) System.out.print(";");
     }
 
@@ -499,7 +499,7 @@ public final class PrettyPrintVisitor implements Visitor {
     public void visit(PostDecrement n) {
         var context = blockContext.peek();
         if (context != BlockType.FOR) indenter.print();
-        n.a.accept(this);
+        n.e.accept(this);
         System.out.print("--");
         if (context != BlockType.FOR) System.out.print(";");
     }
@@ -509,7 +509,7 @@ public final class PrettyPrintVisitor implements Visitor {
         var context = blockContext.peek();
         if (context != BlockType.FOR) indenter.print();
         System.out.print("--");
-        n.a.accept(this);
+        n.e.accept(this);
         if (context != BlockType.FOR) System.out.print(";");
     }
 

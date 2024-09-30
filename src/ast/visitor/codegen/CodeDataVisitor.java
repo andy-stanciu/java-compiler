@@ -3,6 +3,7 @@ package ast.visitor.codegen;
 import ast.*;
 import ast.visitor.Visitor;
 import codegen.Generator;
+import codegen.platform.Label;
 import codegen.platform.isa.ISA;
 import semantics.table.SymbolContext;
 
@@ -70,10 +71,10 @@ public final class CodeDataVisitor implements Visitor {
             throw new IllegalStateException();
         }
 
-        generator.genLabel(n.i.s + "$$");
-        generator.genUnary(QUAD, "0");  // no superclass
+        generator.genLabel(Label.of(n.i.s + "$$"));
+        generator.genUnary(QUAD, Label.of("0"));  // no superclass
         class_.methodEntries().forEachRemaining(m ->
-                generator.genUnary(QUAD, m.getQualifiedName()));
+                generator.genUnary(QUAD, Label.of(m.getQualifiedName())));
 
         symbolContext.enterClass(n.i.s);
         n.ml.forEach(m -> m.accept(this));
@@ -87,10 +88,10 @@ public final class CodeDataVisitor implements Visitor {
             throw new IllegalStateException();
         }
 
-        generator.genLabel(n.i.s + "$$");
-        generator.genUnary(QUAD, n.j.s + "$$");  // superclass
+        generator.genLabel(Label.of(n.i.s + "$$"));
+        generator.genUnary(QUAD, Label.of(n.j.s + "$$"));  // superclass
         class_.methodEntries().forEachRemaining(m ->
-                generator.genUnary(QUAD, m.getQualifiedName()));
+                generator.genUnary(QUAD, Label.of(m.getQualifiedName())));
 
         symbolContext.enterClass(n.i.s);
         n.ml.forEach(m -> m.accept(this));
