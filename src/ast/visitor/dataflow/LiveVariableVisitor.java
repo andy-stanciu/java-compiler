@@ -2,11 +2,12 @@ package ast.visitor.dataflow;
 
 import ast.*;
 import ast.visitor.Visitor;
+import dataflow.Symbol;
 
 import java.util.Set;
 
 public class LiveVariableVisitor implements Visitor {
-    private Set<String> used;
+    private Set<Symbol> used;
 
     @Override
     public void visit(Program n) {
@@ -30,12 +31,12 @@ public class LiveVariableVisitor implements Visitor {
 
     @Override
     public void visit(VarDecl n) {
-        n.defined.add(n.i.s);
+        n.defined.add(new Symbol(n.i.s, n.i.line_number));
     }
 
     @Override
     public void visit(VarInit n) {
-        n.defined.add(n.i.s);
+        n.defined.add(new Symbol(n.i.s, n.i.line_number));
         used = n.used;
         n.e.accept(this);
     }
@@ -88,12 +89,14 @@ public class LiveVariableVisitor implements Visitor {
 
     @Override
     public void visit(If n) {
-        throw new IllegalStateException();
+        used = n.used;
+        n.e.accept(this);
     }
 
     @Override
     public void visit(IfElse n) {
-        throw new IllegalStateException();
+        used = n.used;
+        n.e.accept(this);
     }
 
     @Override
@@ -113,12 +116,15 @@ public class LiveVariableVisitor implements Visitor {
 
     @Override
     public void visit(While n) {
-        throw new IllegalStateException();
+        used = n.used;
+        n.e.accept(this);
     }
 
     @Override
     public void visit(For n) {
-        throw new IllegalStateException();
+        used = n.used;
+        n.s0.accept(this);
+        n.defined.addAll(n.s0.defined);
     }
 
     @Override
@@ -414,7 +420,7 @@ public class LiveVariableVisitor implements Visitor {
             throw new IllegalStateException();
         }
 
-        used.add(n.s);
+        used.add(new Symbol(n.s, n.line_number));
     }
 
     @Override

@@ -533,6 +533,7 @@ public final class DataflowVisitor implements Visitor {
     @Override
     public void visit(NewArray n) {
         System.out.print("new ");
+        n.t.accept(this);
         n.el.forEach(e -> {
             System.out.print("[");
             e.accept(this);

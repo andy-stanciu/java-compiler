@@ -4,10 +4,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 public final class LiveVariableAnalyzer {
-    private final Set<String> use;
-    private final Set<String> def;
-    private final Set<String> in;
-    private final Set<String> out;
+    private final Set<Symbol> use;
+    private final Set<Symbol> def;
+    private final Set<Symbol> in;
+    private final Set<Symbol> out;
 
     public LiveVariableAnalyzer() {
         this.use = new HashSet<>();
@@ -16,19 +16,19 @@ public final class LiveVariableAnalyzer {
         this.out = new HashSet<>();
     }
 
-    public Set<String> useSet() {
+    public Set<Symbol> useSet() {
         return use;
     }
 
-    public Set<String> defSet() {
+    public Set<Symbol> defSet() {
         return def;
     }
 
-    public Set<String> inSet() {
+    public Set<Symbol> inSet() {
         return in;
     }
 
-    public Set<String> outSet() {
+    public Set<Symbol> outSet() {
         return out;
     }
 }
