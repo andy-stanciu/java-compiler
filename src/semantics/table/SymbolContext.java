@@ -1,5 +1,6 @@
 package semantics.table;
 
+import ast.Block;
 import semantics.Logger;
 import semantics.info.*;
 import semantics.type.TypeVoid;
@@ -9,6 +10,7 @@ import java.util.function.Consumer;
 
 public final class SymbolContext {
     public static final String METHOD_PREFIX = "$";
+    public static final String BLOCK_PREFIX = "#";
 
     public static SymbolContext create() {
         return new SymbolContext();
@@ -20,12 +22,14 @@ public final class SymbolContext {
     private SymbolTable table;
     private ClassInfo currentClass;
     private MethodInfo currentMethod;
+    private Stack<BlockInfo> currentBlocks;
 
     private SymbolContext() {
         this.logger = Logger.getInstance();
         this.table = new SymbolTable();
         this.global = this.table;
         this.contexts = new Stack<>();
+        this.currentBlocks = new Stack<>();
     }
 
     /**
@@ -35,10 +39,11 @@ public final class SymbolContext {
      * @param name The name of the class to swap with.
      */
     public void swap(String name) {
-        contexts.push(new TableContext(table, currentClass, currentMethod));
+        contexts.push(new TableContext(table, currentClass, currentMethod, currentBlocks));
         table = global;
         currentClass = null;
         currentMethod = null;
+        currentBlocks.clear();
         enterClass(name);
     }
 
@@ -55,6 +60,7 @@ public final class SymbolContext {
         table = context.table();
         currentClass = context.currentClass();
         currentMethod = context.currentMethod();
+        currentBlocks = context.currentBlocks();
     }
 
     /**
@@ -98,18 +104,32 @@ public final class SymbolContext {
     }
 
     /**
+     * Enters the specified block.
+     * @param block The block to enter.
+     * @throws IllegalArgumentException If the block is null.
+     */
+    public void enterBlock(BlockInfo block) {
+        if (block == null) {
+            throw new IllegalStateException();
+        }
+
+        table = block.getTable();
+        currentBlocks.push(block);
+    }
+
+    /**
      * Exits the current symbol table, returning to the parent table.
      * @throws IllegalStateException If already in the global table.
      */
     public void exit() {
-        if (!table.hasParent()) {
+        if (table.isGlobal()) {
             throw new IllegalStateException("Already in global table");
-        }
-
-        if (table.isClass()) {
+        } else if (table.isClass()) {
             currentClass = null;
-        } else if (table.isLocal()) {
+        } else if (table.isLocal() && currentBlocks.empty()) {  // in method
             currentMethod = null;
+        } else {  // in block
+            currentBlocks.pop();
         }
 
         table = table.getParent();
@@ -140,10 +160,29 @@ public final class SymbolContext {
     }
 
     /**
+     * @return The {@link BlockInfo} that is currently in scope.
+     * @throws IllegalStateException If no block is currently in scope.
+     */
+    public BlockInfo getCurrentBlock() {
+        if (currentBlocks.isEmpty()) {
+            throw new IllegalStateException();
+        }
+
+        return currentBlocks.peek();
+    }
+
+    /**
      * @return Whether a method is currently in scope.
      */
     public boolean isMethod() {
         return currentMethod != null;
+    }
+
+    /**
+     * @return Whether a block is currently in scope.
+     */
+    public boolean isBlock() {
+        return !currentBlocks.isEmpty();
     }
 
     /**
@@ -199,6 +238,21 @@ public final class SymbolContext {
 
         var methodInfo = new MethodInfo(table, name);
         return addEntry(METHOD_PREFIX + name, methodInfo) ? methodInfo : null;
+    }
+
+    /**
+     * Attempts to add a block entry to the symbol table in the current scope.
+     * If it is already defined, reports an error.
+     * @return The block entry that was added, or null if it couldn't be added.
+     */
+    public BlockInfo addBlockEntry() {
+        if (!table.isLocal()) {
+            throw new IllegalStateException("Cannot add block entry to current scope");
+        }
+
+        String name = String.valueOf(table.getBlockCount());
+        var blockInfo = new BlockInfo(table, name);
+        return addEntry(BLOCK_PREFIX + name, blockInfo) ? blockInfo : null;
     }
 
     /**
@@ -512,8 +566,16 @@ public final class SymbolContext {
                 } else if (entry instanceof MethodInfo method) {
                     System.out.println(method.getTable());
                     method.getTable().getEntriesSorted().forEach(e -> {
-                        // add only variables to children
-                        if (e instanceof VariableInfo) {
+                        // add variables and blocks to children
+                        if (e instanceof VariableInfo || e instanceof BlockInfo) {
+                            children.add(e);
+                        }
+                    });
+                } else if (entry instanceof BlockInfo block) {
+                    System.out.println(block.getTable());
+                    block.getTable().getEntriesSorted().forEach(e -> {
+                        // add variables and blocks to children
+                        if (e instanceof VariableInfo || e instanceof BlockInfo) {
                             children.add(e);
                         }
                     });

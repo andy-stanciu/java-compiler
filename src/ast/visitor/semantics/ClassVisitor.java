@@ -129,6 +129,7 @@ public final class ClassVisitor implements Visitor {
             varInfo.type = n.type;
             if (symbolContext.isMethod()) {
                 var method = symbolContext.getCurrentMethod();
+                // all block local variables added to method
                 method.addLocalVariable(varInfo);
             } else if (symbolContext.isClass()) {
                 var class_ = symbolContext.getCurrentClass();
@@ -148,6 +149,7 @@ public final class ClassVisitor implements Visitor {
             varInfo.initializer = n.e;
             if (symbolContext.isMethod()) {
                 var method = symbolContext.getCurrentMethod();
+                // all block local variables added to method
                 method.addLocalVariable(varInfo);
             } else if (symbolContext.isClass()) {
                 var class_ = symbolContext.getCurrentClass();
@@ -184,7 +186,7 @@ public final class ClassVisitor implements Visitor {
                     methodInfo.argumentCount(), n.i);
         }
 
-        // visit local variable declarations among all statements
+        // visit local variable declarations and blocks among all statements
         n.sl.forEach(s -> s.accept(this));
         symbolContext.exit();
     }
@@ -233,7 +235,11 @@ public final class ClassVisitor implements Visitor {
 
     @Override
     public void visit(Block n) {
+        n.blockInfo = symbolContext.addBlockEntry();
+
+        symbolContext.enterBlock(n.blockInfo);
         n.sl.forEach(s -> s.accept(this));
+        symbolContext.exit();
     }
 
     @Override
@@ -272,9 +278,13 @@ public final class ClassVisitor implements Visitor {
 
     @Override
     public void visit(For n) {
+        n.blockInfo = symbolContext.addBlockEntry();
+
+        symbolContext.enterBlock(n.blockInfo);
         n.s0.accept(this);
         n.s1.accept(this);
         n.s2.accept(this);
+        symbolContext.exit();
     }
 
     @Override

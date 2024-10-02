@@ -119,7 +119,9 @@ public final class LocalVisitor implements Visitor {
 
     @Override
     public void visit(Block n) {
+        symbolContext.enterBlock(n.blockInfo);
         n.sl.forEach(s -> s.accept(this));  // block statements
+        symbolContext.exit();
     }
 
     @Override
@@ -213,6 +215,7 @@ public final class LocalVisitor implements Visitor {
 
     @Override
     public void visit(For n) {
+        symbolContext.enterBlock(n.blockInfo);
         n.s0.accept(this);  // initializer clause
         n.e.accept(this);  // condition clause
 
@@ -224,6 +227,7 @@ public final class LocalVisitor implements Visitor {
 
         n.s1.accept(this);  // incrementer clause
         n.s2.accept(this);  // loop body statement(s)
+        symbolContext.exit();
     }
 
     @Override

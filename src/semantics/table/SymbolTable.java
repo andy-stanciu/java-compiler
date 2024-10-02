@@ -14,6 +14,7 @@ public final class SymbolTable {
     private final String name;
     private int classCount;
     private int methodCount;
+    private int blockCount;
     private int variableCount;
 
     /**
@@ -134,6 +135,8 @@ public final class SymbolTable {
                 classCount++;
             } else if (info instanceof MethodInfo) {
                 methodCount++;
+            } else if (info instanceof BlockInfo) {
+                blockCount++;
             } else if (info instanceof VariableInfo) {
                 variableCount++;
             }
@@ -180,6 +183,13 @@ public final class SymbolTable {
     }
 
     /**
+     * @return The number of blocks defined in this symbol table.
+     */
+    public int getBlockCount() {
+        return blockCount;
+    }
+
+    /**
      * @return The number of variables defined in this symbol table.
      */
     public int getVariableCount() {
@@ -195,8 +205,10 @@ public final class SymbolTable {
             if (this_ != null && this_.getParent() != null) {
                 header += " extends " + this_.getParent().name;
             }
-        } else if (isLocal()) {
+        } else if (isLocal() && parent.isClass()) {
             header = "Method: " + getName();
+        } else if (isLocal() && parent.isLocal()) {
+            header = "Block: " + getName();
         } else {
             header = getName();
         }
@@ -256,6 +268,17 @@ public final class SymbolTable {
                         inherited.add("-");
                     }
                 }
+            } else if (i instanceof BlockInfo b) {
+                symbolTypes.add("Block");
+                returnTypes.add("-");
+                signatures.add("-");
+
+                String origin = b.getTable().getParent().getName();
+                if (!origin.equals(getName())) {
+                    inherited.add(origin);
+                } else {
+                    inherited.add("-");
+                }
             } else if (i instanceof VariableInfo v) {
                 symbolTypes.add(v.type.toString());
                 returnTypes.add("-");
@@ -277,7 +300,9 @@ public final class SymbolTable {
         int maxInheritedLength = getMaxLength(inherited);
 
         int width = maxSymbolLength + maxTypeLength + maxReturnLength +
-                maxSignatureLength + maxInheritedLength + 3;
+                maxSignatureLength + maxInheritedLength;
+        int buffer = Math.max(0, header.length() - width);
+        width = Math.max(width, header.length()) + 3;
 
         StringBuilder sb = new StringBuilder();
         sb.append(header);
@@ -303,7 +328,7 @@ public final class SymbolTable {
             sb.append(signature).append(" ".repeat(maxSignatureLength - signature.length()));
 
             String inheritedFrom = inherited.get(i);
-            sb.append(inheritedFrom).append(" ".repeat(maxInheritedLength - inheritedFrom.length()));
+            sb.append(inheritedFrom).append(" ".repeat(maxInheritedLength - inheritedFrom.length() + buffer));
 
             sb.append("|\n");
         }
