@@ -11,5 +11,6 @@ public enum InstructionType {
     JUMP,
     END,
     START,
-    RETURN
+    RETURN,
+    DECLARATION
 }

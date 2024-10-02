@@ -8,6 +8,7 @@ public final class Block implements Iterable<Instruction> {
     private final List<Instruction> instructions;
     private final Set<Block> next;
     private int number;
+    private final LiveVariableAnalyzer liveVariableAnalyzer;
 
     public static Block createStart(Instruction start) {
         var block = new Block(start, BlockType.START);
@@ -27,6 +28,7 @@ public final class Block implements Iterable<Instruction> {
         this.instructions = new ArrayList<>();
         this.next = new HashSet<>();
         this.type = type;
+        this.liveVariableAnalyzer = new LiveVariableAnalyzer();
     }
 
     private Block(Instruction leader, BlockType type) {
@@ -88,5 +90,9 @@ public final class Block implements Iterable<Instruction> {
 
     public Instruction getInstruction(int i) {
         return instructions.get(i);
+    }
+
+    public LiveVariableAnalyzer variables() {
+        return liveVariableAnalyzer;
     }
 }

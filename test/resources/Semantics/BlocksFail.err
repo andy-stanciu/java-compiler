@@ -1,0 +1,5 @@
+ERROR @ BlocksFail.java:20: Undefined symbol "bar"
+ERROR @ BlocksFail.java:24: Undefined symbol "x"
+ERROR @ BlocksFail.java:29: Undefined symbol "j"
+ERROR @ BlocksFail.java:39: Undefined symbol "y"
+Static semantic analysis found 4 error(s), 0 warning(s)

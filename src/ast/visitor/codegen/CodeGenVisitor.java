@@ -163,7 +163,9 @@ public final class CodeGenVisitor implements Visitor {
 
     @Override
     public void visit(Block n) {
+        symbolContext.enterBlock(n.blockInfo);
         n.sl.forEach(s -> s.accept(this));
+        symbolContext.exit();
     }
 
     @Override
@@ -286,6 +288,7 @@ public final class CodeGenVisitor implements Visitor {
         var testLabel = generator.nextLabel("for_test");
         var bodyLabel = generator.nextLabel("for");
 
+        symbolContext.enterBlock(n.blockInfo);
         n.s0.accept(this);  // initializer instructions
         generator.genUnary(JMP, testLabel);
         generator.genLabel(bodyLabel);
@@ -294,6 +297,7 @@ public final class CodeGenVisitor implements Visitor {
         generator.genLabel(testLabel);
         generator.push(new FlowContext(bodyLabel, true));
         n.e.accept(this);  // condition expression
+        symbolContext.exit();
     }
 
     @Override
