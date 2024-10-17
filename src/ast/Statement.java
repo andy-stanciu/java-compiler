@@ -3,6 +3,7 @@ package ast;
 import ast.visitor.Visitor;
 import dataflow.Symbol;
 import java_cup.runtime.ComplexSymbolFactory.Location;
+import semantics.info.MethodInfo;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -10,6 +11,7 @@ import java.util.Set;
 public abstract class Statement extends ASTNode {
     public final Set<Symbol> used;
     public final Set<Symbol> defined;
+    public MethodInfo method;
 
     public Statement(Location pos) {
         super(pos);

@@ -233,17 +233,21 @@ public final class DataflowGraph {
         }
 
         var start = blockGraph.pollFirst();
-        assert(start != null && start.getType() == BlockType.START);
         var first = blockGraph.peekFirst();
-        assert(first != null && first.getType() != BlockType.END);
         blockGraph.offerFirst(start);
 
         // all live variable validation sets have been constructed.
-        // any variables belonging to in[first block] must be uninitialized
-        first.variables().inSet().forEach(v -> {
-            logger.setLineNumber(v.lineNumber());
-            logger.logError("Uninitialized variable \"%s\"%n", v.name());
-        });
+        // any variables belonging to in[first block] that are not method parameters
+        // must be uninitialized
+        if (first != null) {
+            first.variables().inSet().forEach(v -> {
+                var method = first.getLeader().getStatement().method;
+                if (method == null || !method.hasArgument(v.name())) {
+                    logger.setLineNumber(v.lineNumber());
+                    logger.logError("Uninitialized variable \"%s\"%n", v.name());
+                }
+            });
+        }
     }
 
     /**

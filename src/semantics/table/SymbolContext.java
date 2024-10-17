@@ -160,6 +160,13 @@ public final class SymbolContext {
     }
 
     /**
+     * @return Whether the symbol context has an {@link MethodInfo} in scope.
+     */
+    public boolean hasCurrentMethod() {
+        return currentMethod != null;
+    }
+
+    /**
      * @return The {@link BlockInfo} that is currently in scope.
      * @throws IllegalStateException If no block is currently in scope.
      */

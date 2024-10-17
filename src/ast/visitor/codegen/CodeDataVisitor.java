@@ -52,12 +52,7 @@ public final class CodeDataVisitor implements Visitor {
         int offset = 1;
         // assign offsets to local variables
         for (int i = 0; i < main.localVariableCount(); i++) {
-            var v = symbolContext.lookupVariable(main.getLocalVariable(i).name);
-            if (v == null) {
-                throw new IllegalStateException();
-            }
-
-            v.vIndex = -offset++;
+            main.getLocalVariable(i).vIndex = -offset++;
         }
 
         symbolContext.exit();
@@ -136,12 +131,7 @@ public final class CodeDataVisitor implements Visitor {
 
         // assign offsets to local variables
         for (int i = 0; i < method.localVariableCount(); i++) {
-            var v = symbolContext.lookupVariable(method.getLocalVariable(i).name);
-            if (v == null) {
-                throw new IllegalStateException();
-            }
-
-            v.vIndex = -offset++;
+            method.getLocalVariable(i).vIndex = -offset++;
         }
 
         symbolContext.exit();
