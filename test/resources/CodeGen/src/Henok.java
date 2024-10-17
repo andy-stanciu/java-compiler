@@ -11,12 +11,12 @@ class asllow {
         for (int i = 0; i < heet.noneSense.length; i++) {
             (heet.noneSense)[i] = false;
             if (i == 1) {
-                (heet.noneSense)[i] = true;
+                heet.noneSense[i] = true;
             } else if (i == 2) {
-                (heet.noneSense)[i] = heet.adjecent;
+                heet.noneSense[i] = heet.adjecent;
             }
         }
-        (heet.noneSense)[0] = false;
+        heet.noneSense[0] = false;
         System.out.println(heet.heheht);
     }
 }
@@ -36,7 +36,7 @@ class haha {
         this.noneSense = new boolean[count];
         this.csMajors = new int[count];
 
-        (this.noneSense)[count - 2] = !(this.adjecent);
+        this.noneSense[count - 2] = !this.adjecent;
         return this.noneSense;
     }
 }

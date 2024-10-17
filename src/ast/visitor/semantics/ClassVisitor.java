@@ -124,6 +124,9 @@ public final class ClassVisitor implements Visitor {
         n.t.accept(this);  // declared type
         var varInfo = symbolContext.addVariableEntry(n.i.s);
         n.type = n.t.type;
+        if (symbolContext.hasCurrentMethod()) {
+            n.method = symbolContext.getCurrentMethod();
+        }
 
         if (varInfo != null) {  // if there was no conflict
             varInfo.type = n.type;
@@ -143,6 +146,9 @@ public final class ClassVisitor implements Visitor {
         n.t.accept(this);  // declared type
         var varInfo = symbolContext.addVariableEntry(n.i.s);
         n.type = n.t.type;
+        if (symbolContext.hasCurrentMethod()) {
+            n.method = symbolContext.getCurrentMethod();
+        }
 
         if (varInfo != null) {  // if there was no conflict
             varInfo.type = n.type;
@@ -176,7 +182,7 @@ public final class ClassVisitor implements Visitor {
             f.accept(this);
             // adding parameter regardless of whether its name conflicts with
             // another parameter
-            methodInfo.addArgument(f.type);
+            methodInfo.addArgument(f.i.s, f.type);
         });
 
         // does the method have more than 5 parameters? If so, we don't allow
@@ -236,6 +242,7 @@ public final class ClassVisitor implements Visitor {
     @Override
     public void visit(Block n) {
         n.blockInfo = symbolContext.addBlockEntry();
+        n.method = symbolContext.getCurrentMethod();
 
         symbolContext.enterBlock(n.blockInfo);
         n.sl.forEach(s -> s.accept(this));
@@ -243,21 +250,26 @@ public final class ClassVisitor implements Visitor {
     }
 
     @Override
-    public void visit(Return n) {}
+    public void visit(Return n) {
+        n.method = symbolContext.getCurrentMethod();
+    }
 
     @Override
     public void visit(If n) {
+        n.method = symbolContext.getCurrentMethod();
         n.s.accept(this);
     }
 
     @Override
     public void visit(IfElse n) {
+        n.method = symbolContext.getCurrentMethod();
         n.s1.accept(this);
         n.s2.accept(this);
     }
 
     @Override
     public void visit(Switch n) {
+        n.method = symbolContext.getCurrentMethod();
         n.cl.forEach(c -> c.accept(this));
     }
 
@@ -273,11 +285,13 @@ public final class ClassVisitor implements Visitor {
 
     @Override
     public void visit(While n) {
+        n.method = symbolContext.getCurrentMethod();
         n.s.accept(this);
     }
 
     @Override
     public void visit(For n) {
+        n.method = symbolContext.getCurrentMethod();
         n.blockInfo = symbolContext.addBlockEntry();
 
         symbolContext.enterBlock(n.blockInfo);
@@ -288,55 +302,89 @@ public final class ClassVisitor implements Visitor {
     }
 
     @Override
-    public void visit(Print n) {}
+    public void visit(Print n) {
+        n.method = symbolContext.getCurrentMethod();
+    }
 
     @Override
-    public void visit(AssignSimple n) {}
+    public void visit(AssignSimple n) {
+        n.method = symbolContext.getCurrentMethod();
+    }
 
     @Override
-    public void visit(AssignPlus n) {}
+    public void visit(AssignPlus n) {
+        n.method = symbolContext.getCurrentMethod();
+    }
 
     @Override
-    public void visit(AssignMinus n) {}
+    public void visit(AssignMinus n) {
+        n.method = symbolContext.getCurrentMethod();
+    }
 
     @Override
-    public void visit(AssignTimes n) {}
+    public void visit(AssignTimes n) {
+        n.method = symbolContext.getCurrentMethod();
+    }
 
     @Override
-    public void visit(AssignDivide n) {}
+    public void visit(AssignDivide n) {
+        n.method = symbolContext.getCurrentMethod();
+    }
 
     @Override
-    public void visit(AssignMod n) {}
+    public void visit(AssignMod n) {
+        n.method = symbolContext.getCurrentMethod();
+    }
 
     @Override
-    public void visit(AssignAnd n) {}
+    public void visit(AssignAnd n) {
+        n.method = symbolContext.getCurrentMethod();
+    }
 
     @Override
-    public void visit(AssignOr n) {}
+    public void visit(AssignOr n) {
+        n.method = symbolContext.getCurrentMethod();
+    }
 
     @Override
-    public void visit(AssignXor n) {}
+    public void visit(AssignXor n) {
+        n.method = symbolContext.getCurrentMethod();
+    }
 
     @Override
-    public void visit(AssignLeftShift n) {}
+    public void visit(AssignLeftShift n) {
+        n.method = symbolContext.getCurrentMethod();
+    }
 
     @Override
-    public void visit(AssignRightShift n) {}
+    public void visit(AssignRightShift n) {
+        n.method = symbolContext.getCurrentMethod();
+    }
 
     @Override
-    public void visit(AssignUnsignedRightShift n) {}
+    public void visit(AssignUnsignedRightShift n) {
+        n.method = symbolContext.getCurrentMethod();
+    }
 
     @Override
-    public void visit(PostIncrement n) {}
+    public void visit(PostIncrement n) {
+        n.method = symbolContext.getCurrentMethod();
+    }
 
     @Override
-    public void visit(PreIncrement n) {}
+    public void visit(PreIncrement n) {
+        n.method = symbolContext.getCurrentMethod();
+    }
 
     @Override
-    public void visit(PostDecrement n) {}
+    public void visit(PostDecrement n) {
+        n.method = symbolContext.getCurrentMethod();
+    }
 
     @Override
-    public void visit(PreDecrement n) {}
+    public void visit(PreDecrement n) {
+        n.method = symbolContext.getCurrentMethod();
+    }
 
     @Override
     public void visit(And n) {
@@ -454,7 +502,9 @@ public final class ClassVisitor implements Visitor {
     }
 
     @Override
-    public void visit(Action n) {}
+    public void visit(Action n) {
+        n.method = symbolContext.getCurrentMethod();
+    }
 
     @Override
     public void visit(Call n) {
@@ -527,7 +577,9 @@ public final class ClassVisitor implements Visitor {
     }
 
     @Override
-    public void visit(NoOp n) {}
+    public void visit(NoOp n) {
+        n.method = symbolContext.getCurrentMethod();
+    }
 
     @Override
     public void visit(NoOpExp n) {

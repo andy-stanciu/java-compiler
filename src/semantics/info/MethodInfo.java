@@ -7,7 +7,9 @@ import semantics.table.TableType;
 import semantics.type.Type;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public final class MethodInfo extends Info {
     public Type returnType;
@@ -17,6 +19,7 @@ public final class MethodInfo extends Info {
     public int lineNumber;
     public int endLineNumber;
     private final List<Type> argumentTypes;
+    private final Set<String> argumentNames;
     private final List<VariableInfo> localVariables;
     private final SymbolTable table;
 
@@ -25,6 +28,7 @@ public final class MethodInfo extends Info {
         this.table = new SymbolTable(parent, TableType.LOCAL, parent.getName() +
                 SymbolContext.METHOD_PREFIX + name);
         this.argumentTypes = new ArrayList<>();
+        this.argumentNames = new HashSet<>();
         this.localVariables = new ArrayList<>();
     }
 
@@ -50,8 +54,13 @@ public final class MethodInfo extends Info {
         return argumentTypes.size();
     }
 
-    public void addArgument(Type type) {
+    public void addArgument(String name, Type type) {
         argumentTypes.add(type);
+        argumentNames.add(name);
+    }
+
+    public boolean hasArgument(String name) {
+        return argumentNames.contains(name);
     }
 
     public Type getArgument(int i) {

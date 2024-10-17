@@ -482,7 +482,7 @@ ExpressionList          ::= Expression:e
                                  RESULT = el; :}
                           ;
 
-ArrayLookup             ::= PrimaryExpression:e1 LSQUARE Expression:e2 RSQUARE
+ArrayLookup             ::= Expression3:e1 LSQUARE Expression:e2 RSQUARE
                               {: ExpressionList el = new ExpressionList(e2xleft);
                                  el.add(e2);
                                  RESULT = new ArrayLookup(e1, el, e1xleft); :}
