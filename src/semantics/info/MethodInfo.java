@@ -67,6 +67,10 @@ public final class MethodInfo extends Info {
         return argumentTypes.get(i);
     }
 
+    public Iterable<String> getArgumentNames() {
+        return argumentNames;
+    }
+
     public void addLocalVariable(VariableInfo v) {
         localVariables.add(v);
     }

@@ -130,6 +130,7 @@ public final class ClassVisitor implements Visitor {
 
         if (varInfo != null) {  // if there was no conflict
             varInfo.type = n.type;
+            varInfo.lineNumber = n.line_number;
             if (symbolContext.isMethod()) {
                 var method = symbolContext.getCurrentMethod();
                 // all block local variables added to method
@@ -153,6 +154,7 @@ public final class ClassVisitor implements Visitor {
         if (varInfo != null) {  // if there was no conflict
             varInfo.type = n.type;
             varInfo.initializer = n.e;
+            varInfo.lineNumber = n.line_number;
             if (symbolContext.isMethod()) {
                 var method = symbolContext.getCurrentMethod();
                 // all block local variables added to method

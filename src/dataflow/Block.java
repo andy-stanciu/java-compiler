@@ -68,6 +68,10 @@ public final class Block implements Iterable<Instruction> {
         this.number = number;
     }
 
+    public boolean isFirst() {
+        return number == 1;
+    }
+
     public boolean hasNext() {
         return !next.isEmpty();
     }

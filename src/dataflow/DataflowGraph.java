@@ -5,6 +5,7 @@ import ast.visitor.dataflow.DataflowVisitor;
 import ast.visitor.dataflow.LiveVariableVisitor;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 import semantics.Logger;
+import semantics.info.ClassInfo;
 import semantics.info.MethodInfo;
 import semantics.table.SymbolContext;
 import semantics.type.TypeVoid;
@@ -17,6 +18,7 @@ public final class DataflowGraph {
     private final DataflowVisitor dataflowVisitor;
     private final Logger logger;
     private final MethodInfo method;
+    private final ClassInfo class_;
     private final StatementList statements;
     private Deque<Instruction> instructionGraph;
     private Deque<Block> blockGraph;
@@ -40,6 +42,7 @@ public final class DataflowGraph {
         this.dataflowVisitor = new DataflowVisitor(symbolContext);
         this.logger = Logger.getInstance();
         this.method = method;
+        this.class_ = symbolContext.getCurrentClass();
         this.statements = statements;
     }
 
@@ -189,6 +192,15 @@ public final class DataflowGraph {
 
         // compute use and def sets for each block
         visitBlocks(b -> {
+            // Def set of first block should include method parameters and instance variables
+            if (b.isFirst()) {
+                method.getArgumentNames().forEach(arg -> {
+                    b.variables().defSet().add(new Symbol(arg, method.lineNumber));
+                });
+                class_.getInstanceVariables().forEach(v -> {
+                    b.variables().defSet().add(new Symbol(v.name, v.lineNumber));
+                });
+            }
             b.forEach(i -> {
                 var s = i.getStatement();
                 if (s != null) {
@@ -236,18 +248,17 @@ public final class DataflowGraph {
         var first = blockGraph.peekFirst();
         blockGraph.offerFirst(start);
 
+        if (first == null) {  // if we don't have a first block, we're done with validation
+            return;
+        }
+
         // all live variable validation sets have been constructed.
         // any variables belonging to in[first block] that are not method parameters
-        // must be uninitialized
-        if (first != null) {
-            first.variables().inSet().forEach(v -> {
-                var method = first.getLeader().getStatement().method;
-                if (method == null || !method.hasArgument(v.name())) {
-                    logger.setLineNumber(v.lineNumber());
-                    logger.logError("Uninitialized variable \"%s\"%n", v.name());
-                }
-            });
-        }
+        // or instance variables at this point must be uninitialized
+        first.variables().inSet().forEach(v -> {
+            logger.setLineNumber(v.lineNumber());
+            logger.logError("Uninitialized variable \"%s\"%n", v.name());
+        });
     }
 
     /**

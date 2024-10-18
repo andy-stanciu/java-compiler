@@ -11,6 +11,7 @@ public final class VariableInfo extends Info {
     public int vIndex;  // index of variable, either as an instance variable or parameter/local variable
     private final SymbolTable parent;
     private final boolean isInstanceVariable;
+    public int lineNumber;  // line number where the variable was defined
 
     public VariableInfo(SymbolTable parent, String name,
                         boolean isInstanceVariable) {
