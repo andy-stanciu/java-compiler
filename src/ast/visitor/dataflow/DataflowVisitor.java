@@ -165,7 +165,7 @@ public final class DataflowVisitor implements Visitor {
     public void visit(Switch n) {
         System.out.print("switch (");
         n.e.accept(this);
-        System.out.print(")...");
+        System.out.print(")");
     }
 
     @Override

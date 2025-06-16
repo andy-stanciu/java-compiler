@@ -6,6 +6,11 @@ import dataflow.Symbol;
 
 import java.util.Set;
 
+/**
+ * Called when constructing the dataflow graph to populate def and use sets for all statements.
+ * Some statements cannot exist as instructions, and thus will throw if this visitor attempts
+ * to visit them.
+ */
 public class LiveVariableVisitor implements Visitor {
     private Set<Symbol> used;
 
@@ -101,7 +106,8 @@ public class LiveVariableVisitor implements Visitor {
 
     @Override
     public void visit(Switch n) {
-        throw new IllegalStateException();
+        used = n.used;
+        n.e.accept(this);
     }
 
     @Override
