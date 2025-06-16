@@ -1,7 +1,7 @@
 package ast.visitor.dataflow;
 
 import ast.*;
-import ast.visitor.Visitor;
+import ast.visitor.LazyVisitor;
 import dataflow.Symbol;
 
 import java.util.Set;
@@ -11,28 +11,8 @@ import java.util.Set;
  * Some statements cannot exist as instructions, and thus will throw if this visitor attempts
  * to visit them.
  */
-public class LiveVariableVisitor implements Visitor {
+public class LiveVariableVisitor extends LazyVisitor {
     private Set<Symbol> used;
-
-    @Override
-    public void visit(Program n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(MainClass n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(ClassDeclSimple n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(ClassDeclExtends n) {
-        throw new IllegalStateException();
-    }
 
     @Override
     public void visit(VarDecl n) {
@@ -44,46 +24,6 @@ public class LiveVariableVisitor implements Visitor {
         n.defined.add(new Symbol(n.i.s, n.i.line_number));
         used = n.used;
         n.e.accept(this);
-    }
-
-    @Override
-    public void visit(MethodDecl n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(Formal n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(VoidType n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(ArrayType n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(BooleanType n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(IntegerType n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(IdentifierType n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(Block n) {
-        throw new IllegalStateException();
     }
 
     @Override
@@ -108,16 +48,6 @@ public class LiveVariableVisitor implements Visitor {
     public void visit(Switch n) {
         used = n.used;
         n.e.accept(this);
-    }
-
-    @Override
-    public void visit(CaseSimple n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(CaseDefault n) {
-        throw new IllegalStateException();
     }
 
     @Override
@@ -448,11 +378,6 @@ public class LiveVariableVisitor implements Visitor {
     @Override
     public void visit(BitwiseNot n) {
         n.e.accept(this);
-    }
-
-    @Override
-    public void visit(Identifier n) {
-        throw new IllegalStateException();
     }
 
     @Override

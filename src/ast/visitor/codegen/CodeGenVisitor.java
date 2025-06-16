@@ -1,7 +1,7 @@
 package ast.visitor.codegen;
 
 import ast.*;
-import ast.visitor.Visitor;
+import ast.visitor.LazyVisitor;
 import codegen.FlowContext;
 import codegen.Generator;
 import codegen.SyntheticFunction;
@@ -19,7 +19,7 @@ import java.util.function.Consumer;
 import static codegen.platform.Operation.*;
 import static codegen.platform.Register.*;
 
-public final class CodeGenVisitor implements Visitor {
+public final class CodeGenVisitor extends LazyVisitor {
     private final Generator generator;
     private final SyntheticFunctionGenerator syntheticFunctionGenerator;
     private final SymbolContext symbolContext;
@@ -129,36 +129,6 @@ public final class CodeGenVisitor implements Visitor {
 
         generator.genLabel(Label.of("ret$" + method.getQualifiedName()));
         generator.genEpilogue();
-    }
-
-    @Override
-    public void visit(Formal n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(VoidType n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(ArrayType n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(BooleanType n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(IntegerType n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(IdentifierType n) {
-        throw new IllegalStateException();
     }
 
     @Override

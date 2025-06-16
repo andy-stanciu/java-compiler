@@ -1,7 +1,7 @@
 package ast.visitor.semantics;
 
 import ast.*;
-import ast.visitor.Visitor;
+import ast.visitor.LazyVisitor;
 import semantics.Logger;
 import semantics.table.SymbolContext;
 import semantics.type.*;
@@ -16,7 +16,7 @@ import static codegen.Generator.ARGUMENT_REGISTERS;
  * Final visitor pass of semantic analysis. Verifies that types match
  * for all expressions, variables are in scope, etc.
  */
-public final class LocalVisitor implements Visitor {
+public final class LocalVisitor extends LazyVisitor {
     private final SymbolContext symbolContext;
     private final Logger logger;
 
@@ -80,21 +80,6 @@ public final class LocalVisitor implements Visitor {
         n.sl.forEach(s -> s.accept(this));  // method statements
 
         symbolContext.exit();
-    }
-
-    @Override
-    public void visit(Formal n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(VoidType n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(ArrayType n) {
-        throw new IllegalStateException();
     }
 
     @Override
@@ -675,11 +660,6 @@ public final class LocalVisitor implements Visitor {
         }
 
         n.type = TypeInt.getInstance();
-    }
-
-    @Override
-    public void visit(Identifier n) {
-        throw new IllegalStateException();
     }
 
     @Override
