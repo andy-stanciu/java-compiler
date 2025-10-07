@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.*;
@@ -18,6 +17,7 @@ import static org.junit.Assert.*;
  *
  * @author Apollo Zhu
  * @author Henry Heino
+ * @author Andy Stanciu
  */
 public final class CSE401TestUtils {
     /**
@@ -135,7 +135,7 @@ public final class CSE401TestUtils {
      *                is thrown as is.
      * @see #collectSystemOut(ThrowingRunnable)
      * @see #collectSystemErr(ThrowingRunnable)
-     * @see #runCatchingExit(Runnable)
+     * @see #runCatchingExit(Class, String...)
      */
     public static <Thrown extends Throwable>
     PrintStreams collectPrinted(ThrowingRunnable<Thrown> code) throws Thrown {
@@ -175,70 +175,35 @@ public final class CSE401TestUtils {
     // region Capture Exit Status
 
     /**
-     * Run the given piece of code until {@code System.exit} is called,
-     * and returns the exit status code, output, and error the code produced.
+     * Preferred, reliable way to run a Java main in isolation and capture its exit code,
+     * stdout, and stderr on modern JDKs without SecurityManager. It launches a new JVM
+     * (using the current java.home and classpath), executes the given main class, and
+     * returns its results.
      *
-     * <pre>{@code
-     * ExecutionResult result = CSE401TestUtils.runCatchingExit(() -> {
-     *     MiniJava.main(new String[]{ "-S", "filename.java" });
-     * });
-     * assertEquals(0, result.exitStatus());
-     * assertEquals("...", result.systemOut());
-     * assertEquals("...", result.systemErr());
-     * }</pre>
-     * <p>
-     * If you are running JUnit tests through IntelliJ IDEA,
-     * <ol>
-     *     <li>From the main menu, select, select Run | Edit Configurations</li>
-     *     <li>Add {@code -Djava.security.manager=allow} to VM options</li>
-     * </ol>
-     * <p>
-     * Now, your VM options should look something like
-     * {@code -ea -Djava.security.manager=allow}.
-     * <p><br>
-     * Note: it is expected that you'll see the following warnings:
-     * <pre>
-     * WARNING: A terminally deprecated method in java.lang.System has been called
-     * WARNING: System::setSecurityManager has been called by CSE401TestUtils
-     * WARNING: Please consider reporting this to the maintainers of CSE401TestUtils
-     * WARNING: System::setSecurityManager will be removed in a future release
-     * </pre>
+     * Example:
+     *   ExecutionResult result = CSE401TestUtils.runCatchingExit(MiniJava.class, "-S", "filename.java");
+     *   assertEquals(0, result.exitStatus());
      *
-     * @param code the code to be run that calls {@code System.exit}.
-     * @return the execution result containing the exit status and contents
-     * printed to standard output and standard error during the execution.
-     * @see <a href="https://www.jetbrains.com/help/idea/run-debug-configuration.html">Run/debug configurations</a>
-     * in IntelliJ IDEA.
+     * @param mainClass class containing public static void main(String[]).
+     * @param args arguments for the main method.
+     * @return the process exit status and captured stdout/stderr.
      */
-    public static ExecutionResult runCatchingExit(Runnable code) {
-        AtomicInteger exitStatus = new AtomicInteger();
-        PrintStreams printed = CSE401TestUtils.collectPrinted(()
-                -> exitStatus.set(CSE401TestUtils.getExitStatus(code::run)));
-        return new ExecutionResult(exitStatus.get(), printed);
-    }
+    public static ExecutionResult runCatchingExit(Class<?> mainClass, String... args) {
+        String javaBin = Path.of(System.getProperty("java.home"), "bin", "java").toString();
+        String classpath = System.getProperty("java.class.path");
 
-    @SuppressWarnings("removal")
-    private static <Thrown extends Throwable>
-    int getExitStatus(ThrowingRunnable<Thrown> code) throws Thrown {
-        SecurityManager securityManager = System.getSecurityManager();
-        allow catchExit = new allow();
-        catchExit.activate();
+        List<String> cmd = new ArrayList<>();
+        cmd.add(javaBin);
+        cmd.add("-cp");
+        cmd.add(classpath);
+        cmd.add(mainClass.getName());
+        cmd.addAll(Arrays.asList(args));
 
         try {
-            System.setSecurityManager(catchExit);
-        } catch (UnsupportedOperationException exception) {
-            fail("need to add -Djava.security.manager=allow to VM options.");
+            return exec(cmd);
+        } catch (IOException | InterruptedException e) {
+            throw new AssertionError("Failed to run subprocess for " + mainClass.getName(), e);
         }
-        int status = 0;
-        try {
-            code.run();
-        } catch (allow.ExitException exit) {
-            status = exit.getExitStatus();
-        } finally {
-            System.setSecurityManager(securityManager);
-        }
-
-        return status;
     }
 
     // endregion

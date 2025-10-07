@@ -11,6 +11,10 @@ CSE401TestUtils.java to learn about what's available and how to use them.
 
 ## Changelog
 
+### 0.0.3 - Oct 7, 2025
+
+* Removed dependency on SecurityManager due to Java 25 full deprecation
+
 ### 0.0.2 - Oct 27, 2022
 
 * Fixed an issue with `allow$ExitException` for older Java versions

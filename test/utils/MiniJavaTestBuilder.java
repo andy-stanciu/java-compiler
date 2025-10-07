@@ -57,9 +57,8 @@ import static org.junit.Assert.*;
  * For advanced customizations/troubleshooting, see the course website on
  * how to use the test utilities and setup requirements to address:
  *
- * <pre>java.lang.AssertionError: need to add -Djava.security.manager=allow to VM options.</pre>
- *
  * @author Apollo Zhu
+ * @author Andy Stanciu
  */
 public class MiniJavaTestBuilder {
     private final List<Consumer<ExecutionResult>> assertions = new ArrayList<>();
@@ -412,8 +411,7 @@ public class MiniJavaTestBuilder {
             }
             actualArgs[i] = arg;
         }
-        ExecutionResult result = CSE401TestUtils
-                .runCatchingExit(() -> MiniJava.main(actualArgs));
+        ExecutionResult result = CSE401TestUtils.runCatchingExit(MiniJava.class, actualArgs);
         for (Consumer<ExecutionResult> assertion : assertions) {
             assertion.accept(result);
         }
