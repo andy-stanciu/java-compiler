@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <inttypes.h>
+#include <memory.h>
 
 extern void asm_main();   /* main function in compiled code */
                           /* change function name if your   */
@@ -10,6 +11,16 @@ extern void asm_main();   /* main function in compiled code */
 /* Write x to standard output followed by a newline */
 void put(int64_t x) {
   printf("%" PRId64 "\n", x);
+}
+
+/* Write c to standard output as a char */
+void put_char(int64_t c) {
+  printf("%c", (char)c);
+}
+
+/* Write b to standard output as a bool */
+void put_bool(int64_t b) {
+  printf(b ? "true\n" : "false\n");
 }
 
 /*
@@ -21,6 +32,10 @@ void put(int64_t x) {
 
 void * mjcalloc(size_t num_bytes) {
   return (calloc(1, num_bytes));
+}
+
+void * mjmemcpy(int64_t* dst, int64_t* src, size_t num_bytes) {
+  return memcpy(dst, src, num_bytes);
 }
 
 /* Write array exception to standard error and exit with failure */

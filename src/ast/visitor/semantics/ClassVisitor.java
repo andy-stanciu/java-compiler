@@ -232,6 +232,11 @@ public final class ClassVisitor extends LazyVisitor {
     }
 
     @Override
+    public void visit(StringType n) {
+        n.type = TypeString.getInstance();
+    }
+
+    @Override
     public void visit(IdentifierType n) {
         var class_ = symbolContext.lookupClass(n.s);
         if (class_ != null) {

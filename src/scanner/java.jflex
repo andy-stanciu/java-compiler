@@ -102,7 +102,7 @@ digit = [0-9]
 eol = [\r\n]
 white = {eol}|[ \t]
 comment = ((\/\*)([^*/]|(\**[^*/])|\/)*(\**)(\*\/))|((\/\/)[^{eol}]*)
-
+string = (\")([^\"]|(\\\"))*(\")
 
 %%
 
@@ -194,6 +194,13 @@ comment = ((\/\*)([^*/]|(\**[^*/])|\/)*(\**)(\*\/))|((\/\/)[^{eol}]*)
 /* integer literals */
 0|([1-9]{digit}*) {
   return symbol(sym.INT_LITERAL, yytext());
+}
+
+/* string literals */
+{string} {
+  String s = yytext();
+  // remove quotes
+  return symbol(sym.STRING_LITERAL, s.substring(1, s.length() - 1));
 }
 
 /* comments */

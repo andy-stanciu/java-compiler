@@ -118,7 +118,12 @@ public final class DataflowVisitor extends LazyVisitor {
 
     @Override
     public void visit(IntegerType n) {
-        System.out.print("int");;
+        System.out.print("int");
+    }
+
+    @Override
+    public void visit(StringType n) {
+        System.out.print("String");
     }
 
     @Override
@@ -488,6 +493,11 @@ public final class DataflowVisitor extends LazyVisitor {
     @Override
     public void visit(IntegerLiteral n) {
         System.out.print(n.i);
+    }
+
+    @Override
+    public void visit(StringLiteral n) {
+        System.out.print(n.s);
     }
 
     @Override

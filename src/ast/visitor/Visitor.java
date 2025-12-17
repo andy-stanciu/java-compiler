@@ -27,6 +27,8 @@ public interface Visitor {
 
     void visit(IntegerType n);
 
+    void visit(StringType n);
+
     void visit(IdentifierType n);
 
     void visit(Block n);
@@ -137,6 +139,8 @@ public interface Visitor {
     void visit(InstanceOf n);
 
     void visit(IntegerLiteral n);
+
+    void visit(StringLiteral n);
 
     void visit(True n);
 

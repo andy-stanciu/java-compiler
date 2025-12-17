@@ -345,6 +345,9 @@ public class LiveVariableVisitor extends LazyVisitor {
     public void visit(IntegerLiteral n) {}
 
     @Override
+    public void visit(StringLiteral n) {}
+
+    @Override
     public void visit(True n) {}
 
     @Override

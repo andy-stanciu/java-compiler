@@ -159,6 +159,11 @@ public final class ASTVisitor implements Visitor {
     }
 
     @Override
+    public void visit(StringType n) {
+        System.out.print("String");
+    }
+
+    @Override
     public void visit(IdentifierType n) {
         System.out.print(n.s);
     }
@@ -722,6 +727,11 @@ public final class ASTVisitor implements Visitor {
     @Override
     public void visit(IntegerLiteral n) {
         System.out.print(n.i);
+    }
+
+    @Override
+    public void visit(StringLiteral n) {
+        System.out.print("\"" + n.s + "\"");
     }
 
     @Override

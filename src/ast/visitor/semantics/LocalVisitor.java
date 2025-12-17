@@ -2,6 +2,7 @@ package ast.visitor.semantics;
 
 import ast.*;
 import ast.visitor.LazyVisitor;
+import commons.Pair;
 import semantics.Logger;
 import semantics.table.SymbolContext;
 import semantics.type.*;
@@ -9,6 +10,8 @@ import semantics.type.Type;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import static codegen.Generator.ARGUMENT_REGISTERS;
 
@@ -93,6 +96,11 @@ public final class LocalVisitor extends LazyVisitor {
     }
 
     @Override
+    public void visit(StringType n) {
+        n.type = TypeString.getInstance();
+    }
+
+    @Override
     public void visit(IdentifierType n) {
         var class_ = symbolContext.lookupClass(n.s);
         if (class_ != null) {
@@ -153,6 +161,7 @@ public final class LocalVisitor extends LazyVisitor {
     @Override
     public void visit(Switch n) {
         n.e.accept(this);
+        // for now, switch only supports ints (TODO: support string, bool literals)
         if (!n.e.eval().type.equals(TypeInt.getInstance())) {
             logger.logError("Switch expected int, but provided %s%n", n.e.eval().type);
         }
@@ -218,8 +227,10 @@ public final class LocalVisitor extends LazyVisitor {
     @Override
     public void visit(Print n) {
         n.e.accept(this);
-        if (!n.e.eval().type.isAssignableTo(TypeInt.getInstance())) {
-            logger.logError("Print statement expected int, but provided %s%n",
+        if (!n.e.eval().type.isAssignableTo(TypeInt.getInstance()) &&
+            !n.e.eval().type.isAssignableTo(TypeBoolean.getInstance()) &&
+            !n.e.eval().type.isAssignableTo(TypeString.getInstance())) {
+            logger.logError("Print statement expected int, boolean, or string, but provided %s%n",
                     n.e.eval().type);
         }
     }
@@ -231,58 +242,67 @@ public final class LocalVisitor extends LazyVisitor {
 
     @Override
     public void visit(AssignPlus n) {
-        visitAssign(n, "+=", TypeInt.getInstance());
+        visitAssign(n, "+=",
+                new Pair<>(TypeInt.getInstance(), TypeInt.getInstance()),
+                new Pair<>(TypeString.getInstance(), TypeString.getInstance()),
+                new Pair<>(TypeString.getInstance(), TypeInt.getInstance()),
+                new Pair<>(TypeString.getInstance(), TypeBoolean.getInstance()));
     }
 
     @Override
     public void visit(AssignMinus n) {
-        visitAssign(n, "-=", TypeInt.getInstance());
+        visitAssign(n, "-=", new Pair<>(TypeInt.getInstance(), TypeInt.getInstance()));
     }
 
     @Override
     public void visit(AssignTimes n) {
-        visitAssign(n, "*=", TypeInt.getInstance());
+        visitAssign(n, "*=", new Pair<>(TypeInt.getInstance(), TypeInt.getInstance()));
     }
 
     @Override
     public void visit(AssignDivide n) {
-        visitAssign(n, "/=", TypeInt.getInstance());
+        visitAssign(n, "/=", new Pair<>(TypeInt.getInstance(), TypeInt.getInstance()));
     }
 
     @Override
     public void visit(AssignMod n) {
-        visitAssign(n, "%=", TypeInt.getInstance());
+        visitAssign(n, "%=", new Pair<>(TypeInt.getInstance(), TypeInt.getInstance()));
     }
-
 
     @Override
     public void visit(AssignAnd n) {
-        visitAssign(n, "&=", TypeInt.getInstance(), TypeBoolean.getInstance());
+        visitAssign(n, "&=",
+                new Pair<>(TypeInt.getInstance(), TypeInt.getInstance()),
+                new Pair<>(TypeBoolean.getInstance(), TypeBoolean.getInstance()));
     }
 
     @Override
     public void visit(AssignOr n) {
-        visitAssign(n, "|=", TypeInt.getInstance(), TypeBoolean.getInstance());
+        visitAssign(n, "|=",
+                new Pair<>(TypeInt.getInstance(), TypeInt.getInstance()),
+                new Pair<>(TypeBoolean.getInstance(), TypeBoolean.getInstance()));
     }
 
     @Override
     public void visit(AssignXor n) {
-        visitAssign(n, "^=", TypeInt.getInstance(), TypeBoolean.getInstance());
+        visitAssign(n, "^=",
+                new Pair<>(TypeInt.getInstance(), TypeInt.getInstance()),
+                new Pair<>(TypeBoolean.getInstance(), TypeBoolean.getInstance()));
     }
 
     @Override
     public void visit(AssignLeftShift n) {
-        visitAssign(n, "<<=", TypeInt.getInstance());
+        visitAssign(n, "<<=", new Pair<>(TypeInt.getInstance(), TypeInt.getInstance()));
     }
 
     @Override
     public void visit(AssignRightShift n) {
-        visitAssign(n, ">>=", TypeInt.getInstance());
+        visitAssign(n, ">>=", new Pair<>(TypeInt.getInstance(), TypeInt.getInstance()));
     }
 
     @Override
     public void visit(AssignUnsignedRightShift n) {
-        visitAssign(n, ">>>=", TypeInt.getInstance());
+        visitAssign(n, ">>>=", new Pair<>(TypeInt.getInstance(), TypeInt.getInstance()));
     }
 
     @Override
@@ -381,7 +401,43 @@ public final class LocalVisitor extends LazyVisitor {
 
     @Override
     public void visit(Plus n) {
-        visitBinaryExp(n, "+", TypeInt.getInstance(), TypeInt.getInstance());
+        n.e1.accept(this);
+        n.e2.accept(this);
+        
+        var lhs = n.e1.eval().type;
+        var rhs = n.e2.eval().type;
+        
+        // string + string
+        if (lhs.equals(TypeString.getInstance()) && rhs.equals(TypeString.getInstance())) {
+            n.type = TypeString.getInstance();
+            return;
+        }
+        // string + int
+        if (lhs.equals(TypeString.getInstance()) && rhs.equals(TypeInt.getInstance())) {
+            n.type = TypeString.getInstance();
+            return;
+        }
+        // int + string
+        if (lhs.equals(TypeInt.getInstance()) && rhs.equals(TypeString.getInstance())) {
+            n.type = TypeString.getInstance();
+            return;
+        }
+        // string + bool
+        if (lhs.equals(TypeString.getInstance()) && rhs.equals(TypeBoolean.getInstance())) {
+            n.type = TypeString.getInstance();
+            return;
+        }
+        // bool + string
+        if (lhs.equals(TypeBoolean.getInstance()) && rhs.equals(TypeString.getInstance())) {
+            n.type = TypeString.getInstance();
+            return;
+        }
+        // int + int
+        if (!lhs.equals(TypeInt.getInstance()) || !rhs.equals(TypeInt.getInstance())) {
+            logger.logError("Operator %s cannot be applied to +, %s%n", n.e1.eval().type,
+                    n.e2.eval().type);
+        }
+        n.type = TypeInt.getInstance();
     }
 
     @Override
@@ -445,7 +501,7 @@ public final class LocalVisitor extends LazyVisitor {
 
     @Override
     public void visit(ArrayLength n) {
-        n.e.accept(this);  // int array expression
+        n.e.accept(this);  // array expression
         if (!n.e.eval().type.isArray()) {
             logger.logError("Cannot get length of non-array type %s%n", n.e.eval().type);
         }
@@ -582,6 +638,11 @@ public final class LocalVisitor extends LazyVisitor {
     }
 
     @Override
+    public void visit(StringLiteral n) {
+        n.type = TypeString.getInstance();
+    }
+
+    @Override
     public void visit(True n) {
         n.type = TypeBoolean.getInstance();
     }
@@ -690,32 +751,31 @@ public final class LocalVisitor extends LazyVisitor {
      * Visits the specified assignment statement.
      * @param n The assignment statement.
      * @param sym The symbol associated with the assignment statement.
-     * @param accepted The types to accept (optional).
+     * @param accepted The type pair combinations to accept.
      */
-    private void visitAssign(Assign n, String sym, Type... accepted) {
+    private void visitAssign(Assign n, String sym, Pair<Type>... accepted) {
         n.e2.accept(this);  // RHS
         n.e1.accept(this);  // assignable
 
         if (accepted != null && accepted.length > 0) {
             boolean legal = false;
-            for (var type : accepted) {
-                if (n.e2.eval().type.equals(type)) {
+            for (var types : accepted) {
+                if (n.e1.eval().type.equals(types.getFirst()) &&
+                        n.e2.eval().type.equals(types.getSecond())) {
                     legal = true;
                     break;
                 }
             }
-
             if (!legal) {
-                logger.logError("Assignment operator %s cannot be applied to %s%n",
-                        sym, n.e2.eval().type);
-                return;
+                logger.logError("Assignment operator %s cannot be applied to %s, %s%n",
+                        sym, n.e1.eval().type, n.e2.eval().type);
             }
-        }
-
-        if (!(n.e1 instanceof Assignable)) {
-            logger.logError("Cannot assign to expression%n");
-        } else if (!n.e2.eval().type.isAssignableTo(n.e1.eval().type)) {
-            logger.logError("Cannot assign %s to %s%n", n.e2.eval().type, n.e1.eval().type);
+        } else {
+            if (!(n.e1 instanceof Assignable)) {
+                logger.logError("Cannot assign to expression%n");
+            } else if (!n.e2.eval().type.isAssignableTo(n.e1.eval().type)) {
+                logger.logError("Cannot assign %s to %s%n", n.e2.eval().type, n.e1.eval().type);
+            }
         }
     }
 

@@ -2,5 +2,8 @@ package codegen.platform;
 
 public enum CFunction {
     MALLOC,
-    PRINT
+    MEMCOPY,
+    PRINT,
+    PRINTC,
+    PRINTB
 }

@@ -26,6 +26,7 @@ terminal ARRAY, LPAREN, RPAREN, LSQUARE, RSQUARE, LCURL, RCURL, SEMICOLON, COMMA
 /* identifiers */
 terminal String IDENTIFIER;
 terminal String INT_LITERAL;
+terminal String STRING_LITERAL;
 
 /* nonterminals */
 nonterminal Program Program;
@@ -56,6 +57,7 @@ nonterminal Expression Expression3;
 nonterminal Expression PrimaryExpression;
 nonterminal Expression Literal;
 nonterminal Expression IntegerLiteral;
+nonterminal Expression StringLiteral;
 nonterminal Expression BooleanLiteral;
 nonterminal Expression ParenthesizedExpression;
 nonterminal Expression BinaryExpression;
@@ -207,6 +209,8 @@ SingularType            ::= BOOLEAN:b
                               {: RESULT = new BooleanType(bxleft); :}
                           | INT:i
                               {: RESULT = new IntegerType(ixleft); :}
+                          | STRING:s
+                              {: RESULT = new StringType(sxleft); :}
                           | Identifier:id
                               {: RESULT = new IdentifierType(id.toString(), idxleft); :}
                           ;
@@ -371,12 +375,18 @@ PrimaryExpression       ::= Literal:l
 
 Literal                 ::= IntegerLiteral:l
                               {: RESULT = l; :}
+                          | StringLiteral:l
+                              {: RESULT = l; :} 
                           | BooleanLiteral:l
                               {: RESULT = l; :}
                           ;
 
 IntegerLiteral          ::= INT_LITERAL:n
                               {: RESULT = new IntegerLiteral(Integer.parseInt(n), nxleft); :}
+                          ;
+
+StringLiteral           ::= STRING_LITERAL:n
+                              {: RESULT = new StringLiteral(n, nxleft); :}
                           ;
 
 BooleanLiteral          ::= TRUE:t

@@ -8,7 +8,10 @@ public final class CFunctionMapper {
 
     static {
         cFunctions.put(CFunction.MALLOC, Label.of("mjcalloc"));
+        cFunctions.put(CFunction.MEMCOPY, Label.of("mjmemcpy"));
         cFunctions.put(CFunction.PRINT, Label.of("put"));
+        cFunctions.put(CFunction.PRINTC, Label.of("put_char"));
+        cFunctions.put(CFunction.PRINTB, Label.of("put_bool"));
     }
 
     public static Label map(CFunction func) {
