@@ -236,6 +236,14 @@ public final class Generator {
         if (!aligned) genBinary(ADD, Immediate.of(WORD_SIZE), RSP);
     }
 
+    public void genCall(Memory memory) {
+        boolean aligned = stackSize % 2 == 0;
+        if (!aligned) genBinary(SUB, Immediate.of(WORD_SIZE), RSP);
+        String instruction = String.format("%s%s*%s", CALL, getTab(CALL), memory);
+        gen(instruction);
+        if (!aligned) genBinary(ADD, Immediate.of(WORD_SIZE), RSP);
+    }
+
     /**
      * <p>
      *     Generates a push instruction given a {@link ISource source}.
@@ -358,7 +366,7 @@ public final class Generator {
         indent();
         System.out.println(".text");
         indent();
-        System.out.printf("%s%sasm_main%n", ".globl", getTab(".globl"));
+        System.out.printf("%s%s_asm_main%n", ".globl", getTab(".globl"));
     }
 
     /**

@@ -13,7 +13,7 @@ public final class ISA_x86_64 extends ISA {
 
     @Override
     public String toLabel(Label label) {
-        return label.name();
+        return "_" + label.name();
     }
 
     @Override

@@ -67,7 +67,7 @@ public final class CodeDataVisitor extends LazyVisitor {
         }
 
         generator.genLabel(Label.of(n.i.s + "$$"));
-        generator.genUnary(QUAD, Label.of("0"));  // no superclass
+        generator.genUnary(QUAD, Label.of("0", true));  // no superclass
         class_.methodEntries().forEachRemaining(m ->
                 generator.genUnary(QUAD, Label.of(m.getQualifiedName())));
 

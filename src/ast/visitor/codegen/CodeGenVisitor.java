@@ -297,7 +297,7 @@ public final class CodeGenVisitor extends LazyVisitor {
             generator.genLabel(printTest);
             generator.genBinary(CMP, RCX, RDX);
             generator.genUnary(JLE, printLabel);
-            generator.genBinary(MOV, Immediate.of((int)'\n'), RDI);
+            generator.genBinary(MOV, Immediate.of('\n'), RDI);
             generator.genCall(CFunction.PRINTC);  // print newline
         } else if (n.e.eval().type.equals(TypeBoolean.getInstance())) {
             generator.genBinary(MOV, RAX, RDI);
@@ -748,7 +748,7 @@ public final class CodeGenVisitor extends LazyVisitor {
 
         generator.genPop(RDI);  // pop obj ptr off stack
         generator.genBinary(MOV, Memory.of(RDI, 0), RAX);  // load vtable addr
-        generator.genCall(Label.of("*" + method.getOffset() + "(%rax)"));  // call method from vtable
+        generator.genCall(Memory.of(RAX, method.getOffset()));  // call method from vtable
 
         if (context != null) {
             if (!method.returnType.equals(TypeBoolean.getInstance())) {
@@ -847,7 +847,7 @@ public final class CodeGenVisitor extends LazyVisitor {
             throw new IllegalStateException();
         }
 
-        generator.genBinary(LEA, Memory.of(RIP, class_.name + "$$"), RAX);  // lea of vtable into rax
+        generator.genBinary(LEA, Memory.of(RIP, "_" + class_.name + "$$"), RAX);  // lea of vtable into rax
         generator.genPush(RAX);  // push vtable ptr on stack
         n.e.accept(this);
         generator.genPop(RDX);  // pop vtable ptr into rdx
@@ -885,7 +885,7 @@ public final class CodeGenVisitor extends LazyVisitor {
         // put len(str) at the start
         generator.genBinary(MOV, Immediate.of(n.s.length()), Memory.of(RAX, 0));
         for (int i = 0; i < n.s.length(); i++) {
-            int c = (int)n.s.charAt(i);
+            int c = n.s.charAt(i);
             generator.genBinary(MOV, Immediate.of(c), 
                 Memory.of(RAX, (i + 1) * Generator.WORD_SIZE));
         }
@@ -997,7 +997,7 @@ public final class CodeGenVisitor extends LazyVisitor {
 
         generator.genBinary(MOV, Immediate.of(class_.size()), RDI);  // load obj size into first arg
         generator.genCall(CFunction.MALLOC);  // allocate space on heap
-        generator.genBinary(LEA, Memory.of(RIP, class_.name + "$$"), RDX);  // lea of vtable
+        generator.genBinary(LEA, Memory.of(RIP, "_" + class_.name + "$$"), RDX);  // lea of vtable
         generator.genBinary(MOV, RDX, Memory.of(RAX, 0));  // store vtable at start of obj
         generator.genBinary(MOV, RAX, RDX);  // move obj to rdx
 
