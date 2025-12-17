@@ -179,6 +179,10 @@ public final class PrettyPrintVisitor implements Visitor {
         System.out.print("int");
     }
 
+    public void visit(StringType n) {
+        System.out.print("String");
+    }
+
     // String s;
     public void visit(IdentifierType n) {
         System.out.print(n.s);
@@ -831,6 +835,10 @@ public final class PrettyPrintVisitor implements Visitor {
     // int i;
     public void visit(IntegerLiteral n) {
         System.out.print(n.i);
+    }
+
+    public void visit(StringLiteral n) {
+        System.out.print("\"" + n.s + "\"");
     }
 
     public void visit(True n) {

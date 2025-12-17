@@ -271,39 +271,47 @@ public final class Generator {
 
     /**
      * <p>
-     *     Generates a pop instruction given a {@link Register register}.
+     *     Generates a pop instruction given a {@link IDestination destination}.
      * </p>
      *
      * <p>
-     *     Sample x86-64 push instruction: <br/>
+     *     Sample x86-64 pop instruction: <br/>
      *     <code>popq %rax</code>
      * </p>
      *
-     * @param reg The register to use.
+     * @param dst The destination to pop into.
      */
-    public void genPop(Register reg) {
-        genPop(reg, "");
+    public void genPop(IDestination dst) {
+        genPop(dst, false, "");
+    }
+
+    public void genPop(IDestination dst, boolean popAll) {
+        genPop(dst, true, "");
     }
 
     /**
      * <p>
-     *     Generates a commented pop instruction given a {@link Register register}.
+     *     Generates a commented pop instruction given a {@link IDestination destination}.
      * </p>
      *
      * <p>
-     *     Sample x86-64 push instruction: <br/>
+     *     Sample x86-64 pop instruction: <br/>
      *     <code>popq %rax <tab></tab> # pop top of stack into %rax</code>
      * </p>
      *
-     * @param reg The register to use.
+     * @param dst The destination to use.
      */
-    public void genPop(Register reg, String comment) {
-        genUnary(POP, reg, comment);
+    public void genPop(IDestination dst, boolean popAll, String comment) {
+        genUnary(POP, dst, comment);
 
         if (stackSize == 0) {
             throw new IllegalStateException();
         }
-        stackSize--;
+        if (popAll) {
+            stackSize = 1; // pop everything except base pointer
+        } else {
+            stackSize--;
+        }
     }
 
     /**
@@ -330,7 +338,7 @@ public final class Generator {
      * Generates a stack frame prologue.
      */
     public void genPrologue() {
-        genUnary(PUSH, RBP);
+        genPush(RBP);
         genBinary(MOV, RSP, RBP);
     }
 
@@ -339,7 +347,7 @@ public final class Generator {
      */
     public void genEpilogue() {
         genBinary(MOV, RBP, RSP);
-        genUnary(POP, RBP);
+        genPop(RBP);
         genReturn();
     }
 
@@ -500,6 +508,15 @@ public final class Generator {
      */
     public void gen(Operation operation) {
         gen(String.valueOf(operation), "");
+    }
+
+    private void genUnary(Operation op, IDestination dst) {
+        genUnary(op, dst, "");
+    }
+
+    private void genUnary(Operation op, IDestination dst, String comment) {
+        String instruction = String.format("%s%s%s", op, getTab(op), dst);
+        gen(instruction, comment);
     }
 
     private void indent() {

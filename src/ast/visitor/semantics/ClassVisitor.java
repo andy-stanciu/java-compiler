@@ -1,7 +1,7 @@
 package ast.visitor.semantics;
 
 import ast.*;
-import ast.visitor.Visitor;
+import ast.visitor.LazyVisitor;
 import codegen.Generator;
 import semantics.IllegalSemanticException;
 import semantics.Logger;
@@ -16,7 +16,7 @@ import semantics.type.*;
  * 3) Defines all method parameters, initializing their types.
  * 4) Defines all method local variables, initializing their types.
  */
-public final class ClassVisitor implements Visitor {
+public final class ClassVisitor extends LazyVisitor {
     private final SymbolContext symbolContext;
     private final Logger logger;
 
@@ -232,6 +232,11 @@ public final class ClassVisitor implements Visitor {
     }
 
     @Override
+    public void visit(StringType n) {
+        n.type = TypeString.getInstance();
+    }
+
+    @Override
     public void visit(IdentifierType n) {
         var class_ = symbolContext.lookupClass(n.s);
         if (class_ != null) {
@@ -389,202 +394,12 @@ public final class ClassVisitor implements Visitor {
     }
 
     @Override
-    public void visit(And n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(Or n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(Equal n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(NotEqual n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(LessThan n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(LessThanOrEqual n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(GreaterThan n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(GreaterThanOrEqual n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(BitwiseAnd n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(BitwiseOr n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(BitwiseXor n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(UnaryMinus n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(UnaryPlus n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(Plus n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(Minus n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(Times n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(Divide n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(Mod n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(LeftShift n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(RightShift n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(UnsignedRightShift n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(ArrayLookup n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(ArrayLength n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
     public void visit(Action n) {
         n.method = symbolContext.getCurrentMethod();
     }
 
     @Override
-    public void visit(Call n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(Field n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(Ternary n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(InstanceOf n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(IntegerLiteral n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(True n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(False n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(IdentifierExp n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(This n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(NewArray n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(NewObject n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(Not n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(BitwiseNot n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(Identifier n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
     public void visit(NoOp n) {
         n.method = symbolContext.getCurrentMethod();
-    }
-
-    @Override
-    public void visit(NoOpExp n) {
-        throw new IllegalStateException();
     }
 }

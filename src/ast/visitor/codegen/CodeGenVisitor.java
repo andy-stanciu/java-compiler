@@ -1,7 +1,7 @@
 package ast.visitor.codegen;
 
 import ast.*;
-import ast.visitor.Visitor;
+import ast.visitor.LazyVisitor;
 import codegen.FlowContext;
 import codegen.Generator;
 import codegen.SyntheticFunction;
@@ -10,7 +10,9 @@ import codegen.platform.*;
 import codegen.platform.isa.ISA;
 import semantics.table.SymbolContext;
 import semantics.type.TypeBoolean;
+import semantics.type.TypeInt;
 import semantics.type.TypeObject;
+import semantics.type.TypeString;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +21,7 @@ import java.util.function.Consumer;
 import static codegen.platform.Operation.*;
 import static codegen.platform.Register.*;
 
-public final class CodeGenVisitor implements Visitor {
+public final class CodeGenVisitor extends LazyVisitor {
     private final Generator generator;
     private final SyntheticFunctionGenerator syntheticFunctionGenerator;
     private final SymbolContext symbolContext;
@@ -129,36 +131,6 @@ public final class CodeGenVisitor implements Visitor {
 
         generator.genLabel(Label.of("ret$" + method.getQualifiedName()));
         generator.genEpilogue();
-    }
-
-    @Override
-    public void visit(Formal n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(VoidType n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(ArrayType n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(BooleanType n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(IntegerType n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(IdentifierType n) {
-        throw new IllegalStateException();
     }
 
     @Override
@@ -303,8 +275,36 @@ public final class CodeGenVisitor implements Visitor {
     @Override
     public void visit(Print n) {
         n.e.accept(this);
-        generator.genBinary(MOV, RAX, RDI);
-        generator.genCall(CFunction.PRINT);
+        if (n.e.eval().type.equals(TypeInt.getInstance())) {
+            generator.genBinary(MOV, RAX, RDI);
+            generator.genCall(CFunction.PRINT);
+        } else if (n.e.eval().type.equals(TypeString.getInstance())) {
+            var printLabel = generator.nextLabel("print");
+            var printTest = generator.nextLabel("print_test");
+            generator.genBinary(MOV, Immediate.of(1), RDX);  // string index in rdx
+            generator.genBinary(MOV, Memory.of(RAX, 0), RCX);  // load len(str) in rcx
+            generator.genUnary(JMP, printTest);
+            generator.genLabel(printLabel);
+            generator.genBinary(MOV, MemoryScaledIndex.of(RAX, RDX, Generator.WORD_SIZE, 0), RDI);  // deref str[i] into rdi
+            generator.genPush(RAX);  // save str
+            generator.genPush(RDX);  // save i
+            generator.genPush(RCX);  // save len(str)
+            generator.genCall(CFunction.PRINTC);  // call printc with str[i] in rdi
+            generator.genPop(RCX);  // restore len(str)
+            generator.genPop(RDX);  // restore i
+            generator.genPop(RAX);  // restore str
+            generator.genBinary(ADD, Immediate.of(1), RDX);  // i++
+            generator.genLabel(printTest);
+            generator.genBinary(CMP, RCX, RDX);
+            generator.genUnary(JLE, printLabel);
+            generator.genBinary(MOV, Immediate.of((int)'\n'), RDI);
+            generator.genCall(CFunction.PRINTC);  // print newline
+        } else if (n.e.eval().type.equals(TypeBoolean.getInstance())) {
+            generator.genBinary(MOV, RAX, RDI);
+            generator.genCall(CFunction.PRINTB);
+        } else {
+            throw new IllegalStateException();
+        }
     }
 
     @Override
@@ -315,7 +315,23 @@ public final class CodeGenVisitor implements Visitor {
     @Override
     public void visit(AssignPlus n) {
         visitAssign(n, g -> {
-            g.genBinary(ADD, Memory.of(RDX, 0), RAX);  // add value to rax
+            if (n.e1.eval().type.equals(TypeString.getInstance())) {
+                g.genPush(RDX);
+                g.genBinary(MOV, Memory.of(RDX, 0), RDI);
+                g.genBinary(MOV, RAX, RSI);
+                if (n.e2.eval().type.equals(TypeString.getInstance())) {
+                    g.genCall(SyntheticFunction.CONCAT_STRING_STRING);
+                } else if (n.e2.eval().type.equals(TypeInt.getInstance())) {
+                    g.genCall(SyntheticFunction.CONCAT_STRING_INT);
+                } else if (n.e2.eval().type.equals(TypeBoolean.getInstance())) {
+                    g.genCall(SyntheticFunction.CONCAT_STRING_BOOL);
+                } else {
+                    throw new IllegalStateException();
+                }
+                g.genPop(RDX);
+            } else {
+                g.genBinary(ADD, Memory.of(RDX, 0), RAX);  // add value to rax
+            }
         });
     }
 
@@ -554,11 +570,41 @@ public final class CodeGenVisitor implements Visitor {
 
     @Override
     public void visit(Plus n) {
+        var lhs = n.e1.eval().type;
+        var rhs = n.e2.eval().type;
+
         n.e1.accept(this);
         generator.genPush(RAX);
         n.e2.accept(this);
-        generator.genPop(RDX);
-        generator.genBinary(ADD, RDX, RAX);
+        generator.genPop(RDI);
+
+        if (lhs.equals(TypeInt.getInstance()) && rhs.equals(TypeInt.getInstance())) {
+            // int + int
+            generator.genBinary(ADD, RDI, RAX);
+        } else if (lhs.equals(TypeString.getInstance()) && rhs.equals(TypeString.getInstance())) {
+            // string + string
+            generator.genBinary(MOV, RAX, RSI);
+            generator.genCall(SyntheticFunction.CONCAT_STRING_STRING);
+        } else if (lhs.equals(TypeString.getInstance()) && rhs.equals(TypeBoolean.getInstance())) {
+            // string + bool
+            generator.genBinary(MOV, RAX, RSI);
+            generator.genCall(SyntheticFunction.CONCAT_STRING_BOOL);
+        } else if (lhs.equals(TypeBoolean.getInstance()) && rhs.equals(TypeString.getInstance())) {
+            // bool + string
+            generator.genBinary(MOV, RAX, RSI);
+            generator.genCall(SyntheticFunction.CONCAT_BOOL_STRING);
+        } else if (lhs.equals(TypeString.getInstance()) && rhs.equals(TypeInt.getInstance())) {
+            // string + int
+            generator.genBinary(MOV, RAX, RSI);
+            generator.genCall(SyntheticFunction.CONCAT_STRING_INT);
+        } else if (lhs.equals(TypeInt.getInstance()) && rhs.equals(TypeString.getInstance())) {
+            // int + string
+            generator.genBinary(MOV, RAX, RSI);
+            generator.genCall(SyntheticFunction.CONCAT_INT_STRING);
+        } else {
+            // no other type combinations should have gotten through at this point
+            throw new IllegalStateException();
+        }
     }
 
     @Override
@@ -827,6 +873,23 @@ public final class CodeGenVisitor implements Visitor {
     @Override
     public void visit(IntegerLiteral n) {
         generator.genBinary(MOV, Immediate.of(n.i), RAX);
+    }
+
+    @Override
+    public void visit(StringLiteral n) {
+        // similar to new object: alloc string
+        int length = (n.s.length() + 1) * Generator.WORD_SIZE;
+        // load str length + 1 into rdi, including len(str)
+        generator.genBinary(MOV, Immediate.of(length), RDI);
+        generator.genCall(CFunction.MALLOC);
+        // put len(str) at the start
+        generator.genBinary(MOV, Immediate.of(n.s.length()), Memory.of(RAX, 0));
+        for (int i = 0; i < n.s.length(); i++) {
+            int c = (int)n.s.charAt(i);
+            generator.genBinary(MOV, Immediate.of(c), 
+                Memory.of(RAX, (i + 1) * Generator.WORD_SIZE));
+        }
+        // resulting string pointer is left in rax
     }
 
     @Override

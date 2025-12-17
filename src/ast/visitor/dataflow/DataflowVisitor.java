@@ -1,14 +1,14 @@
 package ast.visitor.dataflow;
 
 import ast.*;
-import ast.visitor.Visitor;
+import ast.visitor.LazyVisitor;
 import dataflow.DataflowGraph;
 import semantics.table.SymbolContext;
 
 import java.util.Map;
 import java.util.TreeMap;
 
-public final class DataflowVisitor implements Visitor {
+public final class DataflowVisitor extends LazyVisitor {
     private final SymbolContext symbolContext;
     private final Map<String, DataflowGraph> graphs;
 
@@ -106,16 +106,6 @@ public final class DataflowVisitor implements Visitor {
     }
 
     @Override
-    public void visit(Formal n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(VoidType n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
     public void visit(ArrayType n) {
         n.t.accept(this);
         System.out.print("[]".repeat(n.dimension));
@@ -128,7 +118,12 @@ public final class DataflowVisitor implements Visitor {
 
     @Override
     public void visit(IntegerType n) {
-        System.out.print("int");;
+        System.out.print("int");
+    }
+
+    @Override
+    public void visit(StringType n) {
+        System.out.print("String");
     }
 
     @Override
@@ -165,17 +160,7 @@ public final class DataflowVisitor implements Visitor {
     public void visit(Switch n) {
         System.out.print("switch (");
         n.e.accept(this);
-        System.out.print(")...");
-    }
-
-    @Override
-    public void visit(CaseSimple n) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void visit(CaseDefault n) {
-        throw new IllegalStateException();
+        System.out.print(")");
     }
 
     @Override
@@ -508,6 +493,11 @@ public final class DataflowVisitor implements Visitor {
     @Override
     public void visit(IntegerLiteral n) {
         System.out.print(n.i);
+    }
+
+    @Override
+    public void visit(StringLiteral n) {
+        System.out.print(n.s);
     }
 
     @Override
