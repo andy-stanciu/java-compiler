@@ -10,8 +10,6 @@ import semantics.type.Type;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 import static codegen.Generator.ARGUMENT_REGISTERS;
 
@@ -760,8 +758,8 @@ public final class LocalVisitor extends LazyVisitor {
         if (accepted != null && accepted.length > 0) {
             boolean legal = false;
             for (var types : accepted) {
-                if (n.e1.eval().type.equals(types.getFirst()) &&
-                        n.e2.eval().type.equals(types.getSecond())) {
+                if (n.e1.eval().type.equals(types.first()) &&
+                        n.e2.eval().type.equals(types.second())) {
                     legal = true;
                     break;
                 }
