@@ -2,6 +2,8 @@ package codegen;
 
 import codegen.platform.*;
 import codegen.platform.isa.ISA;
+import codegen.synth.SyntheticFunction;
+import codegen.synth.SyntheticFunctionRegistry;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -203,7 +205,7 @@ public final class Generator {
      * @param syntheticFunction The synthetic function to call.
      */
     public void genCall(SyntheticFunction syntheticFunction) {
-        genCall(SyntheticFunctionGenerator.getSyntheticFunctionLabel(syntheticFunction));
+        genCall(SyntheticFunctionRegistry.getInstance(isa).getSyntheticFunctionLabel(syntheticFunction));
     }
 
     /**

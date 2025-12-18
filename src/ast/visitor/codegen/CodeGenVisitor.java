@@ -4,8 +4,8 @@ import ast.*;
 import ast.visitor.LazyVisitor;
 import codegen.FlowContext;
 import codegen.Generator;
-import codegen.SyntheticFunction;
-import codegen.SyntheticFunctionGenerator;
+import codegen.synth.SyntheticFunction;
+import codegen.synth.SyntheticFunctionRegistry;
 import codegen.platform.*;
 import codegen.platform.isa.ISA;
 import semantics.table.SymbolContext;
@@ -23,12 +23,12 @@ import static codegen.platform.Register.*;
 
 public final class CodeGenVisitor extends LazyVisitor {
     private final Generator generator;
-    private final SyntheticFunctionGenerator syntheticFunctionGenerator;
+    private final SyntheticFunctionRegistry syntheticFunctionRegistry;
     private final SymbolContext symbolContext;
 
     public CodeGenVisitor(SymbolContext symbolContext, ISA isa) {
         this.generator = Generator.getInstance(isa);
-        this.syntheticFunctionGenerator = SyntheticFunctionGenerator.getInstance(isa);
+        this.syntheticFunctionRegistry = SyntheticFunctionRegistry.getInstance(isa);
         this.symbolContext = symbolContext;
     }
 
@@ -37,7 +37,7 @@ public final class CodeGenVisitor extends LazyVisitor {
         generator.genCodeSection();
         n.m.accept(this);
         n.cl.forEach(c -> c.accept(this));
-        syntheticFunctionGenerator.generateAll();
+        syntheticFunctionRegistry.generateAll();
     }
 
     @Override
