@@ -425,9 +425,6 @@ public final class DataflowGraph {
                 } else {
                     i.setTarget(nexti);
                 }
-//                if (i.getTarget() != null) {
-//                    i.setTarget(nexti);
-//                }
             } else if (s instanceof IfElse ifelse) {
                 var elseBranch = Instruction.fromStatement(ifelse.s2, nexti);
                 var ifBranch = Instruction.fromStatement(ifelse.s1, nexti);
@@ -458,6 +455,7 @@ public final class DataflowGraph {
                 i.setNext(loop);
                 loop.setTarget(nexti);
             } else if (s instanceof Switch sw) {
+                // TODO: validate/fix this if it doesn't work
                 var pos = new Location(0 ,0);
                 for (int j = sw.cl.size() - 1; j >= 0; j--) {
                     var case_ = sw.cl.get(j);
