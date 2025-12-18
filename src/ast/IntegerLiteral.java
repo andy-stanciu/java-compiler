@@ -1,8 +1,8 @@
 package ast;
 
-import ast.visitor.Visitor;
+import commons.Visitor;
 import java_cup.runtime.ComplexSymbolFactory.Location;
-import semantics.Logger;
+import commons.Logger;
 
 public class IntegerLiteral extends Exp {
     public int i;
@@ -13,7 +13,7 @@ public class IntegerLiteral extends Exp {
     }
 
     public void accept(Visitor v) {
-        Logger.getInstance().setLineNumber(line_number);
+        Logger.getInstance().setLineNumber(lineNumber);
         v.visit(this);
     }
 }

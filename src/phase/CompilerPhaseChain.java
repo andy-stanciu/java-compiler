@@ -1,9 +1,9 @@
-package phases;
+package phase;
 
 import java.util.LinkedList;
 import java.util.List;
 
-import static phases.CompilerState.EXIT_FAILURE;
+import static phase.CompilerState.EXIT_FAILURE;
 
 public final class CompilerPhaseChain {
     private final List<CompilerPhase> phases;

@@ -1,10 +1,9 @@
-package ast.visitor.semantics;
+package semantics.visitor;
 
 import ast.*;
-import ast.visitor.LazyVisitor;
+import commons.LazyVisitor;
 import codegen.Generator;
-import semantics.IllegalSemanticException;
-import semantics.Logger;
+import commons.Logger;
 import semantics.info.ClassInfo;
 import semantics.table.SymbolContext;
 import semantics.type.*;
@@ -42,7 +41,7 @@ public final class ClassVisitor extends LazyVisitor {
         symbolContext.enterMethod("main");
 
         var m = symbolContext.getCurrentMethod();
-        m.lineNumber = n.line_number;
+        m.lineNumber = n.lineNumber;
         m.endLineNumber = n.endPos.getLine();
 
         n.sl.forEach(s -> s.accept(this));
@@ -57,7 +56,7 @@ public final class ClassVisitor extends LazyVisitor {
 
         var this_ = symbolContext.lookupClass(n.i.s);  // this class
         if (this_ == null) {
-            throw new IllegalSemanticException("unreachable");
+            throw new IllegalStateException("unreachable");
         }
 
         symbolContext.enterClass(n.i.s);
@@ -74,7 +73,7 @@ public final class ClassVisitor extends LazyVisitor {
         var base = symbolContext.lookupClass(n.j.s);     // base class
         var derived = symbolContext.lookupClass(n.i.s);  // derived class
         if (derived == null) {
-            throw new IllegalSemanticException("unreachable");
+            throw new IllegalStateException("unreachable");
         }
 
         if (base != null) {
@@ -130,7 +129,7 @@ public final class ClassVisitor extends LazyVisitor {
 
         if (varInfo != null) {  // if there was no conflict
             varInfo.type = n.type;
-            varInfo.lineNumber = n.line_number;
+            varInfo.lineNumber = n.lineNumber;
             if (symbolContext.isMethod()) {
                 var method = symbolContext.getCurrentMethod();
                 // all block local variables added to method
@@ -154,7 +153,7 @@ public final class ClassVisitor extends LazyVisitor {
         if (varInfo != null) {  // if there was no conflict
             varInfo.type = n.type;
             varInfo.initializer = n.e;
-            varInfo.lineNumber = n.line_number;
+            varInfo.lineNumber = n.lineNumber;
             if (symbolContext.isMethod()) {
                 var method = symbolContext.getCurrentMethod();
                 // all block local variables added to method
@@ -174,7 +173,7 @@ public final class ClassVisitor extends LazyVisitor {
 
         n.t.accept(this);  // return type
         methodInfo.returnType = n.type = n.t.type;
-        methodInfo.lineNumber = n.line_number;
+        methodInfo.lineNumber = n.lineNumber;
         methodInfo.endLineNumber = n.endPos.getLine();
 
         symbolContext.enterMethod(n.i.s);
@@ -242,7 +241,7 @@ public final class ClassVisitor extends LazyVisitor {
         if (class_ != null) {
             n.type = new TypeObject(class_);
         } else {
-            n.type = TypeUndefined.getInstance();
+            n.type = TypeUnknown.getInstance();
         }
     }
 

@@ -1,9 +1,11 @@
 package semantics.info;
 
+import lombok.Getter;
 import semantics.table.SymbolContext;
 import semantics.table.SymbolTable;
 import semantics.table.TableType;
 
+@Getter
 public final class BlockInfo extends Info {
     private final SymbolTable table;
 
@@ -11,16 +13,5 @@ public final class BlockInfo extends Info {
         super(name);
         this.table = new SymbolTable(parent, TableType.LOCAL, parent.getName() +
                 SymbolContext.BLOCK_PREFIX + name);
-    }
-
-    /**
-     * @return The qualified method name, i.e. Class$Method$i.
-     */
-    public String getQualifiedName() {
-        return table.getName();
-    }
-
-    public SymbolTable getTable() {
-        return table;
     }
 }

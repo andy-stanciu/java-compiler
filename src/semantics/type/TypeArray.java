@@ -15,7 +15,7 @@ public class TypeArray extends Type {
             return dimension == otherArray.dimension &&
                     type.isAssignableTo(otherArray.type);
         }
-        return other == TypeUndefined.getInstance();
+        return other == TypeUnknown.getInstance();
     }
 
     @Override
@@ -24,7 +24,7 @@ public class TypeArray extends Type {
             return dimension == otherArray.dimension &&
                     type.equals(otherArray.type);
         }
-        return other == TypeUndefined.getInstance();
+        return other == TypeUnknown.getInstance();
     }
 
     @Override

@@ -1,10 +1,10 @@
-package phases;
+package phase;
 
 import ast.Program;
 import parser.parser;
 
-import static phases.CompilerState.EXIT_FAILURE;
-import static phases.CompilerState.EXIT_SUCCESS;
+import static phase.CompilerState.EXIT_FAILURE;
+import static phase.CompilerState.EXIT_SUCCESS;
 
 public final class ParsePhase implements CompilerPhase {
     @Override

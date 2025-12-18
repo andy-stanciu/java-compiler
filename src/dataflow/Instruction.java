@@ -1,18 +1,28 @@
 package dataflow;
 
 import ast.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.HashSet;
 import java.util.Set;
 
 public final class Instruction {
+    @Getter
     private final Statement statement;
+    @Getter
     private final InstructionType type;
+    @Getter
     private Instruction next;
     private final Set<Instruction> prev;
+    @Getter
     private Instruction target;
     private final Set<Instruction> targeting;
+    @Setter
+    @Getter
     private int number;
+    @Setter
+    @Getter
     private Block block;
     public boolean unreachable;
     public int lineNumber;
@@ -79,7 +89,7 @@ public final class Instruction {
         this.target = target;
         this.prev = new HashSet<>();
         this.targeting = new HashSet<>();
-        this.lineNumber = statement != null ? statement.line_number : -1;
+        this.lineNumber = statement != null ? statement.lineNumber : -1;
 
         if (next != null) next.prev.add(this);
         if (target != null) target.targeting.add(this);
@@ -93,30 +103,6 @@ public final class Instruction {
     public Instruction(InstructionType type, int number) {
         this(null, type, null, null);
         this.number = number;
-    }
-
-    public Instruction getNext() {
-        return next;
-    }
-
-    public Instruction getTarget() {
-        return target;
-    }
-
-    public Statement getStatement() {
-        return statement;
-    }
-
-    public InstructionType getType() {
-        return type;
-    }
-
-    public int getNumber() {
-        return number;
-    }
-
-    public Block getBlock() {
-        return block;
     }
 
     public void setNext(Instruction next) {
@@ -151,14 +137,6 @@ public final class Instruction {
         // assert there are no instructions left pointing to this one
         assert(prev.isEmpty());
         assert(targeting.isEmpty());
-    }
-
-    public void setNumber(int number) {
-        this.number = number;
-    }
-
-    public void setBlock(Block block) {
-        this.block = block;
     }
 
     public boolean isJump() {

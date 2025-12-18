@@ -1,34 +1,21 @@
 package dataflow;
 
+import lombok.Getter;
+
 import java.util.HashSet;
 import java.util.Set;
 
+@Getter
 public final class LiveVariableAnalyzer {
-    private final Set<Symbol> use;
-    private final Set<Symbol> def;
-    private final Set<Symbol> in;
-    private final Set<Symbol> out;
+    private final Set<Symbol> useSet;
+    private final Set<Symbol> defSet;
+    private final Set<Symbol> inSet;
+    private final Set<Symbol> outSet;
 
     public LiveVariableAnalyzer() {
-        this.use = new HashSet<>();
-        this.def = new HashSet<>();
-        this.in = new HashSet<>();
-        this.out = new HashSet<>();
-    }
-
-    public Set<Symbol> useSet() {
-        return use;
-    }
-
-    public Set<Symbol> defSet() {
-        return def;
-    }
-
-    public Set<Symbol> inSet() {
-        return in;
-    }
-
-    public Set<Symbol> outSet() {
-        return out;
+        this.useSet = new HashSet<>();
+        this.defSet = new HashSet<>();
+        this.inSet = new HashSet<>();
+        this.outSet = new HashSet<>();
     }
 }

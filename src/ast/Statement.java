@@ -1,6 +1,6 @@
 package ast;
 
-import ast.visitor.Visitor;
+import commons.Visitor;
 import dataflow.Symbol;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 import semantics.info.MethodInfo;

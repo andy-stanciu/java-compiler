@@ -1,13 +1,23 @@
 package dataflow;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.*;
 import java.util.function.Consumer;
 
 public final class Block implements Iterable<Instruction> {
+    @Getter
     private final BlockType type;
-    private final List<Instruction> instructions;
+
+    @Getter
     private final Set<Block> next;
+
+    @Setter
+    @Getter
     private int number;
+
+    private final List<Instruction> instructions;
     private final LiveVariableAnalyzer liveVariableAnalyzer;
 
     public static Block createStart(Instruction start) {
@@ -48,24 +58,8 @@ public final class Block implements Iterable<Instruction> {
         return instructions.get(0);
     }
 
-    public Set<Block> getNext() {
-        return next;
-    }
-
-    public BlockType getType() {
-        return type;
-    }
-
-    public int getNumber() {
-        return number;
-    }
-
     public void addNext(Block next) {
         this.next.add(next);
-    }
-
-    public void setNumber(int number) {
-        this.number = number;
     }
 
     public boolean isFirst() {

@@ -1,12 +1,13 @@
-package ast.visitor;
+package parser.visitor;
 
 import ast.*;
-import ast.visitor.util.BlockContext;
-import ast.visitor.util.BlockType;
-import ast.visitor.util.Indenter;
-import ast.visitor.util.PrecedentTracker;
+import commons.LazyVisitor;
+import commons.BlockContext;
+import commons.BlockType;
+import commons.Indenter;
+import commons.PrecedentTracker;
 
-public final class PrettyPrintVisitor implements Visitor {
+public final class PrettyPrintVisitor extends LazyVisitor {
     private final Indenter indenter;
     private final PrecedentTracker precedentTracker;
     private final BlockContext blockContext;
@@ -17,8 +18,6 @@ public final class PrettyPrintVisitor implements Visitor {
         this.blockContext = BlockContext.create();
     }
 
-    // MainClass m;
-    // ClassDeclList cl;
     public void visit(Program n) {
         n.m.accept(this);
         for (int i = 0; i < n.cl.size(); i++) {
@@ -28,8 +27,6 @@ public final class PrettyPrintVisitor implements Visitor {
         System.out.println();
     }
 
-    // Identifier i1,i2;
-    // Statement s;
     public void visit(MainClass n) {
         System.out.print("class ");
         n.i1.accept(this);
@@ -54,9 +51,6 @@ public final class PrettyPrintVisitor implements Visitor {
         System.out.print("}");
     }
 
-    // Identifier i;
-    // VarDeclList vl;
-    // MethodDeclList ml;
     public void visit(ClassDeclSimple n) {
         System.out.print("class ");
         n.i.accept(this);
@@ -75,10 +69,6 @@ public final class PrettyPrintVisitor implements Visitor {
         System.out.print("}");
     }
 
-    // Identifier i;
-    // Identifier j;
-    // VarDeclList vl;
-    // MethodDeclList ml;
     public void visit(ClassDeclExtends n) {
         System.out.print("class ");
         n.i.accept(this);
@@ -99,8 +89,6 @@ public final class PrettyPrintVisitor implements Visitor {
         System.out.print("}");
     }
 
-    // Type t;
-    // Identifier i;
     public void visit(VarDecl n) {
         var context = blockContext.peek();
         if (context != BlockType.FOR) indenter.print();
@@ -122,12 +110,6 @@ public final class PrettyPrintVisitor implements Visitor {
         if (context != BlockType.FOR) System.out.print(";");
     }
 
-    // Type t;
-    // Identifier i;
-    // FormalList fl;
-    // VarDeclList vl;
-    // StatementList sl;
-    // Exp e;
     public void visit(MethodDecl n) {
         indenter.print();
         System.out.print("public ");
@@ -153,8 +135,6 @@ public final class PrettyPrintVisitor implements Visitor {
         System.out.print("}");
     }
 
-    // Type t;
-    // Identifier i;
     public void visit(Formal n) {
         n.t.accept(this);
         System.out.print(" ");
@@ -183,12 +163,10 @@ public final class PrettyPrintVisitor implements Visitor {
         System.out.print("String");
     }
 
-    // String s;
     public void visit(IdentifierType n) {
         System.out.print(n.s);
     }
 
-    // StatementList sl;
     public void visit(Block n) {
         indenter.push();
         for (int i = 0; i < n.sl.size(); i++) {
@@ -226,8 +204,6 @@ public final class PrettyPrintVisitor implements Visitor {
         System.out.print("}");
     }
 
-    // Exp e;
-    // Statement s1,s2;
     public void visit(IfElse n) {
         indenter.print();
         System.out.print("if (");
@@ -301,8 +277,6 @@ public final class PrettyPrintVisitor implements Visitor {
         indenter.pop();
     }
 
-    // Exp e;
-    // Statement s;
     public void visit(While n) {
         indenter.print();
         System.out.print("while (");
@@ -350,7 +324,6 @@ public final class PrettyPrintVisitor implements Visitor {
         }
     }
 
-    // Exp e;
     public void visit(Print n) {
         var context = blockContext.peek();
         if (context != BlockType.FOR) indenter.print();
@@ -360,8 +333,6 @@ public final class PrettyPrintVisitor implements Visitor {
         if (context != BlockType.FOR) System.out.print(";");
     }
 
-    // Identifier i;
-    // Exp e;
     public void visit(AssignSimple n) {
         var context = blockContext.peek();
         if (context != BlockType.FOR) indenter.print();
@@ -517,7 +488,6 @@ public final class PrettyPrintVisitor implements Visitor {
         if (context != BlockType.FOR) System.out.print(";");
     }
 
-    // Exp e1,e2;
     public void visit(And n) {
         precedentTracker.leftParen(n);
         precedentTracker.push(n);
@@ -561,7 +531,6 @@ public final class PrettyPrintVisitor implements Visitor {
         precedentTracker.rightParen(n);
     }
 
-    // Exp e1,e2;
     public void visit(LessThan n) {
         precedentTracker.leftParen(n);
         precedentTracker.push(n);
@@ -658,7 +627,6 @@ public final class PrettyPrintVisitor implements Visitor {
         precedentTracker.rightParen(n);
     }
 
-    // Exp e1,e2;
     public void visit(Plus n) {
         precedentTracker.leftParen(n);
         precedentTracker.push(n);
@@ -669,7 +637,6 @@ public final class PrettyPrintVisitor implements Visitor {
         precedentTracker.rightParen(n);
     }
 
-    // Exp e1,e2;
     public void visit(Minus n) {
         precedentTracker.leftParen(n);
         precedentTracker.push(n);
@@ -680,7 +647,6 @@ public final class PrettyPrintVisitor implements Visitor {
         precedentTracker.rightParen(n);
     }
 
-    // Exp e1,e2;
     public void visit(Times n) {
         precedentTracker.leftParen(n);
         precedentTracker.push(n);
@@ -746,7 +712,6 @@ public final class PrettyPrintVisitor implements Visitor {
         precedentTracker.rightParen(n);
     }
 
-    // Exp e1,e2;
     public void visit(ArrayLookup n) {
         precedentTracker.leftParen(n);
         precedentTracker.push(n);
@@ -760,7 +725,6 @@ public final class PrettyPrintVisitor implements Visitor {
         precedentTracker.rightParen(n);
     }
 
-    // Exp e;
     public void visit(ArrayLength n) {
         precedentTracker.leftParen(n);
         precedentTracker.push(n);
@@ -776,9 +740,6 @@ public final class PrettyPrintVisitor implements Visitor {
         System.out.print(";");
     }
 
-    // Exp e;
-    // Identifier i;
-    // ExpList el;
     public void visit(Call n) {
         precedentTracker.leftParen(n);
         precedentTracker.push(n);
@@ -832,7 +793,6 @@ public final class PrettyPrintVisitor implements Visitor {
         precedentTracker.rightParen(n);
     }
 
-    // int i;
     public void visit(IntegerLiteral n) {
         System.out.print(n.i);
     }
@@ -849,7 +809,6 @@ public final class PrettyPrintVisitor implements Visitor {
         System.out.print("false");
     }
 
-    // String s;
     public void visit(IdentifierExp n) {
         System.out.print(n.s);
     }
@@ -858,7 +817,6 @@ public final class PrettyPrintVisitor implements Visitor {
         System.out.print("this");
     }
 
-    // Exp e;
     public void visit(NewArray n) {
         precedentTracker.leftParen(n);
         precedentTracker.push(n);
@@ -872,7 +830,6 @@ public final class PrettyPrintVisitor implements Visitor {
         precedentTracker.rightParen(n);
     }
 
-    // Identifier i;
     public void visit(NewObject n) {
         precedentTracker.leftParen(n);
         System.out.print("new ");
@@ -881,7 +838,6 @@ public final class PrettyPrintVisitor implements Visitor {
         precedentTracker.rightParen(n);
     }
 
-    // Exp e;
     public void visit(Not n) {
         precedentTracker.leftParen(n);
         precedentTracker.push(n);
@@ -901,7 +857,6 @@ public final class PrettyPrintVisitor implements Visitor {
         precedentTracker.rightParen(n);
     }
 
-    // String s;
     public void visit(Identifier n) {
         System.out.print(n.s);
     }

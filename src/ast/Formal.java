@@ -1,22 +1,23 @@
 package ast;
 
-import ast.visitor.Visitor;
+import commons.Visitor;
 import java_cup.runtime.ComplexSymbolFactory.Location;
-import semantics.Logger;
+import commons.Logger;
+import semantics.type.Type;
 
 public class Formal extends ASTNode {
-    public Type t;
+    public ast.Type t;
     public Identifier i;
-    public semantics.type.Type type;
+    public Type type;
 
-    public Formal(Type at, Identifier ai, Location pos) {
+    public Formal(ast.Type at, Identifier ai, Location pos) {
         super(pos);
         t = at;
         i = ai;
     }
 
     public void accept(Visitor v) {
-        Logger.getInstance().setLineNumber(line_number);
+        Logger.getInstance().setLineNumber(lineNumber);
         v.visit(this);
     }
 }

@@ -1,4 +1,4 @@
-package phases;
+package phase;
 
 import java_cup.runtime.ComplexSymbolFactory;
 import parser.sym;
@@ -8,8 +8,8 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 
-import static phases.CompilerState.EXIT_FAILURE;
-import static phases.CompilerState.EXIT_SUCCESS;
+import static phase.CompilerState.EXIT_FAILURE;
+import static phase.CompilerState.EXIT_SUCCESS;
 
 public final class ScanPhase implements CompilerPhase {
     private final boolean printTokens;

@@ -1,8 +1,8 @@
 package ast;
 
-import ast.visitor.Visitor;
+import commons.Visitor;
 import java_cup.runtime.ComplexSymbolFactory.Location;
-import semantics.Logger;
+import commons.Logger;
 
 public class InstanceOf extends Exp {
     public Expression e;
@@ -16,7 +16,7 @@ public class InstanceOf extends Exp {
 
     @Override
     public void accept(Visitor v) {
-        Logger.getInstance().setLineNumber(line_number);
+        Logger.getInstance().setLineNumber(lineNumber);
         v.visit(this);
     }
 }

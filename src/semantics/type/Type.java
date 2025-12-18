@@ -5,11 +5,11 @@ public abstract class Type {
     public abstract boolean equals(Type other);
     public abstract String toString();
 
-    public boolean isUndefined() {
-        return this == TypeUndefined.getInstance();
+    public boolean isUnknown() {
+        return this == TypeUnknown.getInstance();
     }
 
     public boolean isArray() {
-        return isUndefined() || !(this instanceof TypeSingular);
+        return isUnknown() || !(this instanceof TypeSingular);
     }
 }

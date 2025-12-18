@@ -1,13 +1,13 @@
-package phases;
+package phase;
 
-import ast.visitor.semantics.ClassVisitor;
-import ast.visitor.semantics.GlobalVisitor;
-import ast.visitor.semantics.LocalVisitor;
-import semantics.Logger;
+import semantics.visitor.ClassVisitor;
+import semantics.visitor.GlobalVisitor;
+import semantics.visitor.LocalVisitor;
+import commons.Logger;
 import semantics.table.SymbolContext;
 
-import static phases.CompilerState.EXIT_FAILURE;
-import static phases.CompilerState.EXIT_SUCCESS;
+import static phase.CompilerState.EXIT_FAILURE;
+import static phase.CompilerState.EXIT_SUCCESS;
 
 public final class StaticAnalysisPhase implements CompilerPhase {
     private final boolean printSymbolTables;

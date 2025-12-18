@@ -1,9 +1,9 @@
 package ast;
 
-import ast.visitor.Visitor;
+import commons.Visitor;
 import dataflow.DataflowGraph;
 import java_cup.runtime.ComplexSymbolFactory.Location;
-import semantics.Logger;
+import commons.Logger;
 
 public class MainClass extends ASTNode {
     public Identifier i1, i2;
@@ -21,7 +21,7 @@ public class MainClass extends ASTNode {
     }
 
     public void accept(Visitor v) {
-        Logger.getInstance().setLineNumber(line_number);
+        Logger.getInstance().setLineNumber(lineNumber);
         v.visit(this);
     }
 }

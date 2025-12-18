@@ -1,7 +1,6 @@
 package semantics.table;
 
-import ast.Block;
-import semantics.Logger;
+import commons.Logger;
 import semantics.info.*;
 import semantics.type.TypeVoid;
 
@@ -379,11 +378,11 @@ public final class SymbolContext {
     }
 
     /**
-     * Checks whether the specified symbol is marked as undefined.
+     * Checks whether the specified symbol is marked as unknown.
      * @param symbol The symbol to check.
-     * @return Whether the symbol is undefined.
+     * @return Whether the symbol is unknown.
      */
-    public boolean isUndefined(String symbol) {
+    public boolean isUnknown(String symbol) {
         var curr = table;
         var result = curr.isUndefined(symbol);
         while (!result && curr.hasParent()) {

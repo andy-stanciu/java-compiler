@@ -1,4 +1,4 @@
-package ast.visitor.util;
+package commons;
 
 import ast.*;
 

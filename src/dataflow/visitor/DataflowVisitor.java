@@ -1,7 +1,7 @@
-package ast.visitor.dataflow;
+package dataflow.visitor;
 
 import ast.*;
-import ast.visitor.LazyVisitor;
+import commons.LazyVisitor;
 import dataflow.DataflowGraph;
 import semantics.table.SymbolContext;
 

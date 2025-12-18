@@ -1,6 +1,6 @@
 package ast;
 
-import ast.visitor.Visitor;
+import commons.Visitor;
 
 public interface Assignable extends Expression {
     void accept(Visitor visitor);

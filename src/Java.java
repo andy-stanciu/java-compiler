@@ -1,13 +1,13 @@
 import codegen.platform.isa.ISA;
 import codegen.platform.isa.ISAProvider;
-import phases.*;
+import phase.*;
 
 import java.io.*;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import static phases.CompilerState.EXIT_FAILURE;
-import static phases.CompilerState.EXIT_SUCCESS;
+import static phase.CompilerState.EXIT_FAILURE;
+import static phase.CompilerState.EXIT_SUCCESS;
 
 public class Java {
     public static void main(String[] args) {

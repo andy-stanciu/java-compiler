@@ -1,10 +1,10 @@
-package phases;
+package phase;
 
-import ast.visitor.codegen.CodeDataVisitor;
-import ast.visitor.codegen.CodeGenVisitor;
+import codegen.visitor.CodeDataVisitor;
+import codegen.visitor.CodeGenVisitor;
 
-import static phases.CompilerState.EXIT_FAILURE;
-import static phases.CompilerState.EXIT_SUCCESS;
+import static phase.CompilerState.EXIT_FAILURE;
+import static phase.CompilerState.EXIT_SUCCESS;
 
 public final class CodeGenerationPhase implements CompilerPhase {
     @Override

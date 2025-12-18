@@ -1,9 +1,9 @@
-package phases;
+package phase;
 
-import ast.visitor.dataflow.DataflowVisitor;
+import dataflow.visitor.DataflowVisitor;
 
-import static phases.CompilerState.EXIT_FAILURE;
-import static phases.CompilerState.EXIT_SUCCESS;
+import static phase.CompilerState.EXIT_FAILURE;
+import static phase.CompilerState.EXIT_SUCCESS;
 
 public final class DataflowAnalysisPhase implements CompilerPhase {
     private final boolean printInstructions;
