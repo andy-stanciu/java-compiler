@@ -1,10 +1,10 @@
 package dataflow;
 
 import ast.*;
-import ast.visitor.dataflow.DataflowVisitor;
-import ast.visitor.dataflow.LiveVariableVisitor;
+import dataflow.visitor.DataflowVisitor;
+import dataflow.visitor.LiveVariableVisitor;
 import java_cup.runtime.ComplexSymbolFactory.Location;
-import semantics.Logger;
+import commons.Logger;
 import semantics.info.ClassInfo;
 import semantics.info.MethodInfo;
 import semantics.table.SymbolContext;
@@ -195,21 +195,21 @@ public final class DataflowGraph {
             // Def set of first block should include method parameters and instance variables
             if (b.isFirst()) {
                 method.getArgumentNames().forEach(arg -> {
-                    b.variables().defSet().add(new Symbol(arg, method.lineNumber));
+                    b.variables().getDefSet().add(new Symbol(arg, method.lineNumber));
                 });
                 class_.getInstanceVariables().forEach(v -> {
-                    b.variables().defSet().add(new Symbol(v.name, v.lineNumber));
+                    b.variables().getDefSet().add(new Symbol(v.name, v.lineNumber));
                 });
             }
             b.forEach(i -> {
                 var s = i.getStatement();
                 if (s != null) {
                     s.accept(liveVariableVisitor);
-                    b.variables().defSet().addAll(s.defined);
+                    b.variables().getDefSet().addAll(s.defined);
 
                     s.used.forEach(v -> {
-                        if (!b.variables().defSet().contains(v)) {
-                            b.variables().useSet().add(v);
+                        if (!b.variables().getDefSet().contains(v)) {
+                            b.variables().getUseSet().add(v);
                         }
                     });
                 }
@@ -222,17 +222,17 @@ public final class DataflowGraph {
             var size = new AtomicInteger();
             visitBlocks(b -> {
                 // in[b] = use[b] union (out[b] - def[b])
-                var diff = new HashSet<>(b.variables().outSet());
-                diff.removeAll(b.variables().defSet());
-                b.variables().inSet().addAll(b.variables().useSet());
-                b.variables().inSet().addAll(diff);
+                var diff = new HashSet<>(b.variables().getOutSet());
+                diff.removeAll(b.variables().getDefSet());
+                b.variables().getInSet().addAll(b.variables().getUseSet());
+                b.variables().getInSet().addAll(diff);
 
                 // out[b] = union of in[s] for all s in succ[b]
-                b.getNext().forEach(s -> b.variables().outSet().addAll(s.variables().inSet()));
+                b.getNext().forEach(s -> b.variables().getOutSet().addAll(s.variables().getInSet()));
 
                 // update with sizes of in & out sets
-                size.getAndAdd(b.variables().inSet().size());
-                size.getAndAdd(b.variables().outSet().size());
+                size.getAndAdd(b.variables().getInSet().size());
+                size.getAndAdd(b.variables().getOutSet().size());
             });
 
             // if size is unchanged, we're done updating in & out sets
@@ -255,7 +255,7 @@ public final class DataflowGraph {
         // all live variable validation sets have been constructed.
         // any variables belonging to in[first block] that are not method parameters
         // or instance variables at this point must be uninitialized
-        first.variables().inSet().forEach(v -> {
+        first.variables().getInSet().forEach(v -> {
             logger.setLineNumber(v.lineNumber());
             logger.logError("Uninitialized variable \"%s\"%n", v.name());
         });

@@ -1,11 +1,10 @@
 package semantics.type;
 
-public class TypeBoolean extends TypeSingular {
-    private static final TypeBoolean instance = new TypeBoolean();
+import lombok.Getter;
 
-    public static TypeBoolean getInstance() {
-        return instance;
-    }
+public class TypeBoolean extends TypeSingular {
+    @Getter
+    private static final TypeBoolean instance = new TypeBoolean();
 
     private TypeBoolean() {}
 
@@ -16,7 +15,7 @@ public class TypeBoolean extends TypeSingular {
 
     @Override
     public boolean equals(Type other) {
-        return this == other || other == TypeUndefined.getInstance();
+        return this == other || other == TypeUnknown.getInstance();
     }
 
     @Override

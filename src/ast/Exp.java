@@ -1,6 +1,6 @@
 package ast;
 
-import ast.visitor.Visitor;
+import commons.Visitor;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 import semantics.type.Type;
 

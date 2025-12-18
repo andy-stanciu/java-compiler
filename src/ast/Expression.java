@@ -1,6 +1,6 @@
 package ast;
 
-import ast.visitor.Visitor;
+import commons.Visitor;
 
 public interface Expression {
     Exp eval();

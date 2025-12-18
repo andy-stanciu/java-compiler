@@ -2,6 +2,7 @@ package semantics.info;
 
 import ast.Expression;
 import codegen.Generator;
+import lombok.Getter;
 import semantics.table.SymbolTable;
 import semantics.type.Type;
 
@@ -9,7 +10,10 @@ public final class VariableInfo extends Info {
     public Type type;
     public Expression initializer;
     public int vIndex;  // index of variable, either as an instance variable or parameter/local variable
+
+    @Getter
     private final SymbolTable parent;
+
     private final boolean isInstanceVariable;
     public int lineNumber;  // line number where the variable was defined
 
@@ -44,9 +48,5 @@ public final class VariableInfo extends Info {
         }
 
         return vIndex * Generator.WORD_SIZE;
-    }
-
-    public SymbolTable getParent() {
-        return parent;
     }
 }

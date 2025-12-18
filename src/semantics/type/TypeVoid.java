@@ -1,11 +1,10 @@
 package semantics.type;
 
-public class TypeVoid extends Type {
-    private static final TypeVoid instance = new TypeVoid();
+import lombok.Getter;
 
-    public static TypeVoid getInstance() {
-        return instance;
-    }
+public class TypeVoid extends Type {
+    @Getter
+    private static final TypeVoid instance = new TypeVoid();
 
     private TypeVoid() {}
 
@@ -16,7 +15,7 @@ public class TypeVoid extends Type {
 
     @Override
     public boolean equals(Type other) {
-        return this == other || other == TypeUndefined.getInstance();
+        return this == other || other == TypeUnknown.getInstance();
     }
 
     @Override

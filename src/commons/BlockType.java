@@ -1,4 +1,4 @@
-package ast.visitor.util;
+package commons;
 
 public enum BlockType {
     FOR,    // for loop block

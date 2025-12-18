@@ -1,7 +1,7 @@
-package ast.visitor.semantics;
+package semantics.visitor;
 
 import ast.*;
-import ast.visitor.LazyVisitor;
+import commons.LazyVisitor;
 import semantics.table.SymbolContext;
 
 /**

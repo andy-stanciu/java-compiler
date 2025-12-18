@@ -1,8 +1,8 @@
 package ast;
 
-import ast.visitor.Visitor;
+import commons.Visitor;
 import java_cup.runtime.ComplexSymbolFactory.Location;
-import semantics.Logger;
+import commons.Logger;
 
 public class Divide extends BinaryExp {
     public Divide(Expression ae1, Expression ae2, Location pos) {
@@ -10,7 +10,7 @@ public class Divide extends BinaryExp {
     }
 
     public void accept(Visitor v) {
-        Logger.getInstance().setLineNumber(line_number);
+        Logger.getInstance().setLineNumber(lineNumber);
         v.visit(this);
     }
 }

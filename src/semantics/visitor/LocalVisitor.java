@@ -1,9 +1,9 @@
-package ast.visitor.semantics;
+package semantics.visitor;
 
 import ast.*;
-import ast.visitor.LazyVisitor;
+import commons.LazyVisitor;
 import commons.Pair;
-import semantics.Logger;
+import commons.Logger;
 import semantics.table.SymbolContext;
 import semantics.type.*;
 import semantics.type.Type;
@@ -104,7 +104,7 @@ public final class LocalVisitor extends LazyVisitor {
         if (class_ != null) {
             n.type = new TypeObject(class_);
         } else {
-            n.type = TypeUndefined.getInstance();
+            n.type = TypeUnknown.getInstance();
         }
     }
 
@@ -493,7 +493,7 @@ public final class LocalVisitor extends LazyVisitor {
             }
         } else {
             logger.logError("Cannot index on non-array type %s%n", n.e1.eval().type);
-            n.type = TypeUndefined.getInstance();
+            n.type = TypeUnknown.getInstance();
         }
     }
 
@@ -511,7 +511,7 @@ public final class LocalVisitor extends LazyVisitor {
     public void visit(Action n) {
         n.c.accept(this);
         if (!n.c.type.equals(TypeVoid.getInstance()) &&
-                !n.c.type.isUndefined()) {
+                !n.c.type.isUnknown()) {
             logger.logWarning("Result type %s of \"%s\" is ignored%n", n.c.type, n.c.i.s);
         }
     }
@@ -521,9 +521,9 @@ public final class LocalVisitor extends LazyVisitor {
         n.e.accept(this);                   // object type
         n.el.forEach(e -> e.accept(this));  // parameters
 
-        n.type = TypeUndefined.getInstance();  // mark as undefined for now
+        n.type = TypeUnknown.getInstance();  // mark as undefined for now
 
-        if (n.e.eval().type == TypeUndefined.getInstance()) {
+        if (n.e.eval().type == TypeUnknown.getInstance()) {
             // if undefined, cannot invoke method so we skip
             return;
         }
@@ -531,7 +531,7 @@ public final class LocalVisitor extends LazyVisitor {
         if (n.e.eval().type instanceof TypeObject obj) {
             var m = symbolContext.lookupMethod(n.i.s, obj.base);
             if (m == null) {
-                if (!symbolContext.isUndefined(n.i.s)) {
+                if (!symbolContext.isUnknown(n.i.s)) {
                     logger.logError("Cannot resolve method \"%s\" in \"%s\"%n",
                             n.i, obj.base.name);
                 }
@@ -563,9 +563,9 @@ public final class LocalVisitor extends LazyVisitor {
     @Override
     public void visit(Field n) {
         n.e.accept(this);                   // object type
-        n.type = TypeUndefined.getInstance();  // mark as undefined for now
+        n.type = TypeUnknown.getInstance();  // mark as undefined for now
 
-        if (n.e.eval().type == TypeUndefined.getInstance()) {
+        if (n.e.eval().type == TypeUnknown.getInstance()) {
             // if undefined, cannot access field so we skip
             return;
         }
@@ -573,7 +573,7 @@ public final class LocalVisitor extends LazyVisitor {
         if (n.e.eval().type instanceof TypeObject obj) {
             var v = symbolContext.lookupInstanceVariable(n.i.s, obj.base);
             if (v == null) {
-                if (!symbolContext.isUndefined(n.i.s)) {
+                if (!symbolContext.isUnknown(n.i.s)) {
                     logger.logError("Cannot resolve field \"%s\" in \"%s\"%n",
                             n.i.s, obj.base.name);
                 }
@@ -601,7 +601,7 @@ public final class LocalVisitor extends LazyVisitor {
         if (!n.e1.eval().type.equals(n.e2.eval().type)) {
             logger.logError("Ternary expression cannot be applied to %s, %s%n",
                     n.e1.eval().type, n.e2.eval().type);
-            n.type = TypeUndefined.getInstance();
+            n.type = TypeUnknown.getInstance();
         } else {
             n.type = n.e1.eval().type;
         }
@@ -621,7 +621,7 @@ public final class LocalVisitor extends LazyVisitor {
                         n.e.eval().type, n.i.s);
             }
         } else {
-            if (!symbolContext.isUndefined(n.i.s)) {
+            if (!symbolContext.isUnknown(n.i.s)) {
                 logger.logError("Cannot apply instanceof to \"%s\". Is it a class?%n",
                         n.i.s);
             }
@@ -656,11 +656,11 @@ public final class LocalVisitor extends LazyVisitor {
         if (v != null) {
             n.type = v.type;
         } else {
-            if (!symbolContext.isUndefined(n.s)) {
+            if (!symbolContext.isUnknown(n.s)) {
                 logger.logError("Cannot interpret \"%s\" as an expression. Is it a variable?%n",
                         n.s);
             }
-            n.type = TypeUndefined.getInstance(); // mark as undefined
+            n.type = TypeUnknown.getInstance(); // mark as undefined
         }
     }
 
@@ -692,10 +692,10 @@ public final class LocalVisitor extends LazyVisitor {
     public void visit(NewObject n) {
         var classInfo = symbolContext.lookupClass(n.i.s);
         if (classInfo == null) {
-            if (!symbolContext.isUndefined(n.i.s)) {
+            if (!symbolContext.isUnknown(n.i.s)) {
                 logger.logError("Cannot resolve class \"%s\"%n", n.i.s);
             }
-            n.type = TypeUndefined.getInstance();
+            n.type = TypeUnknown.getInstance();
         } else {
             n.type = new TypeObject(classInfo);
         }
@@ -751,6 +751,7 @@ public final class LocalVisitor extends LazyVisitor {
      * @param sym The symbol associated with the assignment statement.
      * @param accepted The type pair combinations to accept.
      */
+    @SafeVarargs
     private void visitAssign(Assign n, String sym, Pair<Type>... accepted) {
         n.e2.accept(this);  // RHS
         n.e1.accept(this);  // assignable
@@ -875,6 +876,6 @@ public final class LocalVisitor extends LazyVisitor {
                     sym, n.e1.eval().type, n.e2.eval().type);
         }
 
-        n.type = TypeUndefined.getInstance();
+        n.type = TypeUnknown.getInstance();
     }
 }

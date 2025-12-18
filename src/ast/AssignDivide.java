@@ -1,8 +1,8 @@
 package ast;
 
-import ast.visitor.Visitor;
+import commons.Visitor;
 import java_cup.runtime.ComplexSymbolFactory.Location;
-import semantics.Logger;
+import commons.Logger;
 
 public class AssignDivide extends Assign {
     public AssignDivide(Expression ei, Expression ae, Location pos) {
@@ -10,7 +10,7 @@ public class AssignDivide extends Assign {
     }
 
     public void accept(Visitor v) {
-        Logger.getInstance().setLineNumber(line_number);
+        Logger.getInstance().setLineNumber(lineNumber);
         v.visit(this);
     }
 }

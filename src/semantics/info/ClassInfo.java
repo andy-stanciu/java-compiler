@@ -1,16 +1,27 @@
 package semantics.info;
 
 import codegen.Generator;
+import lombok.Getter;
+import lombok.Setter;
 import semantics.table.SymbolTable;
 import semantics.table.TableType;
 
 import java.util.*;
 
 public final class ClassInfo extends Info {
+    @Getter
     private final boolean main;
+
+    @Getter
     private final SymbolTable table;
+
+    @Setter
+    @Getter
     private ClassInfo parent;
+
+    @Getter
     private final Set<ClassInfo> children;
+
     private MethodInfo[] vtable;
     private int variableCount;
     private final List<VariableInfo> instanceVariables;
@@ -127,32 +138,6 @@ public final class ClassInfo extends Info {
         return (variableCount + 1) * Generator.WORD_SIZE;
     }
 
-    public SymbolTable getTable() {
-        return table;
-    }
-
-    /**
-     * @return The parent of this class, or null if this class is a base class.
-     */
-    public ClassInfo getParent() {
-        return parent;
-    }
-
-    /**
-     * Sets the parent of this class.
-     * @param parent The parent class.
-     */
-    public void setParent(ClassInfo parent) {
-        this.parent = parent;
-    }
-
-    /**
-     * @return The children of this class.
-     */
-    public Set<ClassInfo> getChildren() {
-        return children;
-    }
-
     /**
      * Adds a child to this class.
      * @param child The child class to add.
@@ -175,13 +160,6 @@ public final class ClassInfo extends Info {
      */
     public boolean isDerived() {
         return parent != null && !main;
-    }
-
-    /**
-     * @return Whether this class is the main class.
-     */
-    public boolean isMain() {
-        return main;
     }
 
     /**

@@ -24,17 +24,16 @@ void put_bool(int64_t b) {
 }
 
 /*
- *  mjcalloc returns a pointer to a chunk of memory with at least
+ *  jcalloc returns a pointer to a chunk of memory with at least
  *  num_bytes available.  Returned storage has been zeroed out.
  *  Return NULL if attempt to allocate memory fails or if num_bytes
  *  is 0.
  */
-
-void * mjcalloc(size_t num_bytes) {
+void * jcalloc(size_t num_bytes) {
   return (calloc(1, num_bytes));
 }
 
-void * mjmemcpy(int64_t* dst, int64_t* src, size_t num_bytes) {
+void * jmemcpy(int64_t* dst, int64_t* src, size_t num_bytes) {
   return memcpy(dst, src, num_bytes);
 }
 

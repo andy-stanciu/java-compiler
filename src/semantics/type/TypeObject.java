@@ -27,7 +27,7 @@ public class TypeObject extends TypeSingular {
             return parent == obj.base;
         }
 
-        return other == TypeUndefined.getInstance();
+        return other == TypeUnknown.getInstance();
     }
 
     @Override
@@ -36,7 +36,7 @@ public class TypeObject extends TypeSingular {
             return base == obj.base;
         }
 
-        return other == TypeUndefined.getInstance();
+        return other == TypeUnknown.getInstance();
     }
 
     @Override

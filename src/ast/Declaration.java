@@ -1,13 +1,14 @@
 package ast;
 
 import java_cup.runtime.ComplexSymbolFactory.Location;
+import semantics.type.Type;
 
 public abstract class Declaration extends StatementSimple {
-    public Type t;
+    public ast.Type t;
     public Identifier i;
-    public semantics.type.Type type;
+    public Type type;
 
-    public Declaration(Type at, Identifier ai, Location pos) {
+    public Declaration(ast.Type at, Identifier ai, Location pos) {
         super(pos);
         t = at;
         i = ai;

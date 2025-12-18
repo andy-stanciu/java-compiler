@@ -1,6 +1,7 @@
 package semantics.table;
 
-import semantics.Logger;
+import commons.Logger;
+import lombok.Getter;
 import semantics.info.*;
 
 import java.util.*;
@@ -11,10 +12,16 @@ public final class SymbolTable {
     private final Map<String, Info> symbols;
     private final Set<String> undefined;
     private final TableType type;
+
+    @Getter
     private final String name;
+    @Getter
     private int classCount;
+    @Getter
     private int methodCount;
+    @Getter
     private int blockCount;
+    @Getter
     private int variableCount;
 
     /**
@@ -44,13 +51,6 @@ public final class SymbolTable {
      */
     public int size() {
         return symbols.size();
-    }
-
-    /**
-     * @return The name of this symbol table.
-     */
-    public String getName() {
-        return name;
     }
 
     /**
@@ -173,27 +173,6 @@ public final class SymbolTable {
      */
     public Iterable<Info> getEntriesSorted() {
         return new TreeSet<>(symbols.values());
-    }
-
-    /**
-     * @return The number of methods defined in this symbol table.
-     */
-    public int getMethodCount() {
-        return methodCount;
-    }
-
-    /**
-     * @return The number of blocks defined in this symbol table.
-     */
-    public int getBlockCount() {
-        return blockCount;
-    }
-
-    /**
-     * @return The number of variables defined in this symbol table.
-     */
-    public int getVariableCount() {
-        return variableCount;
     }
 
     @Override

@@ -1,21 +1,22 @@
 package ast;
 
-import ast.visitor.Visitor;
+import commons.Visitor;
 import dataflow.DataflowGraph;
 import java_cup.runtime.ComplexSymbolFactory.Location;
-import semantics.Logger;
+import commons.Logger;
+import semantics.type.Type;
 
 public class MethodDecl extends ASTNode {
-    public Type t;
+    public ast.Type t;
     public Identifier i;
     public FormalList fl;
     public StatementList sl;
     public boolean conflict;
-    public semantics.type.Type type;
+    public Type type;
     public DataflowGraph dataflow;
     public Location endPos;
 
-    public MethodDecl(Type at, Identifier ai, FormalList afl,
+    public MethodDecl(ast.Type at, Identifier ai, FormalList afl,
                       StatementList asl, Location pos, Location endPos) {
         super(pos);
         t = at;
@@ -26,7 +27,7 @@ public class MethodDecl extends ASTNode {
     }
 
     public void accept(Visitor v) {
-        Logger.getInstance().setLineNumber(line_number);
+        Logger.getInstance().setLineNumber(lineNumber);
         v.visit(this);
     }
 }

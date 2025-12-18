@@ -1,7 +1,7 @@
-package ast.visitor.dataflow;
+package dataflow.visitor;
 
 import ast.*;
-import ast.visitor.LazyVisitor;
+import commons.LazyVisitor;
 import dataflow.Symbol;
 
 import java.util.Set;
@@ -11,17 +11,17 @@ import java.util.Set;
  * Some statements cannot exist as instructions, and thus will throw if this visitor attempts
  * to visit them.
  */
-public class LiveVariableVisitor extends LazyVisitor {
+public final class LiveVariableVisitor extends LazyVisitor {
     private Set<Symbol> used;
 
     @Override
     public void visit(VarDecl n) {
-        n.defined.add(new Symbol(n.i.s, n.i.line_number));
+        n.defined.add(new Symbol(n.i.s, n.i.lineNumber));
     }
 
     @Override
     public void visit(VarInit n) {
-        n.defined.add(new Symbol(n.i.s, n.i.line_number));
+        n.defined.add(new Symbol(n.i.s, n.i.lineNumber));
         used = n.used;
         n.e.accept(this);
     }
@@ -359,7 +359,7 @@ public class LiveVariableVisitor extends LazyVisitor {
             throw new IllegalStateException();
         }
 
-        used.add(new Symbol(n.s, n.line_number));
+        used.add(new Symbol(n.s, n.lineNumber));
     }
 
     @Override

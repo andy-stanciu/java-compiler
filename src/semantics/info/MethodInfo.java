@@ -1,6 +1,7 @@
 package semantics.info;
 
 import codegen.Generator;
+import lombok.Getter;
 import semantics.table.SymbolContext;
 import semantics.table.SymbolTable;
 import semantics.table.TableType;
@@ -21,6 +22,8 @@ public final class MethodInfo extends Info {
     private final List<Type> argumentTypes;
     private final Set<String> argumentNames;
     private final List<VariableInfo> localVariables;
+
+    @Getter
     private final SymbolTable table;
 
     public MethodInfo(SymbolTable parent, String name) {
@@ -59,10 +62,6 @@ public final class MethodInfo extends Info {
         argumentNames.add(name);
     }
 
-    public boolean hasArgument(String name) {
-        return argumentNames.contains(name);
-    }
-
     public Type getArgument(int i) {
         return argumentTypes.get(i);
     }
@@ -81,9 +80,5 @@ public final class MethodInfo extends Info {
 
     public int localVariableCount() {
         return localVariables.size();
-    }
-
-    public SymbolTable getTable() {
-        return table;
     }
 }

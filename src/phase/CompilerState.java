@@ -1,13 +1,13 @@
-package phases;
+package phase;
 
 import ast.Program;
-import ast.visitor.dataflow.DataflowVisitor;
+import dataflow.visitor.DataflowVisitor;
 import codegen.platform.isa.ISA;
 import java_cup.runtime.ComplexSymbolFactory;
 import lombok.Builder;
 import lombok.Data;
 import scanner.*;
-import semantics.Logger;
+import commons.Logger;
 import semantics.table.SymbolContext;
 
 import java.io.File;

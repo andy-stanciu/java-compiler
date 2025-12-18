@@ -1,11 +1,10 @@
 package semantics.type;
 
-public class TypeString extends TypeSingular {
-    private static final TypeString instance = new TypeString();
+import lombok.Getter;
 
-    public static TypeString getInstance() {
-        return instance;
-    }
+public class TypeString extends TypeSingular {
+    @Getter
+    private static final TypeString instance = new TypeString();
 
     private TypeString() {}
 
@@ -16,7 +15,7 @@ public class TypeString extends TypeSingular {
 
     @Override
     public boolean equals(Type other) {
-        return this == other || other == TypeUndefined.getInstance();
+        return this == other || other == TypeUnknown.getInstance();
     }
 
     @Override
