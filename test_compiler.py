@@ -296,12 +296,12 @@ def main() -> int:
     for r in results:
       status = "[green]PASS[/green]" if r.ok else "[red]FAIL[/red]"
       diff = str(r.diff_path) if r.diff_path else "[green]100%[/green]"
-      table.add_row(r.name, status, r.note, diff)
+      table.add_row(r.name, status, r.note.rstrip(), diff.rstrip())
     console.print(table)
     console.print(f"\nOverall: {passed}/{len(results)} passed, {failed} failed")
   else:
     for r in results:
-      print(f"{r.name}: {'PASS' if r.ok else 'FAIL'} {('- ' + r.note) if r.note else ''}")
+      print(f"{r.name}: {'PASS' if r.ok else 'FAIL'} {('- ' + r.note.rstrip()) if r.note else ''}")
       if r.diff_path:
         print(f"  diff: {r.diff_path}")
     print(f"Overall: {passed}/{len(results)} passed, {failed} failed")
