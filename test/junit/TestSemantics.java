@@ -5,16 +5,23 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 public class TestSemantics {
-    public static final String TEST_FILES_LOCATION = "test/resources/Semantics/";
-    public static final String TEST_FILES_INPUT_EXTENSION = ".java";
-    public static final String TEST_FILES_TABLE_EXTENSION = ".tbl";
-    public static final String TEST_FILES_ERROR_EXTENSION = ".err";
+    private static final boolean OVERWRITE_TABLE_OUTPUT = false;
+
+    private static final String TEST_FILES_LOCATION = "test/resources/Semantics/";
+    private static final String TEST_FILES_INPUT_EXTENSION = ".java";
+    private static final String TEST_FILES_TABLE_EXTENSION = ".tbl";
+    private static final String TEST_FILES_ERROR_EXTENSION = ".err";
 
     private void runSemanticsSuccessTestCase(String name) {
         try {
+            final Path expected = Path.of(TEST_FILES_LOCATION, name + TEST_FILES_TABLE_EXTENSION);
+            if (OVERWRITE_TABLE_OUTPUT) {
+                new JavaTestBuilder()
+                        .overwriteExpectedSystemOutWithContentsOf(expected)
+                        .testCompiler("-T", TEST_FILES_LOCATION + name + TEST_FILES_INPUT_EXTENSION);
+            }
             new JavaTestBuilder()
-                    .assertSystemOutMatchesContentsOf(
-                            Path.of(TEST_FILES_LOCATION, name + TEST_FILES_TABLE_EXTENSION))
+                    .assertSystemOutMatchesContentsOf(expected)
                     .assertSystemErrIsEmpty()
                     .assertExitSuccess()
                     .testCompiler("-T", TEST_FILES_LOCATION + name + TEST_FILES_INPUT_EXTENSION);
@@ -25,9 +32,14 @@ public class TestSemantics {
 
     private void runSemanticsFailTestCase(String name) {
         try {
+            final Path expected = Path.of(TEST_FILES_LOCATION, name + TEST_FILES_TABLE_EXTENSION);
+            if (OVERWRITE_TABLE_OUTPUT) {
+                new JavaTestBuilder()
+                        .overwriteExpectedSystemOutWithContentsOf(expected)
+                        .testCompiler("-T", TEST_FILES_LOCATION + name + TEST_FILES_INPUT_EXTENSION);
+            }
             new JavaTestBuilder()
-                    .assertSystemOutMatchesContentsOf(
-                            Path.of(TEST_FILES_LOCATION, name + TEST_FILES_TABLE_EXTENSION))
+                    .assertSystemOutMatchesContentsOf(expected)
                     .assertExitFailure()
                     .testCompiler("-T", TEST_FILES_LOCATION + name + TEST_FILES_INPUT_EXTENSION);
             new JavaTestBuilder()
@@ -43,6 +55,11 @@ public class TestSemantics {
     @Test
     public void testComplexAssign() {
         runSemanticsSuccessTestCase("ComplexAssign");
+    }
+
+    @Test
+    public void testAmbiguousConstructorsFail() {
+        runSemanticsFailTestCase("AmbiguousConstructorsFail");
     }
 
     @Test

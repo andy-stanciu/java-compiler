@@ -1,0 +1,9 @@
+ERROR @ AmbiguousConstructorsFail.java:24: Cannot resolve constructor for class "Baz" with arguments C, C, A
+ERROR @ AmbiguousConstructorsFail.java:27: Cannot resolve constructor for class "Baz" with arguments C, C, C
+ERROR @ AmbiguousConstructorsFail.java:28: Cannot resolve constructor for class "Baz" with arguments C, B, C
+ERROR @ AmbiguousConstructorsFail.java:29: Cannot resolve constructor for class "Baz" with arguments B, C, C
+ERROR @ AmbiguousConstructorsFail.java:30: Cannot resolve constructor for class "Baz" with arguments C, C, B
+ERROR @ AmbiguousConstructorsFail.java:31: Cannot resolve constructor for class "Baz" with arguments B, B, C
+ERROR @ AmbiguousConstructorsFail.java:32: Cannot resolve constructor for class "Baz" with arguments B, C, B
+ERROR @ AmbiguousConstructorsFail.java:33: Cannot resolve constructor for class "Baz" with arguments C, B, B
+Static semantic analysis found 8 error(s), 0 warning(s)

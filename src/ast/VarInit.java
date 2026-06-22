@@ -4,7 +4,7 @@ import commons.Visitor;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 import commons.Logger;
 
-public class VarInit extends Declaration {
+public class VarInit extends VarDeclaration {
     public Expression e;
 
     public VarInit(Type at, Identifier ai, Expression ae, Location pos) {

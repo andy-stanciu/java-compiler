@@ -10,6 +10,7 @@ public final class SymbolTable {
     private final SymbolTable parent;
     private final Logger logger;
     private final Map<String, Info> symbols;
+    private final Map<String, List<Signature>> signatures;
     private final Set<String> undefined;
     private final TableType type;
 
@@ -19,6 +20,8 @@ public final class SymbolTable {
     private int classCount;
     @Getter
     private int methodCount;
+    @Getter
+    private int constructorCount;
     @Getter
     private int blockCount;
     @Getter
@@ -39,6 +42,7 @@ public final class SymbolTable {
      */
     public SymbolTable(SymbolTable parent, TableType type, String name) {
         this.symbols = new HashMap<>();
+        this.signatures = new HashMap<>();
         this.undefined = new HashSet<>();
         this.logger = Logger.getInstance();
         this.parent = parent;
@@ -135,6 +139,8 @@ public final class SymbolTable {
                 classCount++;
             } else if (info instanceof MethodInfo) {
                 methodCount++;
+            } else if (info instanceof ConstructorInfo) {
+                constructorCount++;
             } else if (info instanceof BlockInfo) {
                 blockCount++;
             } else if (info instanceof VariableInfo) {
@@ -143,6 +149,13 @@ public final class SymbolTable {
         }
 
         return true;
+    }
+
+    public void addSignature(String symbol, Signature signature) {
+        if (signature == null) return;
+        var sigs = signatures.getOrDefault(symbol, new ArrayList<>());
+        sigs.add(signature);
+        signatures.put(symbol, sigs);
     }
 
     /**
@@ -161,6 +174,10 @@ public final class SymbolTable {
         return symbols.get(symbol);
     }
 
+    public List<Signature> lookupSignature(String symbol) {
+        return signatures.get(symbol);
+    }
+
     /**
      * @return The entries in this symbol table.
      */
@@ -171,7 +188,7 @@ public final class SymbolTable {
     /**
      * @return An alphabetically sorted copy of the entries in this symbol table.
      */
-    public Iterable<Info> getEntriesSorted() {
+    public Collection<Info> getEntriesSorted() {
         return new TreeSet<>(symbols.values());
     }
 
@@ -184,6 +201,8 @@ public final class SymbolTable {
             if (this_ != null && this_.getParent() != null) {
                 header += " extends " + this_.getParent().name;
             }
+        } else if (isLocal() && parent.isClass() && getName().endsWith(")")) {
+            header = "Constructor: " + getName();
         } else if (isLocal() && parent.isClass()) {
             header = "Method: " + getName();
         } else if (isLocal() && parent.isLocal()) {
@@ -203,20 +222,23 @@ public final class SymbolTable {
         signatures.add("Signature");
         inherited.add("Inherited");
 
-        if (symbols.isEmpty()) {
-            symbolNames.add("-");
-            symbolTypes.add("-");
-            returnTypes.add("-");
-            signatures.add("-");
-            inherited.add("-");
-        }
-
         var entries = new TreeMap<>(symbols);
         entries.forEach((s, i) -> {
+            // ignore blocks
+            if (s.startsWith(SymbolContext.BLOCK_PREFIX)) {
+                return;
+            }
+            // strip method prefix
             if (s.startsWith(SymbolContext.METHOD_PREFIX)) {
                 s = s.substring(1);
             }
-            symbolNames.add(s);
+            // constructor special handling
+            if (!s.startsWith(SymbolContext.SIGNATURE_PREFIX)) {
+                symbolNames.add(s);
+            } else {
+                s = s.substring(1);
+            }
+
 
             if (i instanceof ClassInfo c) {
                 symbolTypes.add("Class<" + c.name + ">");
@@ -247,6 +269,19 @@ public final class SymbolTable {
                         inherited.add("-");
                     }
                 }
+            } else if (i instanceof ConstructorInfo c) {
+                symbolNames.add(c.getSignature().getFullName());
+                symbolTypes.add("Constructor<" + c.getSignature().getName() + ">");
+                returnTypes.add("-");
+                StringBuilder sig = new StringBuilder();
+                for (int j = 0; j < c.argumentCount(); j++) {
+                    if (j != 0) sig.append(", ");
+                    sig.append(c.getArgument(j));
+                }
+
+                if (c.argumentCount() == 0) sig.append("void");
+                signatures.add(sig.toString());
+                inherited.add("-");
             } else if (i instanceof BlockInfo b) {
                 symbolTypes.add("Block");
                 returnTypes.add("-");
@@ -271,6 +306,14 @@ public final class SymbolTable {
                 }
             }
         });
+
+        if (symbolNames.size() == 1) {
+            symbolNames.add("-");
+            symbolTypes.add("-");
+            returnTypes.add("-");
+            signatures.add("-");
+            inherited.add("-");
+        }
 
         int maxSymbolLength = getMaxLength(symbolNames);
         int maxTypeLength = getMaxLength(symbolTypes);

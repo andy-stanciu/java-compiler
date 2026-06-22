@@ -6,12 +6,13 @@ Global -----------------------------------------------------------------------+
 | Tree           Class<Tree>           -          -             -             |
 +-----------------------------------------------------------------------------+
 
-Class: BT --------------------------------------------------------+
-| Symbol     Type          Return     Signature     Inherited     |
-+-----------------------------------------------------------------+
-| Start      Method        int        void          -             |
-| this       Class<BT>     -          -             -             |
-+-----------------------------------------------------------------+
+Class: BT --------------------------------------------------------------+
+| Symbol     Type                Return     Signature     Inherited     |
++-----------------------------------------------------------------------+
+| Start      Method              int        void          -             |
+| BT()       Constructor<BT>     -          void          -             |
+| this       Class<BT>           -          -             -             |
++-----------------------------------------------------------------------+
 
 Class: BinaryTree ---------------------------------------------+
 | Symbol     Type       Return     Signature     Inherited     |
@@ -19,37 +20,44 @@ Class: BinaryTree ---------------------------------------------+
 | main       Method     void       String[]      -             |
 +--------------------------------------------------------------+
 
-Class: Tree ----------------------------------------------------------------+
-| Symbol           Type            Return      Signature      Inherited     |
-+---------------------------------------------------------------------------+
-| Compare          Method          boolean     int, int       -             |
-| Delete           Method          boolean     int            -             |
-| GetHas_Left      Method          boolean     void           -             |
-| GetHas_Right     Method          boolean     void           -             |
-| GetKey           Method          int         void           -             |
-| GetLeft          Method          Tree        void           -             |
-| GetRight         Method          Tree        void           -             |
-| Init             Method          boolean     int            -             |
-| Insert           Method          boolean     int            -             |
-| Print            Method          boolean     void           -             |
-| RecPrint         Method          boolean     Tree           -             |
-| Remove           Method          boolean     Tree, Tree     -             |
-| RemoveLeft       Method          boolean     Tree, Tree     -             |
-| RemoveRight      Method          boolean     Tree, Tree     -             |
-| Search           Method          int         int            -             |
-| SetHas_Left      Method          boolean     boolean        -             |
-| SetHas_Right     Method          boolean     boolean        -             |
-| SetKey           Method          boolean     int            -             |
-| SetLeft          Method          boolean     Tree           -             |
-| SetRight         Method          boolean     Tree           -             |
-| has_left         boolean         -           -              -             |
-| has_right        boolean         -           -              -             |
-| key              int             -           -              -             |
-| left             Tree            -           -              -             |
-| my_null          Tree            -           -              -             |
-| right            Tree            -           -              -             |
-| this             Class<Tree>     -           -              -             |
-+---------------------------------------------------------------------------+
+Class: Tree ----------------------------------------------------------------------+
+| Symbol           Type                  Return      Signature      Inherited     |
++---------------------------------------------------------------------------------+
+| Compare          Method                boolean     int, int       -             |
+| Delete           Method                boolean     int            -             |
+| GetHas_Left      Method                boolean     void           -             |
+| GetHas_Right     Method                boolean     void           -             |
+| GetKey           Method                int         void           -             |
+| GetLeft          Method                Tree        void           -             |
+| GetRight         Method                Tree        void           -             |
+| Init             Method                boolean     int            -             |
+| Insert           Method                boolean     int            -             |
+| Print            Method                boolean     void           -             |
+| RecPrint         Method                boolean     Tree           -             |
+| Remove           Method                boolean     Tree, Tree     -             |
+| RemoveLeft       Method                boolean     Tree, Tree     -             |
+| RemoveRight      Method                boolean     Tree, Tree     -             |
+| Search           Method                int         int            -             |
+| SetHas_Left      Method                boolean     boolean        -             |
+| SetHas_Right     Method                boolean     boolean        -             |
+| SetKey           Method                boolean     int            -             |
+| SetLeft          Method                boolean     Tree           -             |
+| SetRight         Method                boolean     Tree           -             |
+| Tree()           Constructor<Tree>     -           void           -             |
+| has_left         boolean               -           -              -             |
+| has_right        boolean               -           -              -             |
+| key              int                   -           -              -             |
+| left             Tree                  -           -              -             |
+| my_null          Tree                  -           -              -             |
+| right            Tree                  -           -              -             |
+| this             Class<Tree>           -           -              -             |
++---------------------------------------------------------------------------------+
+
+Constructor: BT() -------------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
 
 Method: BT$Start -----------------------------------------------+
 | Symbol     Type        Return     Signature     Inherited     |
@@ -60,6 +68,12 @@ Method: BT$Start -----------------------------------------------+
 +---------------------------------------------------------------+
 
 Method: BinaryTree$main -------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Constructor: Tree() -----------------------------------------+
 | Symbol     Type     Return     Signature     Inherited     |
 +------------------------------------------------------------+
 | -          -        -          -             -             |
@@ -212,5 +226,113 @@ Method: Tree$SetRight ---------------------------------------+
 | Symbol     Type     Return     Signature     Inherited     |
 +------------------------------------------------------------+
 | rn         Tree     -          -             -             |
++------------------------------------------------------------+
+
+Block: Tree$Delete#0 ----------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Block: Tree$Insert#0 ----------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Block: Tree$RecPrint#0 --------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Block: Tree$RecPrint#1 --------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Block: Tree$Remove#0 ----------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Block: Tree$RemoveLeft#0 ------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Block: Tree$RemoveRight#0 -----------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Block: Tree$Search#0 ----------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Block: Tree$Delete#0#0 --------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Block: Tree$Delete#0#1 --------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Block: Tree$Delete#0#2 --------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Block: Tree$Insert#0#0 --------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Block: Tree$Insert#0#1 --------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Block: Tree$Remove#0#0 --------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Block: Tree$Remove#0#1 --------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Block: Tree$Search#0#0 --------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Block: Tree$Insert#0#0#0 ------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Block: Tree$Insert#0#1#0 ------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
 +------------------------------------------------------------+
 

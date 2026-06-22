@@ -4,11 +4,14 @@ import ast.*;
 import commons.LazyVisitor;
 import commons.Pair;
 import commons.Logger;
+import semantics.info.Signature;
 import semantics.table.SymbolContext;
 import semantics.type.*;
 import semantics.type.Type;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static codegen.Generator.ARGUMENT_REGISTERS;
@@ -84,6 +87,16 @@ public final class LocalVisitor extends LazyVisitor {
     }
 
     @Override
+    public void visit(ConstructorDecl n) {
+        if (n.conflict) return;
+
+        symbolContext.enterConstructor(n.signature);
+        n.sl.forEach(s -> s.accept(this));  // ctor statements
+
+        symbolContext.exit();
+    }
+
+    @Override
     public void visit(BooleanType n) {
         n.type = TypeBoolean.getInstance();
     }
@@ -117,6 +130,12 @@ public final class LocalVisitor extends LazyVisitor {
 
     @Override
     public void visit(Return n) {
+        if (!symbolContext.hasCurrentMethod()) {
+            // we're not in a method, but tried to return!
+            logger.logError("Cannot return a value from a constructor%n");
+            return;
+        }
+
         var m = symbolContext.getCurrentMethod();
         n.e.accept(this);
 
@@ -432,7 +451,7 @@ public final class LocalVisitor extends LazyVisitor {
         }
         // int + int
         if (!lhs.equals(TypeInt.getInstance()) || !rhs.equals(TypeInt.getInstance())) {
-            logger.logError("Operator %s cannot be applied to +, %s%n", n.e1.eval().type,
+            logger.logError("Operator + cannot be applied to %s, %s%n", n.e1.eval().type,
                     n.e2.eval().type);
         }
         n.type = TypeInt.getInstance();
@@ -476,6 +495,11 @@ public final class LocalVisitor extends LazyVisitor {
     @Override
     public void visit(ArrayLookup n) {
         n.e1.accept(this);  // array expression
+
+        if (n.e1.eval().type.isUnknown()) {
+            n.type = TypeUnknown.getInstance();
+            return;
+        }
 
         if (n.e1.eval().type instanceof TypeArray arr && n.el.size() <= arr.dimension) {
             n.el.forEach(e -> {
@@ -690,15 +714,31 @@ public final class LocalVisitor extends LazyVisitor {
 
     @Override
     public void visit(NewObject n) {
+        n.el.forEach(e -> e.accept(this));  // parameters
+
         var classInfo = symbolContext.lookupClass(n.i.s);
         if (classInfo == null) {
             if (!symbolContext.isUnknown(n.i.s)) {
                 logger.logError("Cannot resolve class \"%s\"%n", n.i.s);
             }
             n.type = TypeUnknown.getInstance();
-        } else {
-            n.type = new TypeObject(classInfo);
+            return;
         }
+
+        final List<Type> argumentTypes = new ArrayList<>();
+        n.el.forEach(a -> argumentTypes.add(a.eval().type));
+        final Signature sig = Signature.of(classInfo.name, argumentTypes);
+        var constructorInfo = symbolContext.lookupConstructor(sig, classInfo);
+        if (constructorInfo == null) {
+            logger.logError("Cannot resolve constructor for class \"%s\" with arguments %s%n",
+                    sig.getName(), String.join(", ",
+                            sig.getParameters().stream().map(Type::toString).toList()));
+            n.type = TypeUnknown.getInstance();
+            return;
+        }
+
+        n.resolvedConstructor = constructorInfo;
+        n.type = new TypeObject(classInfo);
     }
 
     @Override

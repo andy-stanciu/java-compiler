@@ -19,6 +19,11 @@ public class TypeBoolean extends TypeSingular {
     }
 
     @Override
+    public int getSimilarity(Type other) {
+        return isAssignableTo(other) ? 0 : Integer.MAX_VALUE;
+    }
+
+    @Override
     public String toString() {
         return "boolean";
     }

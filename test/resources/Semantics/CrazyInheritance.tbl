@@ -30,136 +30,149 @@ Global -------------------------------------------------------------+
 | Z          Class<Z>        -          -             -             |
 +-------------------------------------------------------------------+
 
-Class: A --------------------------------------------------------+
-| Symbol     Type         Return     Signature     Inherited     |
-+----------------------------------------------------------------+
-| aaa        Method       int        A             -             |
-| a          int          -          -             -             |
-| this       Class<A>     -          -             -             |
-+----------------------------------------------------------------+
+Class: A --------------------------------------------------------------+
+| Symbol     Type               Return     Signature     Inherited     |
++----------------------------------------------------------------------+
+| aaa        Method             int        A             -             |
+| A()        Constructor<A>     -          void          -             |
+| a          int                -          -             -             |
+| this       Class<A>           -          -             -             |
++----------------------------------------------------------------------+
 
-Class: B extends A ----------------------------------------------+
-| Symbol     Type         Return     Signature     Inherited     |
-+----------------------------------------------------------------+
-| aaa        Method       int        A             A             |
-| a          int          -          -             A             |
-| this       Class<B>     -          -             -             |
-+----------------------------------------------------------------+
+Class: B extends A ----------------------------------------------------+
+| Symbol     Type               Return     Signature     Inherited     |
++----------------------------------------------------------------------+
+| aaa        Method             int        A             A             |
+| B()        Constructor<B>     -          void          -             |
+| a          int                -          -             A             |
+| this       Class<B>           -          -             -             |
++----------------------------------------------------------------------+
 
-Class: C extends B ----------------------------------------------+
-| Symbol     Type         Return     Signature     Inherited     |
-+----------------------------------------------------------------+
-| aaa        Method       int        A             A             |
-| a          int          -          -             A             |
-| c          int          -          -             -             |
-| this       Class<C>     -          -             -             |
-+----------------------------------------------------------------+
+Class: C extends B ----------------------------------------------------+
+| Symbol     Type               Return     Signature     Inherited     |
++----------------------------------------------------------------------+
+| aaa        Method             int        A             A             |
+| C()        Constructor<C>     -          void          -             |
+| a          int                -          -             A             |
+| c          int                -          -             -             |
+| this       Class<C>           -          -             -             |
++----------------------------------------------------------------------+
 
-Class: D extends C ----------------------------------------------+
-| Symbol     Type         Return     Signature     Inherited     |
-+----------------------------------------------------------------+
-| aaa        Method       int        A             A             |
-| a          int          -          -             A             |
-| c          int          -          -             C             |
-| this       Class<D>     -          -             -             |
-+----------------------------------------------------------------+
+Class: D extends C ----------------------------------------------------+
+| Symbol     Type               Return     Signature     Inherited     |
++----------------------------------------------------------------------+
+| aaa        Method             int        A             A             |
+| D()        Constructor<D>     -          void          -             |
+| a          int                -          -             A             |
+| c          int                -          -             C             |
+| this       Class<D>           -          -             -             |
++----------------------------------------------------------------------+
 
-Class: E extends D ----------------------------------------------+
-| Symbol     Type         Return     Signature     Inherited     |
-+----------------------------------------------------------------+
-| aaa        Method       int        A             A             |
-| eee        Method       int        E             -             |
-| a          int          -          -             A             |
-| c          int          -          -             C             |
-| this       Class<E>     -          -             -             |
-+----------------------------------------------------------------+
+Class: E extends D ----------------------------------------------------+
+| Symbol     Type               Return     Signature     Inherited     |
++----------------------------------------------------------------------+
+| aaa        Method             int        A             A             |
+| eee        Method             int        E             -             |
+| E()        Constructor<E>     -          void          -             |
+| a          int                -          -             A             |
+| c          int                -          -             C             |
+| this       Class<E>           -          -             -             |
++----------------------------------------------------------------------+
 
-Class: F extends E ----------------------------------------------+
-| Symbol     Type         Return     Signature     Inherited     |
-+----------------------------------------------------------------+
-| aaa        Method       int        A             A             |
-| eee        Method       int        E             E             |
-| a          int          -          -             A             |
-| c          int          -          -             C             |
-| this       Class<F>     -          -             -             |
-+----------------------------------------------------------------+
+Class: F extends E ----------------------------------------------------+
+| Symbol     Type               Return     Signature     Inherited     |
++----------------------------------------------------------------------+
+| aaa        Method             int        A             A             |
+| eee        Method             int        E             E             |
+| F()        Constructor<F>     -          void          -             |
+| a          int                -          -             A             |
+| c          int                -          -             C             |
+| this       Class<F>           -          -             -             |
++----------------------------------------------------------------------+
 
-Class: G extends F ----------------------------------------------+
-| Symbol     Type         Return     Signature     Inherited     |
-+----------------------------------------------------------------+
-| aaa        Method       int        A             A             |
-| eee        Method       int        E             E             |
-| a          int          -          -             A             |
-| c          int          -          -             C             |
-| this       Class<G>     -          -             -             |
-+----------------------------------------------------------------+
+Class: G extends F ----------------------------------------------------+
+| Symbol     Type               Return     Signature     Inherited     |
++----------------------------------------------------------------------+
+| aaa        Method             int        A             A             |
+| eee        Method             int        E             E             |
+| G()        Constructor<G>     -          void          -             |
+| a          int                -          -             A             |
+| c          int                -          -             C             |
+| this       Class<G>           -          -             -             |
++----------------------------------------------------------------------+
 
-Class: H extends G ----------------------------------------------+
-| Symbol     Type         Return     Signature     Inherited     |
-+----------------------------------------------------------------+
-| aaa        Method       int        A             A             |
-| eee        Method       int        E             E             |
-| a          int          -          -             A             |
-| c          int          -          -             C             |
-| h          boolean      -          -             -             |
-| this       Class<H>     -          -             -             |
-+----------------------------------------------------------------+
+Class: H extends G ----------------------------------------------------+
+| Symbol     Type               Return     Signature     Inherited     |
++----------------------------------------------------------------------+
+| aaa        Method             int        A             A             |
+| eee        Method             int        E             E             |
+| H()        Constructor<H>     -          void          -             |
+| a          int                -          -             A             |
+| c          int                -          -             C             |
+| h          boolean            -          -             -             |
+| this       Class<H>           -          -             -             |
++----------------------------------------------------------------------+
 
-Class: I extends H ----------------------------------------------+
-| Symbol     Type         Return     Signature     Inherited     |
-+----------------------------------------------------------------+
-| aaa        Method       int        A             A             |
-| eee        Method       int        E             E             |
-| a          int          -          -             A             |
-| c          int          -          -             C             |
-| h          boolean      -          -             H             |
-| this       Class<I>     -          -             -             |
-+----------------------------------------------------------------+
+Class: I extends H ----------------------------------------------------+
+| Symbol     Type               Return     Signature     Inherited     |
++----------------------------------------------------------------------+
+| aaa        Method             int        A             A             |
+| eee        Method             int        E             E             |
+| I()        Constructor<I>     -          void          -             |
+| a          int                -          -             A             |
+| c          int                -          -             C             |
+| h          boolean            -          -             H             |
+| this       Class<I>           -          -             -             |
++----------------------------------------------------------------------+
 
-Class: J extends I ----------------------------------------------+
-| Symbol     Type         Return     Signature     Inherited     |
-+----------------------------------------------------------------+
-| aaa        Method       int        A             A             |
-| eee        Method       int        E             E             |
-| a          int          -          -             A             |
-| c          int          -          -             C             |
-| h          boolean      -          -             H             |
-| this       Class<J>     -          -             -             |
-+----------------------------------------------------------------+
+Class: J extends I ----------------------------------------------------+
+| Symbol     Type               Return     Signature     Inherited     |
++----------------------------------------------------------------------+
+| aaa        Method             int        A             A             |
+| eee        Method             int        E             E             |
+| J()        Constructor<J>     -          void          -             |
+| a          int                -          -             A             |
+| c          int                -          -             C             |
+| h          boolean            -          -             H             |
+| this       Class<J>           -          -             -             |
++----------------------------------------------------------------------+
 
-Class: K extends J ----------------------------------------------+
-| Symbol     Type         Return     Signature     Inherited     |
-+----------------------------------------------------------------+
-| aaa        Method       int        A             A             |
-| eee        Method       int        E             E             |
-| a          int          -          -             A             |
-| c          int          -          -             C             |
-| h          boolean      -          -             H             |
-| this       Class<K>     -          -             -             |
-+----------------------------------------------------------------+
+Class: K extends J ----------------------------------------------------+
+| Symbol     Type               Return     Signature     Inherited     |
++----------------------------------------------------------------------+
+| aaa        Method             int        A             A             |
+| eee        Method             int        E             E             |
+| K()        Constructor<K>     -          void          -             |
+| a          int                -          -             A             |
+| c          int                -          -             C             |
+| h          boolean            -          -             H             |
+| this       Class<K>           -          -             -             |
++----------------------------------------------------------------------+
 
-Class: L extends K ----------------------------------------------+
-| Symbol     Type         Return     Signature     Inherited     |
-+----------------------------------------------------------------+
-| aaa        Method       int        A             A             |
-| eee        Method       int        E             E             |
-| a          int          -          -             A             |
-| c          int          -          -             C             |
-| h          boolean      -          -             H             |
-| this       Class<L>     -          -             -             |
-+----------------------------------------------------------------+
+Class: L extends K ----------------------------------------------------+
+| Symbol     Type               Return     Signature     Inherited     |
++----------------------------------------------------------------------+
+| aaa        Method             int        A             A             |
+| eee        Method             int        E             E             |
+| L()        Constructor<L>     -          void          -             |
+| a          int                -          -             A             |
+| c          int                -          -             C             |
+| h          boolean            -          -             H             |
+| this       Class<L>           -          -             -             |
++----------------------------------------------------------------------+
 
-Class: M extends L ----------------------------------------------+
-| Symbol     Type         Return     Signature     Inherited     |
-+----------------------------------------------------------------+
-| aaa        Method       int        A             A             |
-| eee        Method       int        E             E             |
-| mmm        Method       int        M             -             |
-| a          int          -          -             A             |
-| c          int          -          -             C             |
-| h          boolean      -          -             H             |
-| this       Class<M>     -          -             -             |
-+----------------------------------------------------------------+
+Class: M extends L ----------------------------------------------------+
+| Symbol     Type               Return     Signature     Inherited     |
++----------------------------------------------------------------------+
+| aaa        Method             int        A             A             |
+| eee        Method             int        E             E             |
+| mmm        Method             int        M             -             |
+| M()        Constructor<M>     -          void          -             |
+| a          int                -          -             A             |
+| c          int                -          -             C             |
+| h          boolean            -          -             H             |
+| this       Class<M>           -          -             -             |
++----------------------------------------------------------------------+
 
 Class: Main ---------------------------------------------------+
 | Symbol     Type       Return     Signature     Inherited     |
@@ -167,182 +180,201 @@ Class: Main ---------------------------------------------------+
 | main       Method     void       String[]      -             |
 +--------------------------------------------------------------+
 
-Class: N extends M ----------------------------------------------+
-| Symbol     Type         Return     Signature     Inherited     |
-+----------------------------------------------------------------+
-| aaa        Method       int        A             A             |
-| eee        Method       int        E             E             |
-| mmm        Method       int        M             M             |
-| a          int          -          -             A             |
-| c          int          -          -             C             |
-| h          boolean      -          -             H             |
-| this       Class<N>     -          -             -             |
-+----------------------------------------------------------------+
+Class: N extends M ----------------------------------------------------+
+| Symbol     Type               Return     Signature     Inherited     |
++----------------------------------------------------------------------+
+| aaa        Method             int        A             A             |
+| eee        Method             int        E             E             |
+| mmm        Method             int        M             M             |
+| N()        Constructor<N>     -          void          -             |
+| a          int                -          -             A             |
+| c          int                -          -             C             |
+| h          boolean            -          -             H             |
+| this       Class<N>           -          -             -             |
++----------------------------------------------------------------------+
 
-Class: O extends N ----------------------------------------------+
-| Symbol     Type         Return     Signature     Inherited     |
-+----------------------------------------------------------------+
-| aaa        Method       int        A             A             |
-| eee        Method       int        E             E             |
-| mmm        Method       int        M             M             |
-| a          int          -          -             A             |
-| c          int          -          -             C             |
-| h          boolean      -          -             H             |
-| this       Class<O>     -          -             -             |
-+----------------------------------------------------------------+
+Class: O extends N ----------------------------------------------------+
+| Symbol     Type               Return     Signature     Inherited     |
++----------------------------------------------------------------------+
+| aaa        Method             int        A             A             |
+| eee        Method             int        E             E             |
+| mmm        Method             int        M             M             |
+| O()        Constructor<O>     -          void          -             |
+| a          int                -          -             A             |
+| c          int                -          -             C             |
+| h          boolean            -          -             H             |
+| this       Class<O>           -          -             -             |
++----------------------------------------------------------------------+
 
-Class: P extends O ----------------------------------------------+
-| Symbol     Type         Return     Signature     Inherited     |
-+----------------------------------------------------------------+
-| aaa        Method       int        A             A             |
-| eee        Method       int        E             E             |
-| mmm        Method       int        M             M             |
-| a          int          -          -             A             |
-| c          int          -          -             C             |
-| h          boolean      -          -             H             |
-| p          int[]        -          -             -             |
-| this       Class<P>     -          -             -             |
-+----------------------------------------------------------------+
+Class: P extends O ----------------------------------------------------+
+| Symbol     Type               Return     Signature     Inherited     |
++----------------------------------------------------------------------+
+| aaa        Method             int        A             A             |
+| eee        Method             int        E             E             |
+| mmm        Method             int        M             M             |
+| P()        Constructor<P>     -          void          -             |
+| a          int                -          -             A             |
+| c          int                -          -             C             |
+| h          boolean            -          -             H             |
+| p          int[]              -          -             -             |
+| this       Class<P>           -          -             -             |
++----------------------------------------------------------------------+
 
-Class: Q extends P ----------------------------------------------+
-| Symbol     Type         Return     Signature     Inherited     |
-+----------------------------------------------------------------+
-| aaa        Method       int        A             A             |
-| eee        Method       int        E             E             |
-| mmm        Method       int        M             M             |
-| a          int          -          -             A             |
-| c          int          -          -             C             |
-| h          boolean      -          -             H             |
-| p          int[]        -          -             P             |
-| this       Class<Q>     -          -             -             |
-+----------------------------------------------------------------+
+Class: Q extends P ----------------------------------------------------+
+| Symbol     Type               Return     Signature     Inherited     |
++----------------------------------------------------------------------+
+| aaa        Method             int        A             A             |
+| eee        Method             int        E             E             |
+| mmm        Method             int        M             M             |
+| Q()        Constructor<Q>     -          void          -             |
+| a          int                -          -             A             |
+| c          int                -          -             C             |
+| h          boolean            -          -             H             |
+| p          int[]              -          -             P             |
+| this       Class<Q>           -          -             -             |
++----------------------------------------------------------------------+
 
-Class: R extends Q ----------------------------------------------+
-| Symbol     Type         Return     Signature     Inherited     |
-+----------------------------------------------------------------+
-| aaa        Method       int        A             A             |
-| eee        Method       int        E             E             |
-| mmm        Method       int        M             M             |
-| a          int          -          -             A             |
-| c          int          -          -             C             |
-| h          boolean      -          -             H             |
-| p          int[]        -          -             P             |
-| this       Class<R>     -          -             -             |
-+----------------------------------------------------------------+
+Class: R extends Q ----------------------------------------------------+
+| Symbol     Type               Return     Signature     Inherited     |
++----------------------------------------------------------------------+
+| aaa        Method             int        A             A             |
+| eee        Method             int        E             E             |
+| mmm        Method             int        M             M             |
+| R()        Constructor<R>     -          void          -             |
+| a          int                -          -             A             |
+| c          int                -          -             C             |
+| h          boolean            -          -             H             |
+| p          int[]              -          -             P             |
+| this       Class<R>           -          -             -             |
++----------------------------------------------------------------------+
 
-Class: S extends R ----------------------------------------------+
-| Symbol     Type         Return     Signature     Inherited     |
-+----------------------------------------------------------------+
-| aaa        Method       int        A             A             |
-| eee        Method       int        E             E             |
-| mmm        Method       int        M             M             |
-| a          int          -          -             A             |
-| c          int          -          -             C             |
-| h          boolean      -          -             H             |
-| p          int[]        -          -             P             |
-| this       Class<S>     -          -             -             |
-+----------------------------------------------------------------+
+Class: S extends R ----------------------------------------------------+
+| Symbol     Type               Return     Signature     Inherited     |
++----------------------------------------------------------------------+
+| aaa        Method             int        A             A             |
+| eee        Method             int        E             E             |
+| mmm        Method             int        M             M             |
+| S()        Constructor<S>     -          void          -             |
+| a          int                -          -             A             |
+| c          int                -          -             C             |
+| h          boolean            -          -             H             |
+| p          int[]              -          -             P             |
+| this       Class<S>           -          -             -             |
++----------------------------------------------------------------------+
 
-Class: T extends S ----------------------------------------------+
-| Symbol     Type         Return     Signature     Inherited     |
-+----------------------------------------------------------------+
-| aaa        Method       int        A             A             |
-| eee        Method       int        E             E             |
-| mmm        Method       int        M             M             |
-| a          int          -          -             A             |
-| c          int          -          -             C             |
-| h          boolean      -          -             H             |
-| p          int[]        -          -             P             |
-| t          int          -          -             -             |
-| this       Class<T>     -          -             -             |
-+----------------------------------------------------------------+
+Class: T extends S ----------------------------------------------------+
+| Symbol     Type               Return     Signature     Inherited     |
++----------------------------------------------------------------------+
+| aaa        Method             int        A             A             |
+| eee        Method             int        E             E             |
+| mmm        Method             int        M             M             |
+| T()        Constructor<T>     -          void          -             |
+| a          int                -          -             A             |
+| c          int                -          -             C             |
+| h          boolean            -          -             H             |
+| p          int[]              -          -             P             |
+| t          int                -          -             -             |
+| this       Class<T>           -          -             -             |
++----------------------------------------------------------------------+
 
-Class: U extends T ----------------------------------------------+
-| Symbol     Type         Return     Signature     Inherited     |
-+----------------------------------------------------------------+
-| aaa        Method       int        A             A             |
-| eee        Method       int        E             E             |
-| mmm        Method       int        M             M             |
-| a          int          -          -             A             |
-| c          int          -          -             C             |
-| h          boolean      -          -             H             |
-| p          int[]        -          -             P             |
-| t          int          -          -             T             |
-| this       Class<U>     -          -             -             |
-+----------------------------------------------------------------+
+Class: U extends T ----------------------------------------------------+
+| Symbol     Type               Return     Signature     Inherited     |
++----------------------------------------------------------------------+
+| aaa        Method             int        A             A             |
+| eee        Method             int        E             E             |
+| mmm        Method             int        M             M             |
+| U()        Constructor<U>     -          void          -             |
+| a          int                -          -             A             |
+| c          int                -          -             C             |
+| h          boolean            -          -             H             |
+| p          int[]              -          -             P             |
+| t          int                -          -             T             |
+| this       Class<U>           -          -             -             |
++----------------------------------------------------------------------+
 
-Class: V extends U ----------------------------------------------+
-| Symbol     Type         Return     Signature     Inherited     |
-+----------------------------------------------------------------+
-| aaa        Method       int        A             A             |
-| eee        Method       int        E             E             |
-| mmm        Method       int        M             M             |
-| a          int          -          -             A             |
-| c          int          -          -             C             |
-| h          boolean      -          -             H             |
-| p          int[]        -          -             P             |
-| t          int          -          -             T             |
-| this       Class<V>     -          -             -             |
-+----------------------------------------------------------------+
+Class: V extends U ----------------------------------------------------+
+| Symbol     Type               Return     Signature     Inherited     |
++----------------------------------------------------------------------+
+| aaa        Method             int        A             A             |
+| eee        Method             int        E             E             |
+| mmm        Method             int        M             M             |
+| V()        Constructor<V>     -          void          -             |
+| a          int                -          -             A             |
+| c          int                -          -             C             |
+| h          boolean            -          -             H             |
+| p          int[]              -          -             P             |
+| t          int                -          -             T             |
+| this       Class<V>           -          -             -             |
++----------------------------------------------------------------------+
 
-Class: W extends V ----------------------------------------------+
-| Symbol     Type         Return     Signature     Inherited     |
-+----------------------------------------------------------------+
-| aaa        Method       int        A             A             |
-| eee        Method       int        E             E             |
-| mmm        Method       int        M             M             |
-| a          int          -          -             A             |
-| c          int          -          -             C             |
-| h          boolean      -          -             H             |
-| p          int[]        -          -             P             |
-| t          int          -          -             T             |
-| this       Class<W>     -          -             -             |
-+----------------------------------------------------------------+
+Class: W extends V ----------------------------------------------------+
+| Symbol     Type               Return     Signature     Inherited     |
++----------------------------------------------------------------------+
+| aaa        Method             int        A             A             |
+| eee        Method             int        E             E             |
+| mmm        Method             int        M             M             |
+| W()        Constructor<W>     -          void          -             |
+| a          int                -          -             A             |
+| c          int                -          -             C             |
+| h          boolean            -          -             H             |
+| p          int[]              -          -             P             |
+| t          int                -          -             T             |
+| this       Class<W>           -          -             -             |
++----------------------------------------------------------------------+
 
-Class: X extends W ----------------------------------------------+
-| Symbol     Type         Return     Signature     Inherited     |
-+----------------------------------------------------------------+
-| aaa        Method       int        A             A             |
-| eee        Method       int        E             E             |
-| mmm        Method       int        M             M             |
-| a          int          -          -             A             |
-| c          int          -          -             C             |
-| h          boolean      -          -             H             |
-| p          int[]        -          -             P             |
-| t          int          -          -             T             |
-| this       Class<X>     -          -             -             |
-| x          int          -          -             -             |
-+----------------------------------------------------------------+
+Class: X extends W ----------------------------------------------------+
+| Symbol     Type               Return     Signature     Inherited     |
++----------------------------------------------------------------------+
+| aaa        Method             int        A             A             |
+| eee        Method             int        E             E             |
+| mmm        Method             int        M             M             |
+| X()        Constructor<X>     -          void          -             |
+| a          int                -          -             A             |
+| c          int                -          -             C             |
+| h          boolean            -          -             H             |
+| p          int[]              -          -             P             |
+| t          int                -          -             T             |
+| this       Class<X>           -          -             -             |
+| x          int                -          -             -             |
++----------------------------------------------------------------------+
 
-Class: Y extends X ----------------------------------------------+
-| Symbol     Type         Return     Signature     Inherited     |
-+----------------------------------------------------------------+
-| aaa        Method       int        A             A             |
-| eee        Method       int        E             E             |
-| mmm        Method       int        M             M             |
-| a          int          -          -             A             |
-| c          int          -          -             C             |
-| h          boolean      -          -             H             |
-| p          int[]        -          -             P             |
-| t          int          -          -             T             |
-| this       Class<Y>     -          -             -             |
-| x          int          -          -             X             |
-+----------------------------------------------------------------+
+Class: Y extends X ----------------------------------------------------+
+| Symbol     Type               Return     Signature     Inherited     |
++----------------------------------------------------------------------+
+| aaa        Method             int        A             A             |
+| eee        Method             int        E             E             |
+| mmm        Method             int        M             M             |
+| Y()        Constructor<Y>     -          void          -             |
+| a          int                -          -             A             |
+| c          int                -          -             C             |
+| h          boolean            -          -             H             |
+| p          int[]              -          -             P             |
+| t          int                -          -             T             |
+| this       Class<Y>           -          -             -             |
+| x          int                -          -             X             |
++----------------------------------------------------------------------+
 
-Class: Z extends Y ----------------------------------------------+
-| Symbol     Type         Return     Signature     Inherited     |
-+----------------------------------------------------------------+
-| aaa        Method       int        A             A             |
-| eee        Method       int        E             E             |
-| mmm        Method       int        M             M             |
-| a          int          -          -             A             |
-| c          int          -          -             C             |
-| h          boolean      -          -             H             |
-| p          int[]        -          -             P             |
-| t          int          -          -             T             |
-| this       Class<Z>     -          -             -             |
-| x          int          -          -             X             |
-+----------------------------------------------------------------+
+Class: Z extends Y ----------------------------------------------------+
+| Symbol     Type               Return     Signature     Inherited     |
++----------------------------------------------------------------------+
+| aaa        Method             int        A             A             |
+| eee        Method             int        E             E             |
+| mmm        Method             int        M             M             |
+| Z()        Constructor<Z>     -          void          -             |
+| a          int                -          -             A             |
+| c          int                -          -             C             |
+| h          boolean            -          -             H             |
+| p          int[]              -          -             P             |
+| t          int                -          -             T             |
+| this       Class<Z>           -          -             -             |
+| x          int                -          -             X             |
++----------------------------------------------------------------------+
+
+Constructor: A() --------------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
 
 Method: A$aaa -----------------------------------------------+
 | Symbol     Type     Return     Signature     Inherited     |
@@ -350,10 +382,82 @@ Method: A$aaa -----------------------------------------------+
 | a          A        -          -             -             |
 +------------------------------------------------------------+
 
+Constructor: B() --------------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Constructor: C() --------------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Constructor: D() --------------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Constructor: E() --------------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
 Method: E$eee -----------------------------------------------+
 | Symbol     Type     Return     Signature     Inherited     |
 +------------------------------------------------------------+
 | e          E        -          -             -             |
++------------------------------------------------------------+
+
+Constructor: F() --------------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Constructor: G() --------------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Constructor: H() --------------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Constructor: I() --------------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Constructor: J() --------------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Constructor: K() --------------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Constructor: L() --------------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Constructor: M() --------------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
 +------------------------------------------------------------+
 
 Method: M$mmm -----------------------------------------------+
@@ -363,6 +467,90 @@ Method: M$mmm -----------------------------------------------+
 +------------------------------------------------------------+
 
 Method: Main$main -------------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Constructor: N() --------------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Constructor: O() --------------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Constructor: P() --------------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Constructor: Q() --------------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Constructor: R() --------------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Constructor: S() --------------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Constructor: T() --------------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Constructor: U() --------------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Constructor: V() --------------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Constructor: W() --------------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Constructor: X() --------------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Constructor: Y() --------------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Constructor: Z() --------------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Block: Main$main#0 ------------------------------------------+
 | Symbol     Type     Return     Signature     Inherited     |
 +------------------------------------------------------------+
 | -          -        -          -             -             |

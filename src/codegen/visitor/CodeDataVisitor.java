@@ -126,4 +126,36 @@ public final class CodeDataVisitor extends LazyVisitor {
 
         symbolContext.exit();
     }
+
+    @Override
+    public void visit(ConstructorDecl n) {
+        var constructor = symbolContext.lookupConstructor(n.signature, symbolContext.getCurrentClass());
+        if (constructor == null) {
+            throw new IllegalStateException();
+        }
+
+        int frameSize = constructor.argumentCount() + constructor.localVariableCount() + 1;
+        if (frameSize % 2 == 1) frameSize++;  // alignment
+        constructor.frameSize = frameSize * Generator.WORD_SIZE;
+
+        int offset = 2;  // start offset at 2 to leave space for obj ptr
+
+        symbolContext.enterConstructor(n.signature);
+        // assign offsets to parameters
+        for (int i = 0; i < n.fl.size(); i++) {
+            var p = symbolContext.lookupVariable(n.fl.get(i).i.s);
+            if (p == null) {
+                throw new IllegalStateException();
+            }
+
+            p.vIndex = -offset++;
+        }
+
+        // assign offsets to local variables
+        for (int i = 0; i < constructor.localVariableCount(); i++) {
+            constructor.getLocalVariable(i).vIndex = -offset++;
+        }
+
+        symbolContext.exit();
+    }
 }

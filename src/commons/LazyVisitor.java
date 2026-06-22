@@ -17,6 +17,8 @@ public abstract class LazyVisitor implements Visitor {
 
     public void visit(MethodDecl n) { throw new UnsupportedOperationException(); }
 
+    public void visit(ConstructorDecl n) { throw new UnsupportedOperationException(); }
+
     public void visit(Formal n) { throw new UnsupportedOperationException(); }
 
     public void visit(VoidType n) { throw new UnsupportedOperationException(); }

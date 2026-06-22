@@ -19,6 +19,11 @@ public class TypeUnknown extends TypeSingular {
     }
 
     @Override
+    public int getSimilarity(Type other) {
+        return 0;
+    }
+
+    @Override
     public String toString() {
         return "unknown";
     }

@@ -6,6 +6,7 @@ import dataflow.visitor.LiveVariableVisitor;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 import commons.Logger;
 import semantics.info.ClassInfo;
+import semantics.info.MemberInfo;
 import semantics.info.MethodInfo;
 import semantics.table.SymbolContext;
 import semantics.type.TypeVoid;
@@ -17,7 +18,7 @@ import java.util.function.Consumer;
 public final class DataflowGraph {
     private final DataflowVisitor dataflowVisitor;
     private final Logger logger;
-    private final MethodInfo method;
+    private final MemberInfo member;
     private final ClassInfo class_;
     private final StatementList statements;
     private Deque<Instruction> instructionGraph;
@@ -26,22 +27,22 @@ public final class DataflowGraph {
     /**
      * Initializes a new {@link DataflowGraph}.
      * @param symbolContext The current symbol context.
-     * @param method The method containing the statements.
+     * @param member The member containing the statements.
      * @param statements The statements to track.
      * @return A new {@link DataflowGraph}.
      */
     public static DataflowGraph create(SymbolContext symbolContext,
-                                       MethodInfo method,
+                                       MemberInfo member,
                                        StatementList statements) {
-        return new DataflowGraph(symbolContext, method, statements);
+        return new DataflowGraph(symbolContext, member, statements);
     }
 
     private DataflowGraph(SymbolContext symbolContext,
-                          MethodInfo method,
+                          MemberInfo member,
                           StatementList statements) {
         this.dataflowVisitor = new DataflowVisitor(symbolContext);
         this.logger = Logger.getInstance();
-        this.method = method;
+        this.member = member;
         this.class_ = symbolContext.getCurrentClass();
         this.statements = statements;
     }
@@ -194,8 +195,8 @@ public final class DataflowGraph {
         visitBlocks(b -> {
             // Def set of first block should include method parameters and instance variables
             if (b.isFirst()) {
-                method.getArgumentNames().forEach(arg -> {
-                    b.variables().getDefSet().add(new Symbol(arg, method.lineNumber));
+                member.getArgumentNames().forEach(arg -> {
+                    b.variables().getDefSet().add(new Symbol(arg, member.lineNumber));
                 });
                 class_.getInstanceVariables().forEach(v -> {
                     b.variables().getDefSet().add(new Symbol(v.name, v.lineNumber));
@@ -291,6 +292,9 @@ public final class DataflowGraph {
     }
 
     private void validateReturn() {
+        if (!(member instanceof MethodInfo method)) {
+            return;
+        }
         boolean isVoid = method.returnType.equals(TypeVoid.getInstance());
 
         for (var b : blockGraph) {
@@ -351,14 +355,14 @@ public final class DataflowGraph {
     }
 
     private void constructInstructionGraph(StatementList statements) {
-        var end = Instruction.createEnd(method.endLineNumber);
+        var end = Instruction.createEnd(member.endLineNumber);
         var instructions = constructInstructionGraphRec(statements, end);
 
         var first = instructions.peekFirst();
         if (first != null) {  // start instruction
-            instructions.offerFirst(Instruction.createStart(method.lineNumber, first));
+            instructions.offerFirst(Instruction.createStart(member.lineNumber, first));
         } else {
-            instructions.offerFirst(Instruction.createStart(method.lineNumber, end));
+            instructions.offerFirst(Instruction.createStart(member.lineNumber, end));
         }
 
         instructionGraph = instructions;

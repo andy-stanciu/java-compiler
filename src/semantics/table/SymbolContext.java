@@ -10,6 +10,9 @@ import java.util.function.Consumer;
 public final class SymbolContext {
     public static final String METHOD_PREFIX = "$";
     public static final String BLOCK_PREFIX = "#";
+    public static final String SIGNATURE_PREFIX = "@";
+    public static final String CONSTRUCTOR_POSTFIX = "$$";
+    public static final String PARAM_SEPARATOR = "$";
 
     public static SymbolContext create() {
         return new SymbolContext();
@@ -21,6 +24,7 @@ public final class SymbolContext {
     private SymbolTable table;
     private ClassInfo currentClass;
     private MethodInfo currentMethod;
+    private ConstructorInfo currentConstructor;
     private Stack<BlockInfo> currentBlocks;
 
     private SymbolContext() {
@@ -38,10 +42,12 @@ public final class SymbolContext {
      * @param name The name of the class to swap with.
      */
     public void swap(String name) {
-        contexts.push(new TableContext(table, currentClass, currentMethod, currentBlocks));
+        contexts.push(new TableContext(table, currentClass, currentMethod,
+                currentConstructor, currentBlocks));
         table = global;
         currentClass = null;
         currentMethod = null;
+        currentConstructor = null;
         currentBlocks.clear();
         enterClass(name);
     }
@@ -59,6 +65,7 @@ public final class SymbolContext {
         table = context.table();
         currentClass = context.currentClass();
         currentMethod = context.currentMethod();
+        currentConstructor = context.currentConstructor();
         currentBlocks = context.currentBlocks();
     }
 
@@ -103,6 +110,21 @@ public final class SymbolContext {
     }
 
     /**
+     * Enters a constructor with the specified signature.
+     * @param signature The signature of the ctor to enter.
+     * @throws IllegalArgumentException If the ctor does not exist.
+     */
+    public void enterConstructor(Signature signature) {
+        var info = lookup(SIGNATURE_PREFIX + signature.toString());
+        if (info instanceof ConstructorInfo constructorInfo) {
+            table = constructorInfo.getTable();
+            currentConstructor = constructorInfo;
+        } else {
+            throw new IllegalArgumentException();
+        }
+    }
+
+    /**
      * Enters the specified block.
      * @param block The block to enter.
      * @throws IllegalArgumentException If the block is null.
@@ -125,8 +147,9 @@ public final class SymbolContext {
             throw new IllegalStateException("Already in global table");
         } else if (table.isClass()) {
             currentClass = null;
-        } else if (table.isLocal() && currentBlocks.empty()) {  // in method
+        } else if (table.isLocal() && currentBlocks.empty()) {  // in method/ctor
             currentMethod = null;
+            currentConstructor = null;
         } else {  // in block
             currentBlocks.pop();
         }
@@ -166,6 +189,25 @@ public final class SymbolContext {
     }
 
     /**
+     * @return The {@link ConstructorInfo} that is currently in scope.
+     * @throws IllegalStateException If no constructor is currently in scope.
+     */
+    public ConstructorInfo getCurrentConstructor() {
+        if (currentConstructor == null) {
+            throw new IllegalStateException();
+        }
+
+        return currentConstructor;
+    }
+
+    /**
+     * @return Whether the symbol context has an {@link ConstructorInfo} in scope.
+     */
+    public boolean hasCurrentConstructor() {
+        return currentConstructor != null;
+    }
+
+    /**
      * @return The {@link BlockInfo} that is currently in scope.
      * @throws IllegalStateException If no block is currently in scope.
      */
@@ -182,6 +224,13 @@ public final class SymbolContext {
      */
     public boolean isMethod() {
         return currentMethod != null;
+    }
+
+    /**
+     * @return Whether a constructor is currently in scope.
+     */
+    public boolean isConstructor() {
+        return currentConstructor != null;
     }
 
     /**
@@ -247,6 +296,21 @@ public final class SymbolContext {
     }
 
     /**
+     * Attempts to add a constructor entry to the symbol table in the current scope.
+     * If it is already defined, reports an error.
+     * @param signature Constructor signature, i.e. name + parameter types
+     * @return The constructor entry that was added, or null if it couldn't be added.
+     */
+    public ConstructorInfo addConstructorEntry(Signature signature) {
+        if (!table.isClass()) {
+            throw new IllegalStateException("Cannot add constructor entry to current scope");
+        }
+
+        var constructorInfo = new ConstructorInfo(table, signature);
+        return addEntry(signature, constructorInfo) ? constructorInfo : null;
+    }
+
+    /**
      * Attempts to add a block entry to the symbol table in the current scope.
      * If it is already defined, reports an error.
      * @return The block entry that was added, or null if it couldn't be added.
@@ -292,6 +356,41 @@ public final class SymbolContext {
 
         logger.logError("Unexpected reference to main class \"%s\"%n", name);
         return null;
+    }
+
+    /**
+     * Looks up a constructor within the specified class with the specified signature.
+     * @param signature The signature of the constructor. Only needs to be assignable to the signature to lookup
+     * @param classInfo The class to perform the lookup within.
+     * @return Information associated with the constructor, or null if
+     *         the class does not define the constructor.
+     */
+    public ConstructorInfo lookupConstructor(Signature signature, ClassInfo classInfo) {
+        if (signature == null) return null;
+
+        var signatures = classInfo.getTable().lookupSignature(SIGNATURE_PREFIX + signature.getName());
+        final var matches = signatures.stream()
+                .filter(signature::isAssignableTo)
+                .sorted(Comparator.comparingInt(signature::getSimilarityScore))
+                .toList();
+        if (matches.isEmpty()) {
+            return null;
+        }
+
+        if (matches.size() > 1) {
+            final int sim1 = signature.getSimilarityScore(matches.get(0));
+            final int sim2 = signature.getSimilarityScore(matches.get(1));
+            if (sim1 != 0 && sim2 - sim1 <= 1) {
+                // ambiguous constructor reference: more than 1 match, and neither match is a perfect match
+                return null;
+            }
+        }
+
+        var result = classInfo.getTable().lookup(SIGNATURE_PREFIX + matches.get(0).toString(), false);
+        if (!(result instanceof ConstructorInfo constructorInfo)) {
+            throw new IllegalStateException();
+        }
+        return constructorInfo;
     }
 
     /**
@@ -375,6 +474,21 @@ public final class SymbolContext {
             return false;
         }
         return true;
+    }
+
+    /**
+     * Attempts to add an entry to the symbol table in the current scope.
+     * If it is already defined, reports an error.
+     * @param signature The signature to add.
+     * @param info Information associated with the signature.
+     * @return Whether the entry was added.
+     */
+    public boolean addEntry(Signature signature, Info info) {
+        boolean success = addEntry(SIGNATURE_PREFIX + signature.toString(), info);
+        if (success) {
+            table.addSignature(SIGNATURE_PREFIX + signature.getName(), signature);
+        }
+        return success;
     }
 
     /**
@@ -564,14 +678,22 @@ public final class SymbolContext {
                 if (entry instanceof ClassInfo class_) {
                     System.out.println(class_.getTable());
                     class_.getTable().getEntriesSorted().forEach(e -> {
-                        // add only methods to children
-                        if (e instanceof MethodInfo) {
+                        // add methods + constructors to children
+                        if (e instanceof MemberInfo) {
                             children.add(e);
                         }
                     });
                 } else if (entry instanceof MethodInfo method) {
                     System.out.println(method.getTable());
                     method.getTable().getEntriesSorted().forEach(e -> {
+                        // add variables and blocks to children
+                        if (e instanceof VariableInfo || e instanceof BlockInfo) {
+                            children.add(e);
+                        }
+                    });
+                } else if (entry instanceof ConstructorInfo ctor) {
+                    System.out.println(ctor.getTable());
+                    ctor.getTable().getEntriesSorted().forEach(e -> {
                         // add variables and blocks to children
                         if (e instanceof VariableInfo || e instanceof BlockInfo) {
                             children.add(e);

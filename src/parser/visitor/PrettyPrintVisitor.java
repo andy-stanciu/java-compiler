@@ -89,6 +89,30 @@ public final class PrettyPrintVisitor extends LazyVisitor {
         System.out.print("}");
     }
 
+    @Override
+    public void visit(ConstructorDecl n) {
+        indenter.print();
+        System.out.print("public ");
+        n.i.accept(this);
+        System.out.print("(");
+        for (int i = 0; i < n.fl.size(); i++) {
+            n.fl.get(i).accept(this);
+            if (i + 1 < n.fl.size()) {
+                System.out.print(", ");
+            }
+        }
+        System.out.print(") {");
+        indenter.push();
+        for (int i = 0; i < n.sl.size(); i++) {
+            System.out.println();
+            n.sl.get(i).accept(this);
+        }
+        System.out.println();
+        indenter.pop();
+        indenter.print();
+        System.out.print("}");
+    }
+
     public void visit(VarDecl n) {
         var context = blockContext.peek();
         if (context != BlockType.FOR) indenter.print();
@@ -834,7 +858,14 @@ public final class PrettyPrintVisitor extends LazyVisitor {
         precedentTracker.leftParen(n);
         System.out.print("new ");
         System.out.print(n.i.s);
-        System.out.print("()");
+        System.out.print("(");
+        for (int i = 0; i < n.el.size(); i++) {
+            n.el.get(i).accept(this);
+            if (i + 1 < n.el.size()) {
+                System.out.print(", ");
+            }
+        }
+        System.out.print(")");
         precedentTracker.rightParen(n);
     }
 

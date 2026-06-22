@@ -5,13 +5,14 @@ Global -------------------------------------------------------------+
 | Main       Class<Main>     -          -             -             |
 +-------------------------------------------------------------------+
 
-Class: A ---------------------------------------------------------+
-| Symbol      Type         Return     Signature     Inherited     |
-+-----------------------------------------------------------------+
-| bad         Method       int        void          -             |
-| veryBad     Method       int        void          -             |
-| this        Class<A>     -          -             -             |
-+-----------------------------------------------------------------+
+Class: A ---------------------------------------------------------------+
+| Symbol      Type               Return     Signature     Inherited     |
++-----------------------------------------------------------------------+
+| bad         Method             int        void          -             |
+| veryBad     Method             int        void          -             |
+| A()         Constructor<A>     -          void          -             |
+| this        Class<A>           -          -             -             |
++-----------------------------------------------------------------------+
 
 Class: Main ---------------------------------------------------+
 | Symbol     Type       Return     Signature     Inherited     |
@@ -19,49 +20,61 @@ Class: Main ---------------------------------------------------+
 | main       Method     void       String[]      -             |
 +--------------------------------------------------------------+
 
-Method: A$bad ----------------------------------------------------+
-| Symbol     Type          Return     Signature     Inherited     |
-+-----------------------------------------------------------------+
-| a          A             -          -             -             |
-| b          undefined     -          -             -             |
-| c          undefined     -          -             -             |
-| d          undefined     -          -             -             |
-| e          undefined     -          -             -             |
-| f          undefined     -          -             -             |
-| g          undefined     -          -             -             |
-| h          undefined     -          -             -             |
-| i          undefined     -          -             -             |
-| j          undefined     -          -             -             |
-| k          undefined     -          -             -             |
-| l          undefined     -          -             -             |
-| m          undefined     -          -             -             |
-| n          undefined     -          -             -             |
-| o          undefined     -          -             -             |
-| p          undefined     -          -             -             |
-| q          undefined     -          -             -             |
-| r          undefined     -          -             -             |
-| s          undefined     -          -             -             |
-| t          undefined     -          -             -             |
-| u          undefined     -          -             -             |
-| v          undefined     -          -             -             |
-| w          undefined     -          -             -             |
-| x          undefined     -          -             -             |
-| y          undefined     -          -             -             |
-| z          undefined     -          -             -             |
-+-----------------------------------------------------------------+
+Constructor: A() --------------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
 
-Method: A$veryBad ------------------------------------------------+
-| Symbol     Type          Return     Signature     Inherited     |
-+-----------------------------------------------------------------+
-| a          A             -          -             -             |
-| b          undefined     -          -             -             |
-| c          undefined     -          -             -             |
-| x          int           -          -             -             |
-| y          boolean       -          -             -             |
-| z          int[]         -          -             -             |
-+-----------------------------------------------------------------+
+Method: A$bad --------------------------------------------------+
+| Symbol     Type        Return     Signature     Inherited     |
++---------------------------------------------------------------+
+| a          A           -          -             -             |
+| b          unknown     -          -             -             |
+| c          unknown     -          -             -             |
+| d          unknown     -          -             -             |
+| e          unknown     -          -             -             |
+| f          unknown     -          -             -             |
+| g          unknown     -          -             -             |
+| h          unknown     -          -             -             |
+| i          unknown     -          -             -             |
+| j          unknown     -          -             -             |
+| k          unknown     -          -             -             |
+| l          unknown     -          -             -             |
+| m          unknown     -          -             -             |
+| n          unknown     -          -             -             |
+| o          unknown     -          -             -             |
+| p          unknown     -          -             -             |
+| q          unknown     -          -             -             |
+| r          unknown     -          -             -             |
+| s          unknown     -          -             -             |
+| t          unknown     -          -             -             |
+| u          unknown     -          -             -             |
+| v          unknown     -          -             -             |
+| w          unknown     -          -             -             |
+| x          unknown     -          -             -             |
+| y          unknown     -          -             -             |
+| z          unknown     -          -             -             |
++---------------------------------------------------------------+
+
+Method: A$veryBad ----------------------------------------------+
+| Symbol     Type        Return     Signature     Inherited     |
++---------------------------------------------------------------+
+| a          A           -          -             -             |
+| b          unknown     -          -             -             |
+| c          unknown     -          -             -             |
+| x          int         -          -             -             |
+| y          boolean     -          -             -             |
+| z          int[]       -          -             -             |
++---------------------------------------------------------------+
 
 Method: Main$main -------------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Block: Main$main#0 ------------------------------------------+
 | Symbol     Type     Return     Signature     Inherited     |
 +------------------------------------------------------------+
 | -          -        -          -             -             |

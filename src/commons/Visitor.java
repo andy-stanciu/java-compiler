@@ -11,6 +11,8 @@ public interface Visitor {
 
     void visit(ClassDeclExtends n);
 
+    void visit(ConstructorDecl n);
+
     void visit(VarDecl n);
 
     void visit(VarInit n);
