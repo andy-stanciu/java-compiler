@@ -7,7 +7,7 @@ import semantics.type.Type;
 import java.util.List;
 
 public final class Signature {
-    private final String str;
+    private String str;
     @Getter
     private final String name;
     @Getter
@@ -30,6 +30,7 @@ public final class Signature {
             if (i < parameters.size() - 1) sb.append(SymbolContext.PARAM_SEPARATOR);
         }
         this.str = sb.toString();
+        this.str = this.str.replace("[]", "$");
         this.name = name;
         this.parameters = parameters;
     }
