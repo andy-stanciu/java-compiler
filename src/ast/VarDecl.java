@@ -4,7 +4,7 @@ import commons.Visitor;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 import commons.Logger;
 
-public class VarDecl extends Declaration {
+public class VarDecl extends VarDeclaration {
     public VarDecl(Type at, Identifier ai, Location pos) {
         super(at, ai, pos);
     }

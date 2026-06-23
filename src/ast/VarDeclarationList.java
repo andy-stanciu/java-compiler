@@ -6,19 +6,19 @@ import java.util.function.Consumer;
 
 import java_cup.runtime.ComplexSymbolFactory.Location;
 
-public class DeclarationList extends ASTNode {
-   private final List<Declaration> list;
+public class VarDeclarationList extends ASTNode {
+   private final List<VarDeclaration> list;
 
-   public DeclarationList(Location pos) {
+   public VarDeclarationList(Location pos) {
       super(pos);
       list = new ArrayList<>();
    }
 
-   public void add(Declaration n) {
+   public void add(VarDeclaration n) {
       list.add(n);
    }
 
-   public Declaration get(int i)  {
+   public VarDeclaration get(int i)  {
       return list.get(i); 
    }
 
@@ -26,7 +26,7 @@ public class DeclarationList extends ASTNode {
       return list.size(); 
    }
 
-   public void forEach(Consumer<Declaration> action) {
+   public void forEach(Consumer<VarDeclaration> action) {
       for (var v : list) {
          action.accept(v);
       }

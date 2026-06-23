@@ -40,6 +40,29 @@ public class TypeObject extends TypeSingular {
     }
 
     @Override
+    public int getSimilarity(Type other) {
+        if (other instanceof TypeObject obj) {
+            if (base.isMain() || obj.base.isMain()) {
+                return Integer.MAX_VALUE;
+            }
+
+            var parent = base;
+            int similarity = 0;
+            while (parent.isDerived()) {
+                if (parent == obj.base) {
+                    return similarity;
+                }
+                similarity++;
+                parent = parent.getParent();
+            }
+
+            return parent == obj.base ? similarity : Integer.MAX_VALUE;
+        }
+
+        return other == TypeUnknown.getInstance() ? 0 : Integer.MAX_VALUE;
+    }
+
+    @Override
     public String toString() {
         return base.name;
     }

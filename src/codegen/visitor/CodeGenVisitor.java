@@ -8,6 +8,9 @@ import codegen.synth.SyntheticFunction;
 import codegen.synth.SyntheticFunctionRegistry;
 import codegen.platform.*;
 import codegen.platform.isa.ISA;
+import java_cup.runtime.ComplexSymbolFactory.Location;
+import semantics.info.ConstructorInfo;
+import semantics.info.Signature;
 import semantics.table.SymbolContext;
 import semantics.type.TypeBoolean;
 import semantics.type.TypeInt;
@@ -25,6 +28,7 @@ public final class CodeGenVisitor extends LazyVisitor {
     private final Generator generator;
     private final SyntheticFunctionRegistry syntheticFunctionRegistry;
     private final SymbolContext symbolContext;
+    private int constructorCount;
 
     public CodeGenVisitor(SymbolContext symbolContext, ISA isa) {
         this.generator = Generator.getInstance(isa);
@@ -67,14 +71,36 @@ public final class CodeGenVisitor extends LazyVisitor {
     @Override
     public void visit(ClassDeclSimple n) {
         symbolContext.enterClass(n.i.s);
+        constructorCount = 0;
         n.ml.forEach(m -> m.accept(this));
+        if (constructorCount == 0) {
+            // no constructor provided => synthesize default ctor
+            generateConstructor(Signature.of(n.i.s),
+                    Generator.WORD_SIZE * 2, // 16 bytes
+                    false,
+                    false,
+                    new FormalList(new Location(0, 0)),
+                    new StatementList(new Location(0, 0))
+            );
+        }
         symbolContext.exit();
     }
 
     @Override
     public void visit(ClassDeclExtends n) {
         symbolContext.enterClass(n.i.s);
+        constructorCount = 0;
         n.ml.forEach(m -> m.accept(this));
+        if (constructorCount == 0) {
+            // no constructor provided => synthesize default ctor
+            generateConstructor(Signature.of(n.i.s),
+                    Generator.WORD_SIZE * 2, // 16 bytes
+                    false,
+                    true,
+                    new FormalList(new Location(0, 0)),
+                    new StatementList(new Location(0, 0))
+            );
+        }
         symbolContext.exit();
     }
 
@@ -133,11 +159,108 @@ public final class CodeGenVisitor extends LazyVisitor {
         generator.genEpilogue();
     }
 
+    public void visit(ConstructorDecl n) {
+        constructorCount++;
+        var constructor = n.constructorInfo;
+        if (constructor == null) {
+            throw new IllegalStateException();
+        }
+        generateConstructor(constructor.getSignature(), constructor.frameSize,
+                constructor.invokesSuperCtor, constructor.superCtor != null, n.fl, n.sl);
+    }
+
+    private void generateConstructor(final Signature signature,
+                                     final int frameSize,
+                                     final boolean invokesSuperCtor,
+                                     final boolean hasZeroArgSuperCtor,
+                                     final FormalList parameters,
+                                     final StatementList body) {
+        generator.genLabel(Label.of(signature.toString()));
+        generator.genPrologue();
+
+        // allocate ctor stack frame
+        generator.genBinary(SUB, Immediate.of(frameSize), RSP);
+
+        // obj ptr is always first
+        generator.genBinary(MOV, RDI, Memory.of(RBP, -Generator.WORD_SIZE));
+
+        symbolContext.enterConstructor(signature);
+        // save parameters on the stack
+        for (int i = 0; i < parameters.size(); i++) {
+            var p = symbolContext.lookupVariable(parameters.get(i).i.s);
+            if (p == null) {
+                throw new IllegalStateException();
+            }
+            generator.genBinary(MOV, generator.getArgumentRegister(i + 1),
+                    Memory.of(RBP, p.getOffset()));
+        }
+
+        var class_ = symbolContext.lookupClass(signature.getName());
+        if (class_ == null) {
+            throw new IllegalStateException();
+        }
+
+        // first, if we have a super call, we need to invoke this immediately
+        if (invokesSuperCtor) { // explicit super ctor invocation
+            var firstStmt = body.get(0);
+            if (!(firstStmt instanceof SuperCtorInvocation)) {
+                throw new IllegalStateException();
+            }
+            firstStmt.accept(this);
+            generator.genBinary(MOV, RAX, Memory.of(RBP, -Generator.WORD_SIZE));
+        } else if (hasZeroArgSuperCtor) { // implicit zero-arg super ctor invocation
+            generator.genBinary(MOV, Memory.of(RBP, -Generator.WORD_SIZE), RDI); // load obj ptr
+            generator.genCall(Label.of(Signature.of(class_.getParent().name).toString()));
+            generator.genBinary(MOV, RAX, Memory.of(RBP, -Generator.WORD_SIZE));
+        }
+
+        // then, we apply variable initializers for *only* this class's instance variables
+        symbolContext.swap(signature.getName());
+        class_.getInstanceVariables().forEach(v -> {
+            if (v.getParent().getName().equals(class_.name) && v.hasInitializer()) {
+                v.initializer.accept(this);
+                generator.genBinary(MOV, Memory.of(RBP, -Generator.WORD_SIZE), RDX); // load obj ptr in rdx
+                generator.genBinary(MOV, RAX, Memory.of(RDX, v.getOffset()));        // move result into obj
+            }
+        });
+        symbolContext.restore();
+
+        // then, visit constructor body, excluding super call if it existed
+        body.forEach(s -> {
+            if (!(s instanceof SuperCtorInvocation)) s.accept(this);
+        });
+        symbolContext.exit();
+
+        generator.genBinary(MOV, Memory.of(RBP, -Generator.WORD_SIZE), RAX); // load obj ptr
+        generator.genLabel(Label.of("ret$" + signature));
+        generator.genEpilogue();
+    }
+
     @Override
     public void visit(Block n) {
         symbolContext.enterBlock(n.blockInfo);
         n.sl.forEach(s -> s.accept(this));
         symbolContext.exit();
+    }
+
+    @Override
+    public void visit(SuperCtorInvocation n) {
+        final var superCtor = symbolContext.getCurrentConstructor().superCtor;
+        if (superCtor == null) {
+            throw new IllegalStateException();
+        }
+
+        // push args onto stack
+        for (int i = 0; i < n.el.size(); i++) {
+            n.el.get(i).accept(this);
+            generator.genPush(RAX);
+        }
+        // pop args off stack
+        for (int i = n.el.size(); i > 0; i--) {
+            generator.genPop(generator.getArgumentRegister(i));
+        }
+        generator.genBinary(MOV, Memory.of(RBP, -Generator.WORD_SIZE), RDI); // load obj ptr
+        generator.genCall(Label.of(superCtor.getSignature().toString()));
     }
 
     @Override
@@ -999,22 +1122,20 @@ public final class CodeGenVisitor extends LazyVisitor {
         generator.genCall(CFunction.MALLOC);  // allocate space on heap
         generator.genBinary(LEA, Memory.of(RIP, "_" + class_.name + "$$"), RDX);  // lea of vtable
         generator.genBinary(MOV, RDX, Memory.of(RAX, 0));  // store vtable at start of obj
-        generator.genBinary(MOV, RAX, RDX);  // move obj to rdx
 
-        // TODO: this is not gonna work. need to jump to ctor, which means we might as well implement constructors.
-        // TODO: before constructor logic can be invoked, we apply all initializers to instance variables.
-        symbolContext.swap(class_.name);
-        class_.getInstanceVariables().forEach(v -> {
-            if (v.hasInitializer()) {
-                generator.genPush(RDX);  // push obj onto stack
-                v.initializer.accept(this);
-                generator.genPop(RDX);  // pop obj into rdx
-                generator.genBinary(MOV, RAX, Memory.of(RDX, v.getOffset()));  // move result into obj
-            }
-        });
-        symbolContext.restore();
-
-        generator.genBinary(MOV, RDX, RAX);  // move obj back to rax
+        // prepare argument registers for ctor invocation
+        generator.genPush(RAX); // push obj ptr onto stack
+        // push args onto stack
+        for (int i = 0; i < n.el.size(); i++) {
+            n.el.get(i).accept(this);
+            generator.genPush(RAX);
+        }
+        // pop args off stack
+        for (int i = n.el.size(); i > 0; i--) {
+            generator.genPop(generator.getArgumentRegister(i));
+        }
+        generator.genPop(RDI); // pop obj ptr off stack
+        generator.genCall(Label.of(n.resolvedConstructor.getSignature().toString()));
     }
 
     @Override

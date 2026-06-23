@@ -6,10 +6,10 @@ import commons.Logger;
 
 public class ClassDeclSimple extends ClassDecl {
     public Identifier i;
-    public DeclarationList dl;
-    public MethodDeclList ml;
+    public VarDeclarationList dl;
+    public MemberDeclList ml;
 
-    public ClassDeclSimple(Identifier ai, DeclarationList adl, MethodDeclList aml,
+    public ClassDeclSimple(Identifier ai, VarDeclarationList adl, MemberDeclList aml,
                            Location pos) {
         super(pos);
         i = ai;

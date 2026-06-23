@@ -5,8 +5,13 @@ import commons.LazyVisitor;
 import codegen.Generator;
 import commons.Logger;
 import semantics.info.ClassInfo;
+import semantics.info.Signature;
 import semantics.table.SymbolContext;
 import semantics.type.*;
+import semantics.type.Type;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Validates all method and variable declarations. This consists of:
@@ -18,6 +23,7 @@ import semantics.type.*;
 public final class ClassVisitor extends LazyVisitor {
     private final SymbolContext symbolContext;
     private final Logger logger;
+    private int constructorCount;
 
     public ClassVisitor(SymbolContext symbolContext) {
         this.symbolContext = symbolContext;
@@ -62,7 +68,15 @@ public final class ClassVisitor extends LazyVisitor {
         symbolContext.enterClass(n.i.s);
         symbolContext.addEntry("this", this_);  // point to this class
         n.dl.forEach(v -> v.accept(this));  // instance variables
+
+        constructorCount = 0;
         n.ml.forEach(m -> m.accept(this));
+        // add default constructor iff no constructors are defined
+        if (constructorCount == 0) {
+            var sig = Signature.of(n.i.s);
+            var constructorInfo = symbolContext.addConstructorEntry(sig);
+        }
+
         symbolContext.exit();
     }
 
@@ -89,7 +103,15 @@ public final class ClassVisitor extends LazyVisitor {
         symbolContext.enterClass(n.i.s);
         symbolContext.addEntry("this", derived);  // point to derived class
         n.dl.forEach(v -> v.accept(this));  // instance variables
+
+        constructorCount = 0;
         n.ml.forEach(m -> m.accept(this));
+        // add default constructor iff no constructors are defined
+        if (constructorCount == 0) {
+            var sig = Signature.of(n.i.s);
+            var constructorInfo = symbolContext.addConstructorEntry(sig);
+        }
+
         symbolContext.exit();
     }
 
@@ -123,9 +145,6 @@ public final class ClassVisitor extends LazyVisitor {
         n.t.accept(this);  // declared type
         var varInfo = symbolContext.addVariableEntry(n.i.s);
         n.type = n.t.type;
-        if (symbolContext.hasCurrentMethod()) {
-            n.method = symbolContext.getCurrentMethod();
-        }
 
         if (varInfo != null) {  // if there was no conflict
             varInfo.type = n.type;
@@ -146,9 +165,6 @@ public final class ClassVisitor extends LazyVisitor {
         n.t.accept(this);  // declared type
         var varInfo = symbolContext.addVariableEntry(n.i.s);
         n.type = n.t.type;
-        if (symbolContext.hasCurrentMethod()) {
-            n.method = symbolContext.getCurrentMethod();
-        }
 
         if (varInfo != null) {  // if there was no conflict
             varInfo.type = n.type;
@@ -187,10 +203,58 @@ public final class ClassVisitor extends LazyVisitor {
         });
 
         // does the method have more than 5 parameters? If so, we don't allow
-        // this for now...
+        // this for now... TODO: support 5+ parameters
         if (methodInfo.argumentCount() > Generator.ARGUMENT_REGISTERS.length) {
             logger.logError("Encountered %d arguments for method \"%s\" (too many!)%n",
                     methodInfo.argumentCount(), n.i);
+        }
+
+        // visit local variable declarations and blocks among all statements
+        n.sl.forEach(s -> s.accept(this));
+        symbolContext.exit();
+    }
+
+    @Override
+    public void visit(ConstructorDecl n) {
+        // check if name of constructor matches class
+        var className = symbolContext.getCurrentClass().name;
+        if (!n.i.s.equals(className)) {
+            logger.logError("Constructor \"%s\" must match class name \"%s\"%n",
+                    n.i.s, className);
+            n.conflict = true;
+            return;
+        }
+
+        // collect parameters first to determine signature
+        final List<Type> parameterTypes = new ArrayList<>();
+        n.fl.forEach(f -> {
+            f.t.accept(this);
+            parameterTypes.add(f.t.type);
+        });
+
+        var sig = Signature.of(n.i.s, parameterTypes);
+        var constructorInfo = symbolContext.addConstructorEntry(sig);
+        n.constructorInfo = constructorInfo;
+        n.conflict = constructorInfo == null;
+        if (n.conflict) return;
+
+        constructorInfo.lineNumber = n.lineNumber;
+        constructorInfo.endLineNumber = n.endPos.getLine();
+        constructorCount++;
+        symbolContext.enterConstructor(sig);
+
+        n.fl.forEach(f -> {
+            f.accept(this);
+            // adding parameter regardless of whether its name conflicts with
+            // another parameter
+            constructorInfo.addArgument(f.i.s, f.type);
+        });
+
+        // does the ctor have more than 5 parameters? If so, we don't allow
+        // this for now... TODO: support 5+ parameters
+        if (constructorInfo.argumentCount() > Generator.ARGUMENT_REGISTERS.length) {
+            logger.logError("Encountered %d arguments for constructor \"%s\" (too many!)%n",
+                    constructorInfo.argumentCount(), n.i);
         }
 
         // visit local variable declarations and blocks among all statements
@@ -248,8 +312,6 @@ public final class ClassVisitor extends LazyVisitor {
     @Override
     public void visit(Block n) {
         n.blockInfo = symbolContext.addBlockEntry();
-        n.method = symbolContext.getCurrentMethod();
-
         symbolContext.enterBlock(n.blockInfo);
         n.sl.forEach(s -> s.accept(this));
         symbolContext.exit();
@@ -257,25 +319,21 @@ public final class ClassVisitor extends LazyVisitor {
 
     @Override
     public void visit(Return n) {
-        n.method = symbolContext.getCurrentMethod();
     }
 
     @Override
     public void visit(If n) {
-        n.method = symbolContext.getCurrentMethod();
         n.s.accept(this);
     }
 
     @Override
     public void visit(IfElse n) {
-        n.method = symbolContext.getCurrentMethod();
         n.s1.accept(this);
         n.s2.accept(this);
     }
 
     @Override
     public void visit(Switch n) {
-        n.method = symbolContext.getCurrentMethod();
         n.cl.forEach(c -> c.accept(this));
     }
 
@@ -291,13 +349,15 @@ public final class ClassVisitor extends LazyVisitor {
 
     @Override
     public void visit(While n) {
-        n.method = symbolContext.getCurrentMethod();
         n.s.accept(this);
     }
 
     @Override
+    public void visit(SuperCtorInvocation n) {
+    }
+
+    @Override
     public void visit(For n) {
-        n.method = symbolContext.getCurrentMethod();
         n.blockInfo = symbolContext.addBlockEntry();
 
         symbolContext.enterBlock(n.blockInfo);
@@ -309,96 +369,77 @@ public final class ClassVisitor extends LazyVisitor {
 
     @Override
     public void visit(Print n) {
-        n.method = symbolContext.getCurrentMethod();
     }
 
     @Override
     public void visit(AssignSimple n) {
-        n.method = symbolContext.getCurrentMethod();
     }
 
     @Override
     public void visit(AssignPlus n) {
-        n.method = symbolContext.getCurrentMethod();
     }
 
     @Override
     public void visit(AssignMinus n) {
-        n.method = symbolContext.getCurrentMethod();
     }
 
     @Override
     public void visit(AssignTimes n) {
-        n.method = symbolContext.getCurrentMethod();
     }
 
     @Override
     public void visit(AssignDivide n) {
-        n.method = symbolContext.getCurrentMethod();
     }
 
     @Override
     public void visit(AssignMod n) {
-        n.method = symbolContext.getCurrentMethod();
     }
 
     @Override
     public void visit(AssignAnd n) {
-        n.method = symbolContext.getCurrentMethod();
     }
 
     @Override
     public void visit(AssignOr n) {
-        n.method = symbolContext.getCurrentMethod();
     }
 
     @Override
     public void visit(AssignXor n) {
-        n.method = symbolContext.getCurrentMethod();
     }
 
     @Override
     public void visit(AssignLeftShift n) {
-        n.method = symbolContext.getCurrentMethod();
     }
 
     @Override
     public void visit(AssignRightShift n) {
-        n.method = symbolContext.getCurrentMethod();
     }
 
     @Override
     public void visit(AssignUnsignedRightShift n) {
-        n.method = symbolContext.getCurrentMethod();
     }
 
     @Override
     public void visit(PostIncrement n) {
-        n.method = symbolContext.getCurrentMethod();
     }
 
     @Override
     public void visit(PreIncrement n) {
-        n.method = symbolContext.getCurrentMethod();
     }
 
     @Override
     public void visit(PostDecrement n) {
-        n.method = symbolContext.getCurrentMethod();
     }
 
     @Override
     public void visit(PreDecrement n) {
-        n.method = symbolContext.getCurrentMethod();
     }
 
     @Override
     public void visit(Action n) {
-        n.method = symbolContext.getCurrentMethod();
     }
 
     @Override
     public void visit(NoOp n) {
-        n.method = symbolContext.getCurrentMethod();
     }
 }

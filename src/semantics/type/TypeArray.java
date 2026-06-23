@@ -28,6 +28,14 @@ public class TypeArray extends Type {
     }
 
     @Override
+    public int getSimilarity(Type other) {
+        if (other instanceof TypeArray otherArray && dimension == otherArray.dimension) {
+            return type.getSimilarity(otherArray.type);
+        }
+        return other == TypeUnknown.getInstance() ? 0 : Integer.MAX_VALUE;
+    }
+
+    @Override
     public String toString() {
         return type + "[]".repeat(dimension);
     }

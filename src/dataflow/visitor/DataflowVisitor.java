@@ -105,6 +105,18 @@ public final class DataflowVisitor extends LazyVisitor {
         symbolContext.exit();
     }
 
+    public void visit(ConstructorDecl n) {
+        symbolContext.enterConstructor(n.constructorInfo.getSignature());
+        var c = symbolContext.getCurrentConstructor();
+
+        n.dataflow = DataflowGraph.create(symbolContext, c, n.sl)
+                .build()
+                .validateVariableDeclarations();
+
+        graphs.put(c.getQualifiedName(), n.dataflow);
+        symbolContext.exit();
+    }
+
     @Override
     public void visit(ArrayType n) {
         n.t.accept(this);
@@ -140,6 +152,18 @@ public final class DataflowVisitor extends LazyVisitor {
     public void visit(Return n) {
         System.out.print("return ");
         n.e.accept(this);
+    }
+
+    @Override
+    public void visit(SuperCtorInvocation n) {
+        System.out.println("super(");
+        for (int i = 0; i < n.el.size(); i++) {
+            if (i != 0) {
+                System.out.print(", ");
+            }
+            n.el.get(i).accept(this);
+        }
+        System.out.print(")");
     }
 
     @Override
@@ -533,7 +557,14 @@ public final class DataflowVisitor extends LazyVisitor {
 
     @Override
     public void visit(NewObject n) {
-        System.out.print("new " + n.i + "()");
+        System.out.print("new " + n.i + "(");
+        for (int i = 0; i < n.el.size(); i++) {
+            if (i != 0) {
+                System.out.print(", ");
+            }
+            n.el.get(i).accept(this);
+        }
+        System.out.print(")");
     }
 
     @Override

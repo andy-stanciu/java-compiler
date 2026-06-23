@@ -74,7 +74,7 @@ public final class Instruction {
             type = InstructionType.SWITCH;
         } else if (statement instanceof Return) {
             type = InstructionType.RETURN;
-        } else if (statement instanceof Declaration) {
+        } else if (statement instanceof VarDeclaration) {
             type = InstructionType.DECLARATION;
         }
 

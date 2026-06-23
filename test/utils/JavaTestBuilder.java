@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -141,6 +142,16 @@ public class JavaTestBuilder {
      */
     public JavaTestBuilder assertSystemOutMatchesContentsOf(Path file) throws IOException {
         return assertSystemOutMatches(Files.readString(TestUtils._fixPath(file)));
+    }
+
+    public JavaTestBuilder overwriteExpectedSystemOutWithContentsOf(Path file) {
+        return assertSystemOut(actualSystemOut -> {
+            try {
+                Files.writeString(TestUtils._fixPath(file), actualSystemOut, Charset.defaultCharset());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     /**

@@ -12,33 +12,41 @@ Class: Main ---------------------------------------------------+
 | main       Method     void       String[]      -             |
 +--------------------------------------------------------------+
 
-Class: One --------------------------------------------------------+
-| Symbol     Type           Return     Signature     Inherited     |
-+------------------------------------------------------------------+
-| getBar     Method         int        void          -             |
-| getFoo     Method         int        void          -             |
-| setBar     Method         int        int           -             |
-| setFoo     Method         int        void          -             |
-| bar        int            -          -             -             |
-| foo        int            -          -             -             |
-| this       Class<One>     -          -             -             |
-+------------------------------------------------------------------+
+Class: One --------------------------------------------------------------+
+| Symbol     Type                 Return     Signature     Inherited     |
++------------------------------------------------------------------------+
+| getBar     Method               int        void          -             |
+| getFoo     Method               int        void          -             |
+| setBar     Method               int        int           -             |
+| setFoo     Method               int        void          -             |
+| One()      Constructor<One>     -          void          -             |
+| bar        int                  -          -             -             |
+| foo        int                  -          -             -             |
+| this       Class<One>           -          -             -             |
++------------------------------------------------------------------------+
 
-Class: Two extends One ---------------------------------------------+
-| Symbol      Type           Return     Signature     Inherited     |
-+-------------------------------------------------------------------+
-| getBar      Method         int        void          One           |
-| getFoo      Method         int        void          One           |
-| getIt       Method         int        void          -             |
-| resetIt     Method         int        void          -             |
-| setBar      Method         int        int           One           |
-| setFoo      Method         int        void          -             |
-| bar         int            -          -             -             |
-| foo         int            -          -             One           |
-| this        Class<Two>     -          -             -             |
-+-------------------------------------------------------------------+
+Class: Two extends One ---------------------------------------------------+
+| Symbol      Type                 Return     Signature     Inherited     |
++-------------------------------------------------------------------------+
+| getBar      Method               int        void          One           |
+| getFoo      Method               int        void          One           |
+| getIt       Method               int        void          -             |
+| resetIt     Method               int        void          -             |
+| setBar      Method               int        int           One           |
+| setFoo      Method               int        void          -             |
+| Two()       Constructor<Two>     -          void          -             |
+| bar         int                  -          -             -             |
+| foo         int                  -          -             One           |
+| this        Class<Two>           -          -             -             |
++-------------------------------------------------------------------------+
 
 Method: Main$main -------------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Constructor: One() ------------------------------------------+
 | Symbol     Type     Return     Signature     Inherited     |
 +------------------------------------------------------------+
 | -          -        -          -             -             |
@@ -68,6 +76,12 @@ Method: One$setFoo ------------------------------------------+
 | -          -        -          -             -             |
 +------------------------------------------------------------+
 
+Constructor: Two() ------------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
 Method: Two$getIt -------------------------------------------+
 | Symbol     Type     Return     Signature     Inherited     |
 +------------------------------------------------------------+
@@ -81,6 +95,12 @@ Method: Two$resetIt -----------------------------------------+
 +------------------------------------------------------------+
 
 Method: Two$setFoo ------------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Block: Main$main#0 ------------------------------------------+
 | Symbol     Type     Return     Signature     Inherited     |
 +------------------------------------------------------------+
 | -          -        -          -             -             |

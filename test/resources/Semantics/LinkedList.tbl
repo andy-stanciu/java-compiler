@@ -7,27 +7,29 @@ Global -----------------------------------------------------------------------+
 | List           Class<List>           -          -             -             |
 +-----------------------------------------------------------------------------+
 
-Class: Element ---------------------------------------------------------------------+
-| Symbol         Type               Return      Signature             Inherited     |
-+-----------------------------------------------------------------------------------+
-| Compare        Method             boolean     int, int              -             |
-| Equal          Method             boolean     Element               -             |
-| GetAge         Method             int         void                  -             |
-| GetMarried     Method             boolean     void                  -             |
-| GetSalary      Method             int         void                  -             |
-| Init           Method             boolean     int, int, boolean     -             |
-| Age            int                -           -                     -             |
-| Married        boolean            -           -                     -             |
-| Salary         int                -           -                     -             |
-| this           Class<Element>     -           -                     -             |
-+-----------------------------------------------------------------------------------+
+Class: Element ---------------------------------------------------------------------------+
+| Symbol         Type                     Return      Signature             Inherited     |
++-----------------------------------------------------------------------------------------+
+| Compare        Method                   boolean     int, int              -             |
+| Equal          Method                   boolean     Element               -             |
+| GetAge         Method                   int         void                  -             |
+| GetMarried     Method                   boolean     void                  -             |
+| GetSalary      Method                   int         void                  -             |
+| Init           Method                   boolean     int, int, boolean     -             |
+| Element()      Constructor<Element>     -           void                  -             |
+| Age            int                      -           -                     -             |
+| Married        boolean                  -           -                     -             |
+| Salary         int                      -           -                     -             |
+| this           Class<Element>           -           -                     -             |
++-----------------------------------------------------------------------------------------+
 
-Class: LL --------------------------------------------------------+
-| Symbol     Type          Return     Signature     Inherited     |
-+-----------------------------------------------------------------+
-| Start      Method        int        void          -             |
-| this       Class<LL>     -          -             -             |
-+-----------------------------------------------------------------+
+Class: LL --------------------------------------------------------------+
+| Symbol     Type                Return     Signature     Inherited     |
++-----------------------------------------------------------------------+
+| Start      Method              int        void          -             |
+| LL()       Constructor<LL>     -          void          -             |
+| this       Class<LL>           -          -             -             |
++-----------------------------------------------------------------------+
 
 Class: LinkedList ---------------------------------------------+
 | Symbol     Type       Return     Signature     Inherited     |
@@ -35,24 +37,31 @@ Class: LinkedList ---------------------------------------------+
 | main       Method     void       String[]      -             |
 +--------------------------------------------------------------+
 
-Class: List -----------------------------------------------------------------------+
-| Symbol      Type            Return      Signature                  Inherited     |
-+----------------------------------------------------------------------------------+
-| Delete      Method          List        Element                    -             |
-| GetElem     Method          Element     void                       -             |
-| GetEnd      Method          boolean     void                       -             |
-| GetNext     Method          List        void                       -             |
-| Init        Method          boolean     void                       -             |
-| InitNew     Method          boolean     Element, List, boolean     -             |
-| Insert      Method          List        Element                    -             |
-| Print       Method          boolean     void                       -             |
-| Search      Method          int         Element                    -             |
-| SetNext     Method          boolean     List                       -             |
-| elem        Element         -           -                          -             |
-| end         boolean         -           -                          -             |
-| next        List            -           -                          -             |
-| this        Class<List>     -           -                          -             |
-+----------------------------------------------------------------------------------+
+Class: List -----------------------------------------------------------------------------+
+| Symbol      Type                  Return      Signature                  Inherited     |
++----------------------------------------------------------------------------------------+
+| Delete      Method                List        Element                    -             |
+| GetElem     Method                Element     void                       -             |
+| GetEnd      Method                boolean     void                       -             |
+| GetNext     Method                List        void                       -             |
+| Init        Method                boolean     void                       -             |
+| InitNew     Method                boolean     Element, List, boolean     -             |
+| Insert      Method                List        Element                    -             |
+| Print       Method                boolean     void                       -             |
+| Search      Method                int         Element                    -             |
+| SetNext     Method                boolean     List                       -             |
+| List()      Constructor<List>     -           void                       -             |
+| elem        Element               -           -                          -             |
+| end         boolean               -           -                          -             |
+| next        List                  -           -                          -             |
+| this        Class<List>           -           -                          -             |
++----------------------------------------------------------------------------------------+
+
+Constructor: Element() --------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
 
 Method: Element$Compare ----------------------------------------+
 | Symbol     Type        Return     Signature     Inherited     |
@@ -99,6 +108,12 @@ Method: Element$Init ----------------------------------------------+
 | v_Salary      int         -          -             -             |
 +------------------------------------------------------------------+
 
+Constructor: LL() -------------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
 Method: LL$Start --------------------------------------------------+
 | Symbol        Type        Return     Signature     Inherited     |
 +------------------------------------------------------------------+
@@ -111,6 +126,12 @@ Method: LL$Start --------------------------------------------------+
 +------------------------------------------------------------------+
 
 Method: LinkedList$main -------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Constructor: List() -----------------------------------------+
 | Symbol     Type     Return     Signature     Inherited     |
 +------------------------------------------------------------+
 | -          -        -          -             -             |
@@ -195,5 +216,59 @@ Method: List$SetNext ----------------------------------------+
 | Symbol     Type     Return     Signature     Inherited     |
 +------------------------------------------------------------+
 | v_next     List     -          -             -             |
++------------------------------------------------------------+
+
+Block: Element$Equal#0 --------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Block: List$Delete#0 ----------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Block: List$Print#0 -----------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Block: List$Search#0 ----------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Block: List$Delete#0#0 --------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Block: List$Delete#0#1 --------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Block: List$Search#0#0 --------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Block: List$Delete#0#0#0 ------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
++------------------------------------------------------------+
+
+Block: List$Delete#0#0#1 ------------------------------------+
+| Symbol     Type     Return     Signature     Inherited     |
++------------------------------------------------------------+
+| -          -        -          -             -             |
 +------------------------------------------------------------+
 

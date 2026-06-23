@@ -17,6 +17,8 @@ public abstract class LazyVisitor implements Visitor {
 
     public void visit(MethodDecl n) { throw new UnsupportedOperationException(); }
 
+    public void visit(ConstructorDecl n) { throw new UnsupportedOperationException(); }
+
     public void visit(Formal n) { throw new UnsupportedOperationException(); }
 
     public void visit(VoidType n) { throw new UnsupportedOperationException(); }
@@ -131,6 +133,8 @@ public abstract class LazyVisitor implements Visitor {
     public void visit(Action n) { throw new UnsupportedOperationException(); }
 
     public void visit(Call n) { throw new UnsupportedOperationException(); }
+
+    public void visit(SuperCtorInvocation n) { throw new UnsupportedOperationException(); }
 
     public void visit(Field n) { throw new UnsupportedOperationException(); }
 
