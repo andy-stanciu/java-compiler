@@ -134,6 +134,7 @@ string = (\")([^\"]|(\\\"))*(\")
 "true" { return symbol(sym.TRUE); }
 "void" { return symbol(sym.VOID); }
 "while" { return symbol(sym.WHILE); }
+"super" { return symbol(sym.SUPER); }
 
 /* operators */
 "+" { return symbol(sym.PLUS); }

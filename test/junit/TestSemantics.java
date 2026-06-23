@@ -63,6 +63,16 @@ public class TestSemantics {
     }
 
     @Test
+    public void testSuperFail() {
+        runSemanticsFailTestCase("SuperFail");
+    }
+
+    @Test
+    public void testSuper() {
+        runSemanticsSuccessTestCase("Super");
+    }
+
+    @Test
     public void testNewExpressions() {
         runSemanticsSuccessTestCase("NewExpressions");
     }

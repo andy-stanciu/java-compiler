@@ -4,8 +4,11 @@ import ast.*;
 import commons.LazyVisitor;
 import commons.Pair;
 import commons.Logger;
+import semantics.info.ClassInfo;
+import semantics.info.ConstructorInfo;
 import semantics.info.Signature;
 import semantics.table.SymbolContext;
+import semantics.table.SymbolTable;
 import semantics.type.*;
 import semantics.type.Type;
 
@@ -23,6 +26,7 @@ import static codegen.Generator.ARGUMENT_REGISTERS;
 public final class LocalVisitor extends LazyVisitor {
     private final SymbolContext symbolContext;
     private final Logger logger;
+    private boolean isFirstStatement;
 
     public LocalVisitor(SymbolContext symbolContext) {
         this.symbolContext = symbolContext;
@@ -90,8 +94,26 @@ public final class LocalVisitor extends LazyVisitor {
     public void visit(ConstructorDecl n) {
         if (n.conflict) return;
 
-        symbolContext.enterConstructor(n.signature);
-        n.sl.forEach(s -> s.accept(this));  // ctor statements
+        symbolContext.enterConstructor(n.constructorInfo.getSignature());
+        // visit ctor statements
+        for (int i = 0; i < n.sl.size(); i++) {
+            isFirstStatement = i == 0;
+            n.sl.get(i).accept(this);
+        }
+
+        // if we don't explicitly invoke a super ctor, then it must be the case that
+        // a zero-argument constructor exists in some superclass. if not, report an error
+        if (!n.constructorInfo.invokesSuperCtor && symbolContext.getCurrentClass().isDerived()) {
+            final var zeroArgCtor = resolveSuperConstructor(symbolContext.getCurrentClass(),
+                    new ArrayList<>());
+            if (zeroArgCtor == null) {
+                logger.logError("There is no parameterless constructor available in " +
+                        "any superclass; an explicit call to \"super()\" is required%n");
+            } else {
+                // valid => add zero-arg super constructor
+                n.constructorInfo.superCtor = zeroArgCtor;
+            }
+        }
 
         symbolContext.exit();
     }
@@ -126,6 +148,56 @@ public final class LocalVisitor extends LazyVisitor {
         symbolContext.enterBlock(n.blockInfo);
         n.sl.forEach(s -> s.accept(this));  // block statements
         symbolContext.exit();
+    }
+
+    @Override
+    public void visit(SuperCtorInvocation n) {
+        if (!symbolContext.hasCurrentConstructor()) {
+            // we're not in a constructor, but tried to call super
+            logger.logError("Call to \"super()\" is only allowed in a constructor body%n");
+            return;
+        }
+
+        final var c = symbolContext.getCurrentConstructor();
+        final var class_ = symbolContext.getCurrentClass();
+        c.invokesSuperCtor = true;
+
+        if (!isFirstStatement) {
+            // we're not the first statement in a constructor
+            logger.logError("Call to \"super()\" must be first statement in constructor body%n");
+        }
+
+        final List<Type> argumentTypes = new ArrayList<>();
+        n.el.forEach(e -> {
+            e.accept(this);
+            argumentTypes.add(e.eval().type);
+        });
+
+        final var ctor = resolveSuperConstructor(class_, argumentTypes);
+        if (ctor == null) {
+            logger.logError("Cannot resolve super constructor invocation in " +
+                            "class \"%s\" with arguments %s%n", c.getSignature().getName(),
+                    String.join(", ", argumentTypes.stream().map(Type::toString).toList()));
+            return;
+        }
+
+        // resolved!
+        c.validSuperCtor = true;
+        c.superCtor = ctor;
+    }
+
+    private ConstructorInfo resolveSuperConstructor(final ClassInfo class_,
+                                                    final List<Type> argumentTypes) {
+        ClassInfo parent = class_.getParent();
+        if (parent == null) {
+            return null;
+        }
+        final var classInfo = symbolContext.lookupClass(parent.name);
+        if (classInfo == null) {
+            return null;
+        }
+        final var signature = Signature.of(parent.name, argumentTypes);
+        return symbolContext.lookupConstructor(signature, classInfo);
     }
 
     @Override

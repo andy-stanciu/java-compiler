@@ -783,6 +783,19 @@ public final class PrettyPrintVisitor extends LazyVisitor {
     }
 
     @Override
+    public void visit(SuperCtorInvocation n) {
+        indenter.print();
+        System.out.print("super(");
+        for (int i = 0; i < n.el.size(); i++) {
+            n.el.get(i).accept(this);
+            if (i + 1 < n.el.size()) {
+                System.out.print(", ");
+            }
+        }
+        System.out.print(");");
+    }
+
+    @Override
     public void visit(Field n) {
         precedentTracker.leftParen(n);
         precedentTracker.push(n);

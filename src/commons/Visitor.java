@@ -134,6 +134,8 @@ public interface Visitor {
 
     void visit(Call n);
 
+    void visit(SuperCtorInvocation n);
+
     void visit(Field n);
 
     void visit(Ternary n);

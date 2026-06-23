@@ -129,7 +129,7 @@ public final class CodeDataVisitor extends LazyVisitor {
 
     @Override
     public void visit(ConstructorDecl n) {
-        var constructor = symbolContext.lookupConstructor(n.signature, symbolContext.getCurrentClass());
+        var constructor = n.constructorInfo;
         if (constructor == null) {
             throw new IllegalStateException();
         }
@@ -140,7 +140,7 @@ public final class CodeDataVisitor extends LazyVisitor {
 
         int offset = 2;  // start offset at 2 to leave space for obj ptr
 
-        symbolContext.enterConstructor(n.signature);
+        symbolContext.enterConstructor(n.constructorInfo.getSignature());
         // assign offsets to parameters
         for (int i = 0; i < n.fl.size(); i++) {
             var p = symbolContext.lookupVariable(n.fl.get(i).i.s);

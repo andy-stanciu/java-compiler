@@ -3,10 +3,11 @@ package ast;
 import commons.Logger;
 import commons.Visitor;
 import java_cup.runtime.ComplexSymbolFactory.Location;
-import semantics.info.Signature;
+import semantics.info.ConstructorInfo;
 
 public class ConstructorDecl extends MemberDecl {
-    public Signature signature;
+    // associated constructor info
+    public ConstructorInfo constructorInfo;
 
     public ConstructorDecl(Identifier cid, FormalList afl, StatementList asl, Location pos, Location endPos) {
         super(cid, afl, asl, pos, endPos);

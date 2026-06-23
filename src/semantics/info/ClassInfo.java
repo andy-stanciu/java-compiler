@@ -46,7 +46,7 @@ public final class ClassInfo extends Info {
      * @return This class' instance variables, in order of declaration.
      *         Includes any superclass instance variables.
      */
-    public Iterable<VariableInfo> getInstanceVariables() {
+    public Collection<VariableInfo> getInstanceVariables() {
         Deque<VariableInfo> ret = new LinkedList<>();
         var curr = this;
         while (curr != null) {

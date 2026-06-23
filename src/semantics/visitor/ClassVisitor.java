@@ -233,8 +233,8 @@ public final class ClassVisitor extends LazyVisitor {
         });
 
         var sig = Signature.of(n.i.s, parameterTypes);
-        n.signature = sig;
         var constructorInfo = symbolContext.addConstructorEntry(sig);
+        n.constructorInfo = constructorInfo;
         n.conflict = constructorInfo == null;
         if (n.conflict) return;
 
@@ -350,6 +350,10 @@ public final class ClassVisitor extends LazyVisitor {
     @Override
     public void visit(While n) {
         n.s.accept(this);
+    }
+
+    @Override
+    public void visit(SuperCtorInvocation n) {
     }
 
     @Override
