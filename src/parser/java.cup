@@ -52,6 +52,7 @@ nonterminal StatementList StatementList;
 nonterminal Statement Statement;
 nonterminal Statement For;
 nonterminal SuperCtorInvocation SuperCtorInvocation;
+nonterminal ThisCtorInvocation ThisCtorInvocation;
 nonterminal StatementSimple StatementSimple;
 nonterminal Expression Expression;
 nonterminal Expression Expression1;
@@ -265,6 +266,8 @@ Statement               ::= SEMICOLON:x
                               {: RESULT = f; :}
                           | SuperCtorInvocation:s
                               {: RESULT = s; :}
+                          | ThisCtorInvocation:t
+                              {: RESULT = t; :}
                           ;
 
 For                     ::= FOR:f LPAREN StatementSimple:s0 SEMICOLON Expression:e SEMICOLON StatementSimple:s1 RPAREN Statement:s2
@@ -287,6 +290,10 @@ For                     ::= FOR:f LPAREN StatementSimple:s0 SEMICOLON Expression
 
 SuperCtorInvocation     ::= SUPER:s Arguments:a SEMICOLON
                               {: RESULT = new SuperCtorInvocation(a, sxleft); :}
+                          ;
+
+ThisCtorInvocation      ::= THIS:t Arguments:a SEMICOLON
+                              {: RESULT = new ThisCtorInvocation(a, txleft); :}
                           ;
 
 Return                  ::= RETURN:r Expression:e SEMICOLON

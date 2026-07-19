@@ -4,6 +4,7 @@ import codegen.platform.*;
 import codegen.platform.isa.ISA;
 import codegen.synth.SyntheticFunction;
 import codegen.synth.SyntheticFunctionRegistry;
+import semantics.info.Signature;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -195,6 +196,31 @@ public final class Generator {
      */
     public void genCall(Label label) {
         genCall(label, "");
+    }
+
+    /**
+     * <p>
+     *     Generates a call instruction to the specified constructor signature.
+     * </p>
+     * @param signature The constructor signature to invoke.
+     */
+    public void genCall(Signature signature) {
+        genCall(signature, false);
+    }
+
+    /**
+     * <p>
+     *     Generates a call instruction to the specified constructor signature.
+     *     If <code>post</code> is specified, invokes the post-constructor only.
+     * </p>
+     * @param signature The constructor signature to invoke.
+     * @param post Whether to invoke only the post-constructor.
+     */
+    public void genCall(Signature signature, boolean post) {
+        if (!post) {
+            genCall(Label.of(signature.toString()));
+        }
+        genCall(Label.of(signature.toString() + "_post"));
     }
 
     /**

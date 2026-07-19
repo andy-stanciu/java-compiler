@@ -8,7 +8,6 @@ import semantics.info.ClassInfo;
 import semantics.info.ConstructorInfo;
 import semantics.info.Signature;
 import semantics.table.SymbolContext;
-import semantics.table.SymbolTable;
 import semantics.type.*;
 import semantics.type.Type;
 
@@ -27,6 +26,7 @@ public final class LocalVisitor extends LazyVisitor {
     private final SymbolContext symbolContext;
     private final Logger logger;
     private boolean isFirstStatement;
+    private boolean usingInstanceMember;
 
     public LocalVisitor(SymbolContext symbolContext) {
         this.symbolContext = symbolContext;
@@ -95,13 +95,13 @@ public final class LocalVisitor extends LazyVisitor {
         if (n.conflict) return;
 
         symbolContext.enterConstructor(n.constructorInfo.getSignature());
-        // visit ctor statements
+        // visit resolvedCtor statements
         for (int i = 0; i < n.sl.size(); i++) {
             isFirstStatement = i == 0;
             n.sl.get(i).accept(this);
         }
 
-        // if we don't explicitly invoke a super ctor, then it must be the case that
+        // if we don't explicitly invoke a super resolvedCtor, then it must be the case that
         // a zero-argument constructor exists in some superclass. if not, report an error
         if (!n.constructorInfo.invokesSuperCtor && symbolContext.getCurrentClass().isDerived()) {
             final var zeroArgCtor = resolveSuperConstructor(symbolContext.getCurrentClass(),
@@ -169,15 +169,23 @@ public final class LocalVisitor extends LazyVisitor {
 
         final List<Type> argumentTypes = new ArrayList<>();
         n.el.forEach(e -> {
+            usingInstanceMember = false;
             e.accept(this);
             argumentTypes.add(e.eval().type);
+            // validate expression is not an instance variable or an instance method reference
+            if (usingInstanceMember) {
+                logger.logError("Cannot reference instance variable or method before " +
+                        "supertype constructor has been called%n");
+            }
         });
 
         final var ctor = resolveSuperConstructor(class_, argumentTypes);
         if (ctor == null) {
+            String arguments = String.join(", ", argumentTypes.stream()
+                    .map(Type::toString).toList());
+            arguments = arguments.isBlank() ? arguments : " with argument(s) " + arguments;
             logger.logError("Cannot resolve super constructor invocation in " +
-                            "class \"%s\" with arguments %s%n", c.getSignature().getName(),
-                    String.join(", ", argumentTypes.stream().map(Type::toString).toList()));
+                            "class \"%s\"%s%n", c.getSignature().getName(), arguments);
             return;
         }
 
@@ -198,6 +206,67 @@ public final class LocalVisitor extends LazyVisitor {
         }
         final var signature = Signature.of(parent.name, argumentTypes);
         return symbolContext.lookupConstructor(signature, classInfo);
+    }
+
+    @Override
+    public void visit(ThisCtorInvocation n) {
+        if (!symbolContext.hasCurrentConstructor()) {
+            // we're not in a constructor, but tried to call this
+            logger.logError("Call to \"this()\" is only allowed in a constructor body%n");
+            return;
+        }
+
+        final var currentCtor = symbolContext.getCurrentConstructor();
+        final var class_ = symbolContext.getCurrentClass();
+        currentCtor.invokesThisCtor = true;
+
+        if (!isFirstStatement) {
+            // we're not the first statement in a constructor
+            logger.logError("Call to \"this()\" must be first statement in constructor body%n");
+        }
+
+        final List<Type> argumentTypes = new ArrayList<>();
+        n.el.forEach(e -> {
+            usingInstanceMember = false;
+            e.accept(this);
+            argumentTypes.add(e.eval().type);
+            // validate expression is not an instance variable or an instance method reference
+            if (usingInstanceMember) {
+                logger.logError("Cannot reference instance variable or method before " +
+                        "supertype constructor has been called%n");
+            }
+        });
+
+        final var resolvedCtor = symbolContext.lookupConstructor(Signature.of(class_.name,
+                argumentTypes), class_);
+        if (resolvedCtor == null) {
+            String arguments = String.join(", ", argumentTypes.stream()
+                    .map(Type::toString).toList());
+            arguments = arguments.isBlank() ? arguments : " with argument(s) " + arguments;
+            logger.logError("Cannot resolve constructor invocation in " +
+                            "class \"%s\"%s%n",
+                    currentCtor.getSignature().getName(), arguments);
+            return;
+        }
+
+        // resolved - now only thing left to do is check for cycles
+        var ctor = resolvedCtor;
+
+        while (ctor != null) {
+            if (ctor == currentCtor) {
+                // cycle detected!
+                String arguments = String.join(", ", argumentTypes.stream()
+                        .map(Type::toString).toList());
+                arguments = arguments.isBlank() ? arguments : " with argument(s) " + arguments;
+                        logger.logError("Recursive constructor invocation in " +
+                                "class \"%s\"%s%n",
+                        currentCtor.getSignature().getName(), arguments);
+                return;
+            }
+            ctor = ctor.thisCtor;
+        }
+        currentCtor.validThisCtor = true;
+        currentCtor.thisCtor = resolvedCtor;
     }
 
     @Override
@@ -749,19 +818,24 @@ public final class LocalVisitor extends LazyVisitor {
     @Override
     public void visit(IdentifierExp n) {
         var v = symbolContext.lookupVariable(n.s);
-        if (v != null) {
-            n.type = v.type;
-        } else {
+        if (v == null) {
             if (!symbolContext.isUnknown(n.s)) {
                 logger.logError("Cannot interpret \"%s\" as an expression. Is it a variable?%n",
                         n.s);
             }
             n.type = TypeUnknown.getInstance(); // mark as undefined
+            return;
         }
+
+        if (v.isInstanceVariable()) {
+            usingInstanceMember = true;
+        }
+        n.type = v.type;
     }
 
     @Override
     public void visit(This n) {
+        usingInstanceMember = true;
         n.type = new TypeObject(symbolContext.getCurrentClass());
     }
 

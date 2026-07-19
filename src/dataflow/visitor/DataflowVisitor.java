@@ -167,6 +167,18 @@ public final class DataflowVisitor extends LazyVisitor {
     }
 
     @Override
+    public void visit(ThisCtorInvocation n) {
+        System.out.println("this(");
+        for (int i = 0; i < n.el.size(); i++) {
+            if (i != 0) {
+                System.out.print(", ");
+            }
+            n.el.get(i).accept(this);
+        }
+        System.out.print(")");
+    }
+
+    @Override
     public void visit(If n) {
         System.out.print("if not (");
         n.e.accept(this);

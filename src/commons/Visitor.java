@@ -136,6 +136,8 @@ public interface Visitor {
 
     void visit(SuperCtorInvocation n);
 
+    void visit(ThisCtorInvocation n);
+
     void visit(Field n);
 
     void visit(Ternary n);

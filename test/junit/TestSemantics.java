@@ -83,6 +83,11 @@ public class TestSemantics {
     }
 
     @Test
+    public void testThisCtorFail() {
+        runSemanticsFailTestCase("ThisCtorFail");
+    }
+
+    @Test
     public void testConflictsFail() {
         runSemanticsFailTestCase("ConflictsFail");
     }
