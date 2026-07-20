@@ -136,6 +136,8 @@ public abstract class LazyVisitor implements Visitor {
 
     public void visit(SuperCtorInvocation n) { throw new UnsupportedOperationException(); }
 
+    public void visit(ThisCtorInvocation n) { throw new UnsupportedOperationException(); }
+
     public void visit(Field n) { throw new UnsupportedOperationException(); }
 
     public void visit(Ternary n) { throw new UnsupportedOperationException(); }

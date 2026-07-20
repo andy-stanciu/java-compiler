@@ -39,6 +39,12 @@ public final class LiveVariableVisitor extends LazyVisitor {
     }
 
     @Override
+    public void visit(ThisCtorInvocation n) {
+        used = n.used;
+        n.el.forEach(e -> e.accept(this));
+    }
+
+    @Override
     public void visit(If n) {
         used = n.used;
         n.e.accept(this);

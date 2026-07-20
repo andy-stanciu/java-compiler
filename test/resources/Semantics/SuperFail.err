@@ -1,9 +1,9 @@
-ERROR @ SuperFail.java:10: Cannot resolve super constructor invocation in class "A" with arguments int
+ERROR @ SuperFail.java:10: Cannot resolve super constructor invocation in class "A" with argument(s) int
 ERROR @ SuperFail.java:18: Call to "super()" must be first statement in constructor body
-ERROR @ SuperFail.java:18: Cannot resolve super constructor invocation in class "B" with arguments int, int
-ERROR @ SuperFail.java:24: Cannot resolve super constructor invocation in class "C" with arguments int
-ERROR @ SuperFail.java:37: Cannot resolve super constructor invocation in class "Foo" with arguments int, boolean
+ERROR @ SuperFail.java:18: Cannot resolve super constructor invocation in class "B" with argument(s) int, int
+ERROR @ SuperFail.java:24: Cannot resolve super constructor invocation in class "C" with argument(s) int
+ERROR @ SuperFail.java:37: Cannot resolve super constructor invocation in class "Foo" with argument(s) int, boolean
 ERROR @ SuperFail.java:47: Call to "super()" is only allowed in a constructor body
-ERROR @ SuperFail.java:72: Cannot resolve super constructor invocation in class "Y" with arguments ChildThing, ChildThing, boolean
+ERROR @ SuperFail.java:72: Cannot resolve super constructor invocation in class "Y" with argument(s) ChildThing, ChildThing, boolean
 ERROR @ SuperFail.java:88: There is no parameterless constructor available in any superclass; an explicit call to "super()" is required
 Static semantic analysis found 8 error(s), 0 warning(s)

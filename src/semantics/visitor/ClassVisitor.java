@@ -357,6 +357,10 @@ public final class ClassVisitor extends LazyVisitor {
     }
 
     @Override
+    public void visit(ThisCtorInvocation n) {
+    }
+
+    @Override
     public void visit(For n) {
         n.blockInfo = symbolContext.addBlockEntry();
 

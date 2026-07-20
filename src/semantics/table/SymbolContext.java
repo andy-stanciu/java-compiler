@@ -470,6 +470,17 @@ public final class SymbolContext {
             if (symbol.startsWith(METHOD_PREFIX)) {
                 symbol = symbol.substring(1);
             }
+            // constructor formatting, kind of a hack but works
+            if (symbol.startsWith(SIGNATURE_PREFIX)) {
+                symbol = symbol.substring(1);
+                symbol = symbol.replace("_$_", "[]");
+                if (symbol.contains("$$")) {
+                    symbol = symbol.replace("$$", "(") + ")";
+                } else {
+                    symbol += "()";
+                }
+                symbol = symbol.replace("$", ",");
+            }
             logger.logError("Symbol \"%s\" is already defined%n", symbol);
             return false;
         }

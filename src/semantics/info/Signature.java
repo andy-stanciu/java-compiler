@@ -30,7 +30,7 @@ public final class Signature {
             if (i < parameters.size() - 1) sb.append(SymbolContext.PARAM_SEPARATOR);
         }
         this.str = sb.toString();
-        this.str = this.str.replace("[]", "$");
+        this.str = this.str.replace("[]", "_$_");
         this.name = name;
         this.parameters = parameters;
     }

@@ -39,8 +39,8 @@ public final class VariableInfo extends Info {
     }
 
     /**
-     * @return If this is an instance variable, the offset from the start of the object.
-     *         If it is a parameter or local variable, the offset from the stack frame.
+     * @return If this is a parameter or local variable, returns offset from the stack frame.
+     *         If this is an instance variable, use {@link VariableInfo#getInstanceVariableOffset()}
      */
     public int getOffset() {
         if (vIndex == 0) {
@@ -48,5 +48,12 @@ public final class VariableInfo extends Info {
         }
 
         return vIndex * Generator.WORD_SIZE;
+    }
+
+    /**
+     * @return Returns offset of instance variable from start of the object.
+     */
+    public int getInstanceVariableOffset() {
+        return getOffset();
     }
 }

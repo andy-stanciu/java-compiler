@@ -1,0 +1,16 @@
+ERROR @ ThisCtorFail.java:82: Symbol "Y()" is already defined
+ERROR @ ThisCtorFail.java:98: Symbol "Y(int[])" is already defined
+ERROR @ ThisCtorFail.java:102: Symbol "Y(int[],int[],int)" is already defined
+ERROR @ ThisCtorFail.java:19: Cannot resolve constructor invocation in class "B" with argument(s) int, int
+ERROR @ ThisCtorFail.java:24: Call to "this()" must be first statement in constructor body
+ERROR @ ThisCtorFail.java:24: Recursive constructor invocation in class "B" with argument(s) int
+ERROR @ ThisCtorFail.java:30: Recursive constructor invocation in class "Foo"
+ERROR @ ThisCtorFail.java:36: Cannot resolve constructor invocation in class "Bar" with argument(s) int
+ERROR @ ThisCtorFail.java:45: Call to "this()" is only allowed in a constructor body
+ERROR @ ThisCtorFail.java:63: Recursive constructor invocation in class "Baz" with argument(s) int, int, int
+ERROR @ ThisCtorFail.java:73: Recursive constructor invocation in class "X" with argument(s) int
+ERROR @ ThisCtorFail.java:79: Recursive constructor invocation in class "Y"
+ERROR @ ThisCtorFail.java:87: Recursive constructor invocation in class "Y" with argument(s) int
+ERROR @ ThisCtorFail.java:109: Recursive constructor invocation in class "Z"
+ERROR @ ThisCtorFail.java:117: Recursive constructor invocation in class "Z" with argument(s) int
+Static semantic analysis found 15 error(s), 0 warning(s)
