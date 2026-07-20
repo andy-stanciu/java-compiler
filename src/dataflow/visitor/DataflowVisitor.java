@@ -537,6 +537,11 @@ public final class DataflowVisitor extends LazyVisitor {
     }
 
     @Override
+    public void visit(NullLiteral n) {
+        System.out.print("null");
+    }
+
+    @Override
     public void visit(True n) {
         System.out.print("true");
     }

@@ -360,6 +360,9 @@ public final class LiveVariableVisitor extends LazyVisitor {
     public void visit(StringLiteral n) {}
 
     @Override
+    public void visit(NullLiteral n) {}
+
+    @Override
     public void visit(True n) {}
 
     @Override

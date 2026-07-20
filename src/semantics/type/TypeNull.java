@@ -2,15 +2,15 @@ package semantics.type;
 
 import lombok.Getter;
 
-public class TypeString extends TypeSingular {
+public class TypeNull extends Type {
     @Getter
-    private static final TypeString instance = new TypeString();
+    private static final TypeNull instance = new TypeNull();
 
-    private TypeString() {}
+    private TypeNull() {}
 
     @Override
     public boolean isAssignableTo(Type other) {
-        return equals(other);
+        return !(other instanceof TypePrimitive);
     }
 
     @Override
@@ -20,7 +20,7 @@ public class TypeString extends TypeSingular {
 
     @Override
     public boolean comparableTo(Type other) {
-        return other == TypeNull.getInstance() || equals(other);
+        return isAssignableTo(other);
     }
 
     @Override
@@ -30,6 +30,6 @@ public class TypeString extends TypeSingular {
 
     @Override
     public String toString() {
-        return "String";
+        return "null";
     }
 }

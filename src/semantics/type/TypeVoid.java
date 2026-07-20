@@ -19,6 +19,11 @@ public class TypeVoid extends Type {
     }
 
     @Override
+    public boolean comparableTo(Type other) {
+        return equals(other);
+    }
+
+    @Override
     public int getSimilarity(Type other) {
         return isAssignableTo(other) ? 0 : Integer.MAX_VALUE;
     }

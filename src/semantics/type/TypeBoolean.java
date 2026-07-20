@@ -2,7 +2,7 @@ package semantics.type;
 
 import lombok.Getter;
 
-public class TypeBoolean extends TypeSingular {
+public class TypeBoolean extends TypePrimitive {
     @Getter
     private static final TypeBoolean instance = new TypeBoolean();
 
@@ -16,6 +16,11 @@ public class TypeBoolean extends TypeSingular {
     @Override
     public boolean equals(Type other) {
         return this == other || other == TypeUnknown.getInstance();
+    }
+
+    @Override
+    public boolean comparableTo(Type other) {
+        return equals(other);
     }
 
     @Override

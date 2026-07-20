@@ -36,9 +36,12 @@ public final class SyntheticFunctionRegistry {
         register(new ConcatBoolString(isa));
         register(new ConcatStringInt(isa));
         register(new ConcatIntString(isa));
+        register(new ConcatNullString(isa));
+        register(new ConcatStringNull(isa));
         register(new LoadStringTrue(isa));
         register(new LoadStringFalse(isa));
         register(new LoadStringInt(isa));
+        register(new LoadStringNull(isa));
     }
 
     private void register(final SyntheticFunctionDefinition definition) {

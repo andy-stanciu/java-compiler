@@ -23,6 +23,11 @@ void put_bool(int64_t b) {
   printf(b ? "true\n" : "false\n");
 }
 
+/* Write null literal to standard output */
+void put_null() {
+  printf("null\n");
+}
+
 /*
  *  jcalloc returns a pointer to a chunk of memory with at least
  *  num_bytes available.  Returned storage has been zeroed out.
@@ -56,6 +61,12 @@ void exception_array_size(int64_t s, int64_t l) {
 /* Write division exception to standard error and exit with failure */
 void exception_division(int64_t l) {
   fprintf(stderr, "Error on line %" PRId64 ": Division by zero\n", l);
+  exit(1);
+}
+
+/* Write null pointer exception to standard error and exit with failure */
+void exception_null_pointer(int64_t l) {
+  fprintf(stderr, "Error on line %" PRId64 ": Null pointer exception\n", l);
   exit(1);
 }
 

@@ -19,6 +19,11 @@ public class TypeUnknown extends TypeSingular {
     }
 
     @Override
+    public boolean comparableTo(Type other) {
+        return true;
+    }
+
+    @Override
     public int getSimilarity(Type other) {
         return 0;
     }

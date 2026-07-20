@@ -385,11 +385,11 @@ public final class LocalVisitor extends LazyVisitor {
     @Override
     public void visit(Print n) {
         n.e.accept(this);
-        if (!n.e.eval().type.isAssignableTo(TypeInt.getInstance()) &&
-            !n.e.eval().type.isAssignableTo(TypeBoolean.getInstance()) &&
-            !n.e.eval().type.isAssignableTo(TypeString.getInstance())) {
-            logger.logError("Print statement expected int, boolean, or string, but provided %s%n",
-                    n.e.eval().type);
+        if (n.e.eval().type.isUnknown()) {
+            return;
+        }
+        if (n.e.eval().type.equals(TypeVoid.getInstance())) {
+            logger.logError("Print statement provided %s%n", n.e.eval().type);
         }
     }
 
@@ -404,7 +404,9 @@ public final class LocalVisitor extends LazyVisitor {
                 new Pair<>(TypeInt.getInstance(), TypeInt.getInstance()),
                 new Pair<>(TypeString.getInstance(), TypeString.getInstance()),
                 new Pair<>(TypeString.getInstance(), TypeInt.getInstance()),
-                new Pair<>(TypeString.getInstance(), TypeBoolean.getInstance()));
+                new Pair<>(TypeString.getInstance(), TypeBoolean.getInstance()),
+                new Pair<>(TypeString.getInstance(), TypeNull.getInstance()),
+                new Pair<>(TypeNull.getInstance(), TypeString.getInstance()));
     }
 
     @Override
@@ -495,12 +497,12 @@ public final class LocalVisitor extends LazyVisitor {
 
     @Override
     public void visit(Equal n) {
-        visitBinaryExpEqualTypes(n, "==", TypeBoolean.getInstance());
+        visitBinaryExpComparableTypes(n, "==", TypeBoolean.getInstance());
     }
 
     @Override
     public void visit(NotEqual n) {
-        visitBinaryExpEqualTypes(n, "!=", TypeBoolean.getInstance());
+        visitBinaryExpComparableTypes(n, "!=", TypeBoolean.getInstance());
     }
 
     @Override
@@ -587,6 +589,16 @@ public final class LocalVisitor extends LazyVisitor {
         }
         // bool + string
         if (lhs.equals(TypeBoolean.getInstance()) && rhs.equals(TypeString.getInstance())) {
+            n.type = TypeString.getInstance();
+            return;
+        }
+        // string + null
+        if (lhs.equals(TypeString.getInstance()) && rhs.equals(TypeNull.getInstance())) {
+            n.type = TypeString.getInstance();
+            return;
+        }
+        // null + string
+        if (lhs.equals(TypeNull.getInstance()) && rhs.equals(TypeString.getInstance())) {
             n.type = TypeString.getInstance();
             return;
         }
@@ -763,7 +775,7 @@ public final class LocalVisitor extends LazyVisitor {
         n.e1.accept(this);  // true expression
         n.e2.accept(this);  // false expression
 
-        if (!n.e1.eval().type.equals(n.e2.eval().type)) {
+        if (!n.e1.eval().type.comparableTo(n.e2.eval().type)) {
             logger.logError("Ternary expression cannot be applied to %s, %s%n",
                     n.e1.eval().type, n.e2.eval().type);
             n.type = TypeUnknown.getInstance();
@@ -803,6 +815,11 @@ public final class LocalVisitor extends LazyVisitor {
     @Override
     public void visit(StringLiteral n) {
         n.type = TypeString.getInstance();
+    }
+
+    @Override
+    public void visit(NullLiteral n) {
+        n.type = TypeNull.getInstance();
     }
 
     @Override
@@ -997,36 +1014,21 @@ public final class LocalVisitor extends LazyVisitor {
 
     /**
      * Visits the specified binary expression that expects LHS and RHS types
-     * to be equal.
+     * to be comparable.
      * @param n The binary expression to visit.
      * @param sym The symbol associated with the binary expression.
      * @param result The result type of the binary expression.
-     * @param accepted The types to accept (optional). If a type is accepted,
-     *                 both the LHS and RHS must have that type.
      */
-    private void visitBinaryExpEqualTypes(BinaryExp n, String sym, Type result, Type... accepted) {
+    private void visitBinaryExpComparableTypes(BinaryExp n,
+                                               String sym,
+                                               Type result) {
         n.e1.accept(this);
         n.e2.accept(this);
 
-        if (!n.e1.eval().type.equals(n.e2.eval().type)) {
+        if (!n.e1.eval().type.comparableTo(n.e2.eval().type)) {
             logger.logError("Operator %s cannot be applied to %s, %s%n",
                     sym, n.e1.eval().type, n.e2.eval().type);
-        } else {
-            if (accepted != null && accepted.length > 0) {
-                boolean legal = false;
-                for (var type : accepted) {
-                    if (n.e1.eval().type.equals(type)) {
-                        legal = true;
-                    }
-                }
-
-                if (!legal) {
-                    logger.logError("Operator %s cannot be applied to %s, %s%n",
-                            sym, n.e1.eval().type, n.e2.eval().type);
-                }
-            }
         }
-
         n.type = result;
     }
 

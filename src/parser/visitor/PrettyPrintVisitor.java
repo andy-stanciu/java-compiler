@@ -859,6 +859,10 @@ public final class PrettyPrintVisitor extends LazyVisitor {
         System.out.print("false");
     }
 
+    public void visit(NullLiteral n) {
+        System.out.print("null");
+    }
+
     public void visit(IdentifierExp n) {
         System.out.print(n.s);
     }

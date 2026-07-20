@@ -11,10 +11,7 @@ import codegen.platform.isa.ISA;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 import semantics.info.Signature;
 import semantics.table.SymbolContext;
-import semantics.type.TypeBoolean;
-import semantics.type.TypeInt;
-import semantics.type.TypeObject;
-import semantics.type.TypeString;
+import semantics.type.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -490,32 +487,48 @@ public final class CodeGenVisitor extends LazyVisitor {
         if (n.e.eval().type.equals(TypeInt.getInstance())) {
             generator.genBinary(MOV, RAX, RDI);
             generator.genCall(CFunction.PRINT);
-        } else if (n.e.eval().type.equals(TypeString.getInstance())) {
-            var printLabel = generator.nextLabel("print");
-            var printTest = generator.nextLabel("print_test");
-            generator.genBinary(MOV, Immediate.of(1), RDX);  // string index in rdx
-            generator.genBinary(MOV, Memory.of(RAX, 0), RCX);  // load len(str) in rcx
-            generator.genUnary(JMP, printTest);
-            generator.genLabel(printLabel);
-            generator.genBinary(MOV, MemoryScaledIndex.of(RAX, RDX, Generator.WORD_SIZE, 0), RDI);  // deref str[i] into rdi
-            generator.genPush(RAX);  // save str
-            generator.genPush(RDX);  // save i
-            generator.genPush(RCX);  // save len(str)
-            generator.genCall(CFunction.PRINTC);  // call printc with str[i] in rdi
-            generator.genPop(RCX);  // restore len(str)
-            generator.genPop(RDX);  // restore i
-            generator.genPop(RAX);  // restore str
-            generator.genBinary(ADD, Immediate.of(1), RDX);  // i++
-            generator.genLabel(printTest);
-            generator.genBinary(CMP, RCX, RDX);
-            generator.genUnary(JLE, printLabel);
-            generator.genBinary(MOV, Immediate.of('\n'), RDI);
-            generator.genCall(CFunction.PRINTC);  // print newline
         } else if (n.e.eval().type.equals(TypeBoolean.getInstance())) {
             generator.genBinary(MOV, RAX, RDI);
             generator.genCall(CFunction.PRINTB);
         } else {
-            throw new IllegalStateException();
+            // some sort of reference type: print null iff 0, string if non-null string, otherwise memory address
+            // (mem addr obviously will be different from java, but okay)
+            var printNullLabel = generator.nextLabel("print_null");
+            var printDone = generator.nextLabel("print_done");
+            generator.genBinary(CMP, Immediate.of(0), RAX);
+            generator.genUnary(JE, printNullLabel);
+            if (n.e.eval().type.equals(TypeString.getInstance())) { // print as string
+                var printLabel = generator.nextLabel("print");
+                var printTest = generator.nextLabel("print_test");
+                generator.genBinary(MOV, Immediate.of(1), RDX);  // string index in rdx
+                generator.genBinary(MOV, Memory.of(RAX, 0), RCX);  // load len(str) in rcx
+                generator.genUnary(JMP, printTest);
+                generator.genLabel(printLabel);
+                generator.genBinary(MOV, MemoryScaledIndex.of(RAX, RDX, Generator.WORD_SIZE, 0), RDI);  // deref str[i] into rdi
+                generator.genPush(RAX);  // save str
+                generator.genPush(RDX);  // save i
+                generator.genPush(RCX);  // save len(str)
+                generator.genCall(CFunction.PRINTC);  // call printc with str[i] in rdi
+                generator.genPop(RCX);  // restore len(str)
+                generator.genPop(RDX);  // restore i
+                generator.genPop(RAX);  // restore str
+                generator.genBinary(ADD, Immediate.of(1), RDX);  // i++
+                generator.genLabel(printTest);
+                generator.genBinary(CMP, RCX, RDX);
+                generator.genUnary(JLE, printLabel);
+                generator.genBinary(MOV, Immediate.of('\n'), RDI);
+                generator.genCall(CFunction.PRINTC);  // print newline
+            } else { // print as mem addr
+                generator.genPush(RAX);
+                generator.genBinary(MOV, Immediate.of('@'), RDI); // memory addr symbol
+                generator.genCall(CFunction.PRINTC);
+                generator.genPop(RDI);
+                generator.genCall(CFunction.PRINT); // print addr as int
+            }
+            generator.genUnary(JMP, printDone);
+            generator.genLabel(printNullLabel);
+            generator.genCall(CFunction.PRINTN);
+            generator.genLabel(printDone);
         }
     }
 
@@ -537,6 +550,8 @@ public final class CodeGenVisitor extends LazyVisitor {
                     g.genCall(SyntheticFunction.CONCAT_STRING_INT);
                 } else if (n.e2.eval().type.equals(TypeBoolean.getInstance())) {
                     g.genCall(SyntheticFunction.CONCAT_STRING_BOOL);
+                } else if (n.e2.eval().type.equals(TypeNull.getInstance())) {
+                    g.genCall(SyntheticFunction.CONCAT_STRING_NULL);
                 } else {
                     throw new IllegalStateException();
                 }
@@ -813,6 +828,14 @@ public final class CodeGenVisitor extends LazyVisitor {
             // int + string
             generator.genBinary(MOV, RAX, RSI);
             generator.genCall(SyntheticFunction.CONCAT_INT_STRING);
+        } else if (lhs.equals(TypeNull.getInstance()) && rhs.equals(TypeString.getInstance())) {
+            // null + string
+            generator.genBinary(MOV, RAX, RSI);
+            generator.genCall(SyntheticFunction.CONCAT_NULL_STRING);
+        } else if (lhs.equals(TypeString.getInstance()) && rhs.equals(TypeNull.getInstance())) {
+            // string + null
+            generator.genBinary(MOV, RAX, RSI);
+            generator.genCall(SyntheticFunction.CONCAT_STRING_NULL);
         } else {
             // no other type combinations should have gotten through at this point
             throw new IllegalStateException();
@@ -905,6 +928,9 @@ public final class CodeGenVisitor extends LazyVisitor {
         boolean assignable = generator.isAssignable();
 
         n.e1.accept(this);
+        generator.genBinary(CMP, Immediate.of(0), RAX);
+        generator.genBinary(MOV, Immediate.of(n.lineNumber), RDI);
+        generator.genUnary(JE, Label.of("exception_null_pointer"));
         generator.genPush(RAX);  // push arr ptr
         for (int i = 0; i < n.getDimensionCount(); i++) {
             n.el.get(i).accept(this);
@@ -927,6 +953,9 @@ public final class CodeGenVisitor extends LazyVisitor {
     @Override
     public void visit(ArrayLength n) {
         n.e.accept(this);
+        generator.genBinary(CMP, Immediate.of(0), RAX);
+        generator.genBinary(MOV, Immediate.of(n.lineNumber), RDI);
+        generator.genUnary(JE, Label.of("exception_null_pointer"));
         generator.genBinary(MOV, Memory.of(RAX, 0), RAX);
     }
 
@@ -939,6 +968,9 @@ public final class CodeGenVisitor extends LazyVisitor {
     public void visit(Call n) {
         var context = generator.pop();
         n.e.accept(this);
+        generator.genBinary(CMP, Immediate.of(0), RAX);
+        generator.genBinary(MOV, Immediate.of(n.lineNumber), RDI);
+        generator.genUnary(JE, Label.of("exception_null_pointer"));
         generator.genPush(RAX);  // push obj ptr onto stack
 
         var class_ = ((TypeObject) n.e.eval().type).base;
@@ -983,6 +1015,9 @@ public final class CodeGenVisitor extends LazyVisitor {
         var context = generator.pop();
         boolean assignable = generator.isAssignable();
         n.e.accept(this);
+        generator.genBinary(CMP, Immediate.of(0), RAX);
+        generator.genBinary(MOV, Immediate.of(n.lineNumber), RDI);
+        generator.genUnary(JE, Label.of("exception_null_pointer"));
 
         var class_ = ((TypeObject) n.e.eval().type).base;
         var v = symbolContext.lookupInstanceVariable(n.i.s, class_);
@@ -1063,6 +1098,8 @@ public final class CodeGenVisitor extends LazyVisitor {
         generator.genPush(RAX);  // push vtable ptr on stack
         n.e.accept(this);
         generator.genPop(RDX);  // pop vtable ptr into rdx
+        generator.genBinary(CMP, Immediate.of(0), RAX); // initial null ptr check
+        generator.genUnary(JE, endInstanceOfLabel);  // if null, jump to end (rax = 0)
         generator.genLabel(instanceOfLabel);
         generator.genBinary(MOV, Memory.of(RAX, 0), RAX);  // load vtable ptr of obj
         generator.genBinary(CMP, Immediate.of(0), RAX);  // check if vtable ptr is null
@@ -1085,6 +1122,11 @@ public final class CodeGenVisitor extends LazyVisitor {
     @Override
     public void visit(IntegerLiteral n) {
         generator.genBinary(MOV, Immediate.of(n.i), RAX);
+    }
+
+    @Override
+    public void visit(NullLiteral n) {
+        generator.genBinary(MOV, Immediate.of(0), RAX);
     }
 
     @Override

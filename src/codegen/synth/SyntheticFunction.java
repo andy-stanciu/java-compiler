@@ -11,8 +11,11 @@ public enum SyntheticFunction {
     CONCAT_BOOL_STRING("concat_bool_string"),
     CONCAT_STRING_INT("concat_string_int"),
     CONCAT_INT_STRING("concat_int_string"),
+    CONCAT_NULL_STRING("concat_null_string"),
+    CONCAT_STRING_NULL("concat_string_null"),
     LOAD_STRING_TRUE("load_string_true"),
     LOAD_STRING_FALSE("load_string_false"),
+    LOAD_STRING_NULL("load_string_null"),
     LOAD_STRING_INT("load_string_int"),
     ;
 

@@ -56,6 +56,7 @@ public abstract class LazyVisitor implements Visitor {
     public void visit(AssignSimple n) { throw new UnsupportedOperationException(); }
 
     public void visit(AssignPlus n) { throw new UnsupportedOperationException(); }
+
     public void visit(AssignMinus n) { throw new UnsupportedOperationException(); }
 
     public void visit(AssignTimes n) { throw new UnsupportedOperationException(); }
@@ -147,6 +148,8 @@ public abstract class LazyVisitor implements Visitor {
     public void visit(IntegerLiteral n) { throw new UnsupportedOperationException(); }
 
     public void visit(StringLiteral n) { throw new UnsupportedOperationException(); }
+
+    public void visit(NullLiteral n) { throw new UnsupportedOperationException(); }
 
     public void visit(True n) { throw new UnsupportedOperationException(); }
 

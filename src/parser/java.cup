@@ -9,7 +9,7 @@ import java_cup.runtime.*;
 /* reserved words */
 terminal BOOLEAN, BREAK, CASE, CLASS, DEFAULT, ELSE, EXTENDS, FALSE, FOR, IF, INSTANCEOF,
          INT, LENGTH, MAIN, NEW, PUBLIC, RETURN, STATIC, STRING, SWITCH, PRINT, THIS, TRUE,
-         VOID, WHILE, SUPER;
+         VOID, WHILE, SUPER, NULL;
 
 /* operators */
 terminal PLUS, MINUS, TIMES, DIV, MOD, LSHIFT, RSHIFT, URSHIFT, LESS_THAN,
@@ -63,6 +63,7 @@ nonterminal Expression Literal;
 nonterminal Expression IntegerLiteral;
 nonterminal Expression StringLiteral;
 nonterminal Expression BooleanLiteral;
+nonterminal Expression NullLiteral;
 nonterminal Expression ParenthesizedExpression;
 nonterminal Expression BinaryExpression;
 nonterminal Expression Field;
@@ -411,6 +412,8 @@ Literal                 ::= IntegerLiteral:l
                               {: RESULT = l; :} 
                           | BooleanLiteral:l
                               {: RESULT = l; :}
+                          | NullLiteral:l
+                              {: RESULT = l; :}
                           ;
 
 IntegerLiteral          ::= INT_LITERAL:n
@@ -425,6 +428,10 @@ BooleanLiteral          ::= TRUE:t
                               {: RESULT = new True(txleft); :}
                           | FALSE:f
                               {: RESULT = new False(fxleft); :}
+                          ;
+
+NullLiteral             ::= NULL:n
+                              {: RESULT = new NullLiteral(nxleft); :}
                           ;
 
 ParenthesizedExpression ::= LPAREN Expression:e RPAREN

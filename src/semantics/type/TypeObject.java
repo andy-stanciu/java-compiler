@@ -40,6 +40,11 @@ public class TypeObject extends TypeSingular {
     }
 
     @Override
+    public boolean comparableTo(Type other) {
+        return other == TypeNull.getInstance() || equals(other);
+    }
+
+    @Override
     public int getSimilarity(Type other) {
         if (other instanceof TypeObject obj) {
             if (base.isMain() || obj.base.isMain()) {

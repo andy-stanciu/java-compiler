@@ -148,6 +148,8 @@ public interface Visitor {
 
     void visit(StringLiteral n);
 
+    void visit(NullLiteral n);
+
     void visit(True n);
 
     void visit(False n);
