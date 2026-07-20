@@ -12,6 +12,7 @@ public final class CFunctionMapper {
         cFunctions.put(CFunction.PRINT, Label.of("put"));
         cFunctions.put(CFunction.PRINTC, Label.of("put_char"));
         cFunctions.put(CFunction.PRINTB, Label.of("put_bool"));
+        cFunctions.put(CFunction.PRINTN, Label.of("put_null"));
     }
 
     public static Label map(CFunction func) {

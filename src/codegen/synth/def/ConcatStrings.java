@@ -21,11 +21,29 @@ public class ConcatStrings extends SyntheticFunctionDefinition {
 
     /**
      * Concatenates two strings.
-     * RDI: pointer to first string
-     * RSI: pointer to second string
+     * RDI: nullable pointer to first string
+     * RSI: nullable pointer to second string
      */
     @Override
     protected void generate() {
+        // first, need to null check strings
+        var concatReady1 = generator.nextLabel("concat_ready1");
+        var concatReady2 = generator.nextLabel("concat_ready2");
+        generator.genBinary(CMP, Immediate.of(0), RDI);
+        generator.genUnary(JNE, concatReady1);
+        generator.genPush(RSI);
+        generator.genCall(SyntheticFunction.LOAD_STRING_NULL);
+        generator.genPop(RSI);
+        generator.genBinary(MOV, RAX, RDI); // load "null" into rdi
+        generator.genLabel(concatReady1);
+        generator.genBinary(CMP, Immediate.of(0), RSI);
+        generator.genUnary(JNE, concatReady2);
+        generator.genPush(RDI);
+        generator.genCall(SyntheticFunction.LOAD_STRING_NULL);
+        generator.genPop(RDI);
+        generator.genBinary(MOV, RAX, RSI); // load "null" into rsi
+        generator.genLabel(concatReady2);
+        // now, ready to concat strings
         generator.genBinary(MOV, Memory.of(RSI, 0), RCX);
         generator.genBinary(ADD, Memory.of(RDI, 0), RCX);  // sum of str lengths in rcx
         generator.genPush(RSI);  // rhs str ptr
@@ -77,6 +95,18 @@ public class ConcatStrings extends SyntheticFunctionDefinition {
         generator.genLabel(concatBoolDoneLabel);
         generator.genPop(strReg);
         generator.genBinary(MOV, RAX, boolReg);
+    }
+
+    /**
+     * Helper function that concatenates a string and a null pointer.
+     * @param strReg Register containing pointer to a string.
+     * @param nullReg Register containing null pointer.
+     */
+    protected void concatNull(Register strReg, Register nullReg) {
+        generator.genPush(strReg);
+        generator.genCall(SyntheticFunction.LOAD_STRING_NULL);
+        generator.genPop(strReg);
+        generator.genBinary(MOV, RAX, nullReg);
     }
 
     /**

@@ -28,6 +28,11 @@ public class TypeArray extends Type {
     }
 
     @Override
+    public boolean comparableTo(Type other) {
+        return other == TypeNull.getInstance() || equals(other);
+    }
+
+    @Override
     public int getSimilarity(Type other) {
         if (other instanceof TypeArray otherArray && dimension == otherArray.dimension) {
             return type.getSimilarity(otherArray.type);

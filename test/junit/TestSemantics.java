@@ -53,6 +53,16 @@ public class TestSemantics {
     }
 
     @Test
+    public void testNullLiteral() {
+        runSemanticsSuccessTestCase("NullLiteral");
+    }
+
+    @Test
+    public void testNullFail() {
+        runSemanticsFailTestCase("NullFail");
+    }
+
+    @Test
     public void testComplexAssign() {
         runSemanticsSuccessTestCase("ComplexAssign");
     }

@@ -1,0 +1,15 @@
+ERROR @ NullFail.java:15: Cannot assign null to int
+ERROR @ NullFail.java:16: Cannot assign null to boolean
+ERROR @ NullFail.java:18: If statement condition expected boolean, but provided null
+ERROR @ NullFail.java:24: While loop condition expected boolean, but provided null
+ERROR @ NullFail.java:29: Array index expected an int, but provided null
+ERROR @ NullFail.java:31: Cannot assign to expression
+ERROR @ NullFail.java:32: Expected reference type for method invocation, but provided null
+ERROR @ NullFail.java:34: Operator + cannot be applied to null, int
+ERROR @ NullFail.java:35: Operator + cannot be applied to null, int
+ERROR @ NullFail.java:35: Cannot assign int to String
+ERROR @ NullFail.java:36: Operator < cannot be applied to null, BadNull
+ERROR @ NullFail.java:38: Method "run" expected to return int, but provided null
+ERROR @ NullFail.java:45: Cannot assign to expression
+ERROR @ NullFail.java:45: Cannot assign to expression
+Static semantic analysis found 14 error(s), 0 warning(s)

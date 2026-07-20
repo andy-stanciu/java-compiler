@@ -5,5 +5,6 @@ public enum CFunction {
     MEMCOPY,
     PRINT,
     PRINTC,
-    PRINTB
+    PRINTB,
+    PRINTN
 }
